@@ -11,6 +11,7 @@ ApplicationWindow {
     height: 700
     title: "Dashboard mit animierter Sidebar"
     color: Style.background
+    visibility: Window.Maximized
 
     // Properties für Navigation
     property int activeIndex: -1
@@ -40,12 +41,17 @@ ApplicationWindow {
 
         // Abrechnungsseite laden und goHome verbinden
         Component.onCompleted: {
-            stackView.push({
-                item: Qt.createComponent("Abrechnungsseite.qml"),
-                properties: {
-                    goHome: function() { stackVisible = false; }
-                }
-            })
+            var abrechnungsComponent = Qt.createComponent("Abrechnungsseite.qml")
+            if (abrechnungsComponent.status === Component.Ready) {
+                stackView.push({
+                    item: abrechnungsComponent,
+                    properties: {
+                        goHome: function() { stackVisible = false; }
+                    }
+                })
+            } else {
+                console.log("Fehler beim Laden der Abrechnungsseite:", abrechnungsComponent.errorString())
+            }
         }
     }
 
@@ -203,6 +209,17 @@ ApplicationWindow {
                 }
             }
         }
+    }
+
+    LoaderWithTerminal {
+        id: loaderOverlay
+        anchors.centerIn: parent
+        visible: salaryLoaderBackend.show_loader
+        statusText: "Import läuft..."
+        terminalContent: salaryLoaderBackend.terminal_content
+        processFinished: salaryLoaderBackend.process_finished
+        showTerminal: true
+        z: 9999
     }
 
     // Funktionen

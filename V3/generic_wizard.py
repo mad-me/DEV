@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QHBoxLayout, QStackedWidget, QMessageBox, QDateEdit, QComboBox
+    QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QHBoxLayout, QStackedWidget, QMessageBox, QDateEdit, QComboBox, QStyledItemDelegate
 )
 from PySide6.QtCore import Qt, QTimer, QDate, QRect
 from db_manager import DBManager
@@ -28,6 +28,11 @@ class HoverIconButton(QPushButton):
         self.setIcon(self.icon_normal)
         self.setIconSize(self.icon_size)
         super().leaveEvent(event)
+
+class CenteredComboDelegate(QStyledItemDelegate):
+    def initStyleOption(self, option, index):
+        super().initStyleOption(option, index)
+        option.displayAlignment = Qt.AlignmentFlag.AlignCenter
 
 class GenericWizard(QWidget):
     def __init__(self, fields, callback=None, db_table=None, parent=None, title="Wizard", geometry_source=None):
@@ -126,6 +131,13 @@ class GenericWizard(QWidget):
         self.stack = QStackedWidget()
         layout.addWidget(self.stack)
 
+        # Multi-Step-Erweiterung (abwärtskompatibel)
+        if fields and isinstance(fields[0], (list, tuple)) and isinstance(fields[0][0], (list, tuple)):
+            # Multi-Step-Modus: Felder aller Seiten zu einer flachen Liste machen
+            self.fields = [f for page in fields for f in page]
+        else:
+            # Single-Step-Modus: wie bisher
+            self.fields = fields
         self.create_pages()
         QTimer.singleShot(50, self.set_initial_focus)
         self.show()
@@ -137,12 +149,9 @@ class GenericWizard(QWidget):
         for i, field_config in enumerate(self.fields):
             label_text, db_column, input_type = field_config[:3]
             options = field_config[3] if len(field_config) > 3 else []
-            
             page = QWidget()
             page_layout = QVBoxLayout(page)
             page_layout.setContentsMargins(20, 60, 20, 40)
-            page_layout.addStretch(3)
-
             label = QLabel(label_text.upper())
             label.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
             label.setStyleSheet("font-size: 18pt; letter-spacing: 2px; color: #aaa;")
@@ -150,8 +159,7 @@ class GenericWizard(QWidget):
             label_wrapper.addStretch()
             label_wrapper.addWidget(label)
             page_layout.addLayout(label_wrapper)
-
-            # --- Widget-Erstellung basierend auf input_type ---
+            # --- Widget-Erstellung wie bisher ---
             field: QWidget
             if input_type == "date":
                 field = QDateEdit()
@@ -165,28 +173,31 @@ class GenericWizard(QWidget):
                 le = field.lineEdit()
                 if le is not None:
                     le.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                    le.setReadOnly(True)
+                field.setItemDelegate(CenteredComboDelegate(field))
+                field.setStyleSheet("QComboBox { text-align: center; } QComboBox QAbstractItemView { text-align: center; }")
+                le = field.lineEdit()
+                if le is not None:
+                    le.setAlignment(Qt.AlignmentFlag.AlignCenter)
                     le.returnPressed.connect(self.next_page)
             else: # "text" or default
                 field = QLineEdit()
                 field.textChanged.connect(lambda _, w=field: self.adjust_font_size(w))
                 field.returnPressed.connect(self.next_page)
-
             field.setMinimumHeight(110)
             field.setMinimumWidth(850)
             if isinstance(field, (QLineEdit, QDateEdit)):
-                 field.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                field.setAlignment(Qt.AlignmentFlag.AlignCenter)
             field.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-            
             if hasattr(field, "setFont"):
-                 font = field.font()
-                 font.setPointSize(44)
-                 field.setFont(font)
-
-            # --- Pfeil-Navigation ---
+                font = field.font()
+                font.setPointSize(44)
+                field.setFont(font)
+            self.inputs[db_column] = field
+            # --- Navigationszeile: Pfeile und Eingabefeld in einer Zeile ---
             nav_row = QHBoxLayout()
             nav_row.setSpacing(20)
             nav_row.addStretch()
-            # Linker Pfeil (nur wenn nicht erste Seite)
             if i > 0:
                 btn_prev = QPushButton()
                 btn_prev.setObjectName("btn_prev")
@@ -210,9 +221,7 @@ class GenericWizard(QWidget):
                 nav_row.addWidget(btn_prev)
             else:
                 nav_row.addSpacing(60)
-            # Eingabefeld
             nav_row.addWidget(field, stretch=2)
-            # Rechter Pfeil (außer letzte Seite)
             if i < len(self.fields) - 1:
                 btn_next = QPushButton()
                 btn_next.setObjectName("btn_next")
@@ -248,7 +257,6 @@ class GenericWizard(QWidget):
             nav_row.addStretch()
             page_layout.addSpacing(40)
             page_layout.addLayout(nav_row)
-
             # X-Button zentriert zwischen Eingabefeld und unterem Rand
             x_row = QHBoxLayout()
             x_row.addStretch()
@@ -265,10 +273,7 @@ class GenericWizard(QWidget):
             x_row.addStretch()
             page_layout.addSpacing(30)
             page_layout.addLayout(x_row)
-            page_layout.addStretch(5)
-
             self.stack.addWidget(page)
-            self.inputs[db_column] = field
 
             if db_column == "kennzeichen" and isinstance(field, QLineEdit):
                 def check_license_plate():
@@ -342,7 +347,8 @@ class GenericWizard(QWidget):
         if self.callback:
             self.callback(data)
 
-        self.close()
+        # Verzögerte Schließung, um C++-Objekt-Fehler zu vermeiden
+        QTimer.singleShot(100, self.close)
 
     def close_wizard(self):
         self.close()
@@ -354,3 +360,9 @@ class GenericWizard(QWidget):
         x = screen_geometry.x() + (screen_geometry.width() - self.width()) // 2
         y = screen_geometry.y() + (screen_geometry.height() - self.height()) // 2
         self.move(x, y) 
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Escape:
+            self.close_wizard()
+        else:
+            super().keyPressEvent(event) 

@@ -11,11 +11,20 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Users\moahm\AppData\Local\Programs\
 # Passe diesen Pfad ggf. an deine Poppler-Installation an
 POPPLER_PATH = r"C:\Users\moahm\AppData\Local\Programs\poppler-24.08.0\Library\bin"
 
+# Globale Variable für QApplication
+app = None
+
 
 def normalize_name(name):
     # Nur Buchstaben, alles klein
     return [token for token in re.findall(r'[a-zA-Zäöüß]+', name.lower())]
 
+
+def get_all_drivers(conn):
+    """Holt alle verfügbaren Fahrer aus der Datenbank"""
+    cursor = conn.cursor()
+    cursor.execute("SELECT driver_id, first_name, last_name FROM drivers ORDER BY first_name, last_name")
+    return cursor.fetchall()
 
 def match_driver(dienstnehmer, conn):
     tokens = normalize_name(dienstnehmer)
@@ -34,12 +43,75 @@ def match_driver(dienstnehmer, conn):
             return driver_id
     return None
 
+def show_driver_selection_dialog(dienstnehmer, drivers_list):
+    """Zeigt einen Dialog zur manuellen Fahrerauswahl"""
+    global app
+    if app is None:
+        try:
+            from PyQt6.QtWidgets import QApplication, QDialog, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QPushButton
+            app = QApplication.instance()
+            if app is None:
+                app = QApplication([])
+        except ImportError:
+            print("PyQt6 ist nicht installiert. Bitte installiere es mit 'pip install PyQt6'.")
+            return None
+    
+    dialog = QDialog()
+    dialog.setWindowTitle("Fahrer zuordnen")
+    dialog.setModal(True)
+    
+    layout = QVBoxLayout()
+    
+    # Info-Label
+    info_label = QLabel(f"Kein automatischer Match gefunden für:\n'{dienstnehmer}'\n\nBitte wähle den entsprechenden Fahrer:")
+    layout.addWidget(info_label)
+    
+    # ComboBox für Fahrerauswahl
+    combo = QComboBox()
+    combo.addItem("-- Fahrer auswählen --", None)
+    for driver_id, first_name, last_name in drivers_list:
+        combo.addItem(f"{first_name} {last_name} (ID: {driver_id})", driver_id)
+    layout.addWidget(combo)
+    
+    # Buttons
+    button_layout = QHBoxLayout()
+    ok_button = QPushButton("OK")
+    cancel_button = QPushButton("Abbrechen")
+    button_layout.addWidget(ok_button)
+    button_layout.addWidget(cancel_button)
+    layout.addLayout(button_layout)
+    
+    dialog.setLayout(layout)
+    
+    # Button-Verbindungen
+    selected_driver_id = None
+    
+    def on_ok():
+        nonlocal selected_driver_id
+        selected_driver_id = combo.currentData()
+        dialog.accept()
+    
+    def on_cancel():
+        dialog.reject()
+    
+    ok_button.clicked.connect(on_ok)
+    cancel_button.clicked.connect(on_cancel)
+    
+    # Dialog anzeigen
+    if dialog.exec() == QDialog.DialogCode.Accepted:
+        return selected_driver_id
+    else:
+        return None
+
 
 def import_salarie(pdf_path: Path, salaries_db_path: Path, drivers_db_path: Path):
     """
     Extrahiert Gehaltsdaten aus einer PDF und importiert sie in die Tabelle MM_YY in salaries.db.
     Führt ein 2/3-Token-Matching mit der drivers-Tabelle in drivers_db_path durch.
     """
+    print(f"🔍 Verarbeite Datei: {pdf_path}")
+    print(f"📄 Dateiname: {Path(pdf_path).name}")
+    
     match = re.search(r'Abrechnungen?\s+(\d{2})_(\d{4})', Path(pdf_path).name, re.IGNORECASE)
     if not match:
         print(f"⚠️ Dateiname {pdf_path} entspricht nicht dem Abrechnungs-Muster.")
@@ -48,6 +120,7 @@ def import_salarie(pdf_path: Path, salaries_db_path: Path, drivers_db_path: Path
     month = int(match.group(1))
     year = int(match.group(2))
     table_name = f"{month:02d}_{str(year)[-2:]}"
+    print(f"📊 Erstelle Tabelle: {table_name} (Monat: {month}, Jahr: {year})")
 
     images = convert_from_path(str(pdf_path), dpi=300, poppler_path=POPPLER_PATH)
     patterns = {
@@ -91,11 +164,22 @@ def import_salarie(pdf_path: Path, salaries_db_path: Path, drivers_db_path: Path
     )''')
     conn_salaries.commit()
 
+    # Alle verfügbaren Fahrer laden
+    all_drivers = get_all_drivers(conn_drivers)
+
     for row in payroll_rows:
         dienstnehmer = row.get('Dienstnehmer', '')
         driver_id = match_driver(dienstnehmer, conn_drivers)
-        if not driver_id:
-            print(f"❗ Kein Fahrer-Match für: '{dienstnehmer}' in Tabelle drivers!")
+        
+        # Wenn kein automatischer Match gefunden wurde, zeige Dialog
+        if not driver_id and dienstnehmer.strip():
+            print(f"❗ Kein automatischer Fahrer-Match für: '{dienstnehmer}'")
+            driver_id = show_driver_selection_dialog(dienstnehmer, all_drivers)
+            if driver_id:
+                print(f"✅ Manuell zugeordnet: '{dienstnehmer}' -> Fahrer ID {driver_id}")
+            else:
+                print(f"❌ Keine Zuordnung für: '{dienstnehmer}' (übersprungen)")
+        
         # Werte konvertieren
         def to_float(val):
             try:
@@ -116,7 +200,10 @@ if __name__ == "__main__":
     except ImportError:
         print("PyQt6 ist nicht installiert. Bitte installiere es mit 'pip install PyQt6'.")
         sys.exit(1)
+    
+    # QApplication initialisieren
     app = QApplication(sys.argv)
+    
     dialog = QFileDialog()
     dialog.setWindowTitle("Bitte Gehaltsabrechnungs-PDF auswählen")
     dialog.setNameFilter("PDF-Dateien (*.pdf)")

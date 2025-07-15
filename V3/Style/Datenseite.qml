@@ -19,6 +19,12 @@ Rectangle {
     property string currentView: "icons" // "icons", "import", "charts", "wizard"
     property bool wizardVisible: false
     property string selectedImportType: "umsaetze"
+    
+    // Import-Status Properties (von datenBackend)
+    property bool isImporting: datenBackend.isImporting
+    property int importProgress: datenBackend.importProgress
+    property int importTotalFiles: datenBackend.importTotalFiles
+    property int importCurrentFile: datenBackend.importCurrentFile
 
     // Funktionen für dynamische Texte
     function getImportTypeText() {
@@ -141,9 +147,7 @@ Rectangle {
                         anchors.fill: parent
                         hoverEnabled: true
                         onClicked: {
-                            currentView = "charts"
-                            showDataView = true
-                            loadData()
+                            datenBackend.show_generic_wizard()
                         }
                         cursorShape: Qt.PointingHandCursor
                     }
@@ -629,6 +633,57 @@ Rectangle {
                         }
                     }
                 }
+
+                // NEU: WizardCard für Datenbank-Navigation (unten links)
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 140
+                    color: Style.border
+                    radius: Style.radiusLarge
+                    border.color: Style.border
+                    border.width: 1
+
+                    ColumnLayout {
+                        anchors.fill: parent
+                        anchors.margins: Style.spacingLarge
+                        spacing: Style.spacingNormal
+
+                        Text {
+                            text: "🗄️ Datenbank-Navigation"
+                            font.pixelSize: Style.fontSizeTitle
+                            font.bold: true
+                            color: Style.text
+                        }
+                        // Platzhalter für verkleinerte GenericWizardCard
+                        Rectangle {
+                            width: 80; height: 40
+                            color: "#222"
+                            border.color: "#f79009"
+                            border.width: 1
+                            radius: 8
+                            Text {
+                                anchors.centerIn: parent
+                                text: "Wizard (Mini)"
+                                color: "#fff"
+                                font.pixelSize: 12
+                            }
+                        }
+                        // Dummy-ComboBox für Datenbanken
+                        ComboBox {
+                            id: dbCombo
+                            Layout.fillWidth: true
+                            model: ["Datenbank1", "Datenbank2", "Datenbank3"]
+                            currentIndex: 0
+                        }
+                        // Dummy-ComboBox für Tabellen (sichtbar nach Auswahl)
+                        ComboBox {
+                            id: tableCombo
+                            Layout.fillWidth: true
+                            model: dbCombo.currentIndex === 0 ? ["TabelleA", "TabelleB"] : dbCombo.currentIndex === 1 ? ["TabelleC", "TabelleD"] : ["TabelleE"]
+                            visible: dbCombo.currentIndex >= 0
+                        }
+                    }
+                }
             }
 
             // Mittlere Spalte - Charts
@@ -988,5 +1043,99 @@ Rectangle {
 
     function showMessage(title, message) {
         console.log(title + ": " + message)
+    }
+    
+    // Import-Status-Overlay (integriert)
+    Rectangle {
+        id: importStatusOverlay
+        anchors.fill: parent
+        color: "transparent"
+        visible: isImporting
+        z: 2000  // Über allem anderen
+        
+        // Hintergrund-Overlay
+        Rectangle {
+            anchors.fill: parent
+            color: "#80000000"  // Semi-transparent schwarz
+        }
+        
+        // Haupt-Container
+        Rectangle {
+            width: 400
+            height: 300
+            anchors.centerIn: parent
+            radius: 10
+            color: "#ffffff"
+            border.color: "#cccccc"
+            border.width: 1
+            
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: 20
+                spacing: 15
+                
+                // Titel
+                Text {
+                    text: "Import läuft..."
+                    font.pixelSize: 18
+                    font.bold: true
+                    Layout.alignment: Qt.AlignHCenter
+                }
+                
+                // Spinner/Loader
+                BusyIndicator {
+                    id: spinner
+                    running: isImporting
+                    Layout.alignment: Qt.AlignHCenter
+                    Layout.preferredWidth: 50
+                    Layout.preferredHeight: 50
+                }
+                
+                // Status-Text
+                Text {
+                    id: statusText
+                    text: "Bereite Import vor..."
+                    font.pixelSize: 14
+                    wrapMode: Text.WordWrap
+                    Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignHCenter
+                }
+                
+                // Fortschrittsbalken
+                ProgressBar {
+                    id: progressBar
+                    value: importProgress / 100
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 20
+                }
+                
+                // Fortschritts-Text
+                Text {
+                    text: importCurrentFile + " von " + importTotalFiles + " Dateien verarbeitet"
+                    font.pixelSize: 12
+                    color: "#666666"
+                    Layout.alignment: Qt.AlignHCenter
+                }
+            }
+        }
+        
+        // Connections für Status-Updates
+        Connections {
+            target: datenBackend
+            
+            function onImportStatusChanged(status) {
+                statusText.text = status
+            }
+            
+            function onImportFinished(success, message) {
+                if (success) {
+                    // Erfolgs-Meldung anzeigen
+                    // Entferne die Dialoge und deren open()-Aufrufe
+                } else {
+                    // Fehler-Meldung anzeigen
+                    // Entferne die Dialoge und deren open()-Aufrufe
+                }
+            }
+        }
     }
 } 

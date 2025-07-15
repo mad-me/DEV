@@ -1,5 +1,11 @@
 import sys
 import os
+# Arbeitsverzeichnis auf das Skriptverzeichnis setzen
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+# Qt-Logging reduzieren
+os.environ["QT_LOGGING_RULES"] = "*.debug=false;qt.qpa.*=false;qt.qml.*=false;*.warning=false"
+
 from PySide6.QtCore import QObject, Signal, QUrl, Property
 from PySide6.QtQml import QQmlApplicationEngine
 from PySide6.QtWidgets import QApplication
@@ -10,14 +16,12 @@ from datenseite_qml import DatenSeiteQML
 from mitarbeiter_seite_qml import MitarbeiterSeiteQML
 from fahrzeug_seite_qml import FahrzeugSeiteQML
 from main_menu_qml import MainMenuQML
-
+from salary_loader_backend import SalaryLoaderBackend
 
 class DashboardApp(QObject):
-    def __init__(self):
+    def __init__(self, engine):
         super().__init__()
-
-        # QML Engine erstellen
-        self.engine = QQmlApplicationEngine()
+        self.engine = engine
 
         # Style-Singleton registrieren - WICHTIG!
         current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -34,6 +38,7 @@ class DashboardApp(QObject):
         self.mitarbeiter_backend = MitarbeiterSeiteQML()
         self.fahrzeug_backend = FahrzeugSeiteQML()
         self.main_menu_backend = MainMenuQML()
+        self.salary_loader_backend = SalaryLoaderBackend()
 
         # Backends an QML-Kontext registrieren
         self.engine.rootContext().setContextProperty("abrechnungsBackend", self.abrechnungs_backend)
@@ -41,6 +46,7 @@ class DashboardApp(QObject):
         self.engine.rootContext().setContextProperty("mitarbeiterBackend", self.mitarbeiter_backend)
         self.engine.rootContext().setContextProperty("fahrzeugBackend", self.fahrzeug_backend)
         self.engine.rootContext().setContextProperty("mainMenuBackend", self.main_menu_backend)
+        self.engine.rootContext().setContextProperty("salaryLoaderBackend", self.salary_loader_backend)
 
         # QML-Datei laden
         qml_file = os.path.join(current_dir, "Style/MainMenu.qml")
@@ -68,18 +74,19 @@ class DashboardApp(QObject):
             print("QML-Datei erfolgreich geladen!")
             root_window = self.engine.rootObjects()[0]
             self.abrechnungs_backend.set_root_window(root_window)
-
-
+    
 def main():
     # QApplication für QML-Singleton-Support
     app = QApplication(sys.argv)
+    app.setStyle("Basic")  # Reduziert QML-Style-Warnungen
+    engine = QQmlApplicationEngine()
+    app.engine = engine  # <--- WICHTIG!
 
     # Dashboard-App erstellen und starten
-    dashboard = DashboardApp()
+    dashboard = DashboardApp(engine)
 
     # Event-Loop starten
     sys.exit(app.exec())
-
 
 if __name__ == "__main__":
     main() 

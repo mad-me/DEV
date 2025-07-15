@@ -42,6 +42,9 @@ def verarbeite_datei(csv_datei):
     elif "40100" in filename or "taxi" in filename:
         db_name = "40100.sqlite"
         platform = "40100"
+    elif "31300" in filename:
+        db_name = "31300.sqlite"
+        platform = "31300"
     else:
         print(f"⚠️ Plattform für Datei {filename} nicht erkannt – übersprungen.")
         return
@@ -112,7 +115,7 @@ def verarbeite_datei(csv_datei):
         fahrerliste = lade_fahrerliste()
         df["name"] = df["driver_name"].apply(lambda n: match_name(n, fahrerliste))
 
-    elif platform == "40100":
+    elif platform == "40100" or platform == "31300":
         zielspalten = [
             "Fahrzeug", "Fahrer", "Fahrername", "Abschluss", "Buchungsart",
             "Zahlungsmittel", "Belegtext", "Fahrtkosten", "Trinkgeld", "Umsatz",
@@ -131,8 +134,17 @@ def verarbeite_datei(csv_datei):
     df = df[[col for col in zielspalten if col in df.columns]]
 
     # === Verbindung zur Datenbank
-    conn = sqlite3.connect(db_name)
+    db_path = Path(__file__).resolve().parent / db_name
+    print(f"Importiere in Datenbank: {db_path}")
+    conn = sqlite3.connect(str(db_path))
     cursor = conn.cursor()
+
+    # Prüfen, ob die Tabelle schon existiert
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (tabelle,))
+    if cursor.fetchone():
+        print(f"⚠️ Tabelle {tabelle} existiert bereits in {db_name} – Import übersprungen.")
+        conn.close()
+        return
 
     # === Tabelle anlegen, wenn nicht vorhanden
     create_sql = {
@@ -183,27 +195,29 @@ def verarbeite_datei(csv_datei):
                 week TEXT
             );
         """,
+        "31300": f"""
+            CREATE TABLE IF NOT EXISTS {tabelle} (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                Fahrzeug TEXT,
+                Fahrer TEXT,
+                Fahrername TEXT,
+                Abschluss TEXT,
+                Buchungsart TEXT,
+                Zahlungsmittel TEXT,
+                Belegtext TEXT,
+                Fahrtkosten REAL,
+                Trinkgeld REAL,
+                Umsatz REAL,
+                Bargeld REAL,
+                Auftragsart TEXT,
+                Status TEXT,
+                week TEXT
+            );
+        """,
     }
     cursor.execute(create_sql[platform])
 
-    # === Duplikate prüfen
-    if platform == "uber":
-        check_sql = f"SELECT first_name, last_name FROM {tabelle} WHERE week = ?"
-        merge_cols = ["first_name", "last_name"]
-    elif platform == "bolt":
-        check_sql = f"SELECT driver_name FROM {tabelle} WHERE week = ?"
-        merge_cols = ["driver_name"]
-    elif platform == "40100":
-        check_sql = f"SELECT Fahrername, Abschluss FROM {tabelle} WHERE week = ?"
-        merge_cols = ["Fahrername", "Abschluss"]
-
-    try:
-        existing = pd.read_sql_query(check_sql, conn, params=[kalenderwoche])
-        if not existing.empty:
-            df = df.merge(existing, on=merge_cols, how="left", indicator=True)
-            df = df[df["_merge"] == "left_only"].drop(columns=["_merge"])
-    except:
-        pass
+    # Duplikatprüfung entfernt: Es werden alle Zeilen importiert
 
     if not df.empty:
         df.to_sql(tabelle, conn, if_exists="append", index=False)

@@ -238,6 +238,7 @@ class AbrechnungsSeiteQML(QObject):
     headcardDealValueChanged = Signal()
     headcardDealIconChanged = Signal()
     headcardDealLabelChanged = Signal()
+    headcardGarageChanged = Signal()
     
     def __init__(self):
         super().__init__()
@@ -310,11 +311,38 @@ class AbrechnungsSeiteQML(QObject):
         
     @Property(str, notify=headcardDealIconChanged)
     def headcard_deal_icon(self):
-        return getattr(self, '_headcard_deal_icon', 'assets/icons/receipt_gray.svg')
+        deal = getattr(self, '_deal', '%')
+        if deal == 'P':
+            return 'assets/icons/credit_card_gray.svg'
+        elif deal == "40100" or deal == "31300":
+            return "sales_icon.svg"
+        else:
+            return 'assets/icons/receipt_gray.svg'
         
     @Property(str, notify=headcardDealLabelChanged)
     def headcard_deal_label(self):
         return getattr(self, '_headcard_deal_label', 'Umsatz')
+        
+    @Property(float, notify=headcardGarageChanged)
+    def headcard_garage(self):
+        try:
+            kw = self._wizard_data.get("kw", "") if hasattr(self, '_wizard_data') else ""
+            jahr = datetime.now().year
+            kw_int = int(kw) if kw else None
+            if kw_int is not None:
+                erster_tag_kw = datetime.strptime(f'{jahr}-W{kw_int}-1', "%Y-W%W-%w")
+                monat = erster_tag_kw.month
+                cal = calendar.Calendar(firstweekday=0)
+                montage = [d for d in cal.itermonthdates(jahr, monat) if d.weekday() == 0 and d.month == monat]
+                anzahl_montage = len(montage)
+            else:
+                anzahl_montage = 4
+        except Exception:
+            anzahl_montage = 4
+        garage = getattr(self, '_garage', 0.0)
+        if anzahl_montage == 0:
+            return 0.0
+        return garage / anzahl_montage
         
     @Property(float, notify=ergebnisChanged)
     def ergebnis(self):
@@ -354,6 +382,10 @@ class AbrechnungsSeiteQML(QObject):
         self._inputExpenseText = value
         self.inputExpenseChanged.emit()
         self.update_ergebnis()
+
+    @Property(str)
+    def deal(self):
+        return getattr(self, '_deal', '%')
 
     def load_fahrer(self):
         try:
@@ -504,9 +536,11 @@ class AbrechnungsSeiteQML(QObject):
         kennzeichen_nummer = kennzeichen_match.group(1) if kennzeichen_match else None
         if kennzeichen_nummer:
             table_name = f"report_KW{kw}"
-            db_path = os.path.abspath(os.path.join("SQL", "40100.sqlite"))
+            db_path_40100 = os.path.abspath(os.path.join("SQL", "40100.sqlite"))
+            db_path_31300 = os.path.abspath(os.path.join("SQL", "31300.sqlite"))
+            df = None
             try:
-                conn = sqlite3.connect(db_path)
+                conn = sqlite3.connect(db_path_40100)
                 df = pd.read_sql_query(f"SELECT * FROM {table_name} WHERE Fahrzeug LIKE ?", conn, params=[f"%{kennzeichen_nummer}%"])
                 if not df.empty:
                     self._found_pages.append(("40100", df.copy(), deal))
@@ -517,11 +551,81 @@ class AbrechnungsSeiteQML(QObject):
                     conn.close()
                 except:
                     pass
+            # Fallback: Wenn df leer ist, in 31300 suchen
+            if df is None or df.empty:
+                try:
+                    conn = sqlite3.connect(db_path_31300)
+                    df_31300 = pd.read_sql_query(f"SELECT * FROM {table_name} WHERE Fahrzeug LIKE ?", conn, params=[f"%{kennzeichen_nummer}%"])
+                    print(f"[DEBUG] 31300-Matching: Fahrzeug={fahrzeug}, KW={kw}, Treffer={len(df_31300) if df_31300 is not None else 0}")
+                    if not df_31300.empty:
+                        print(f"[DEBUG] 31300-Matching: Erste Zeilen:\n{df_31300.head().to_string()}")
+                        self._found_pages.append(("31300", df_31300.copy(), deal))
+                    else:
+                        print(f"[DEBUG] 31300-Matching: Keine Einträge gefunden.")
+                except Exception as e:
+                    print(f"[DEBUG] 31300-Matching: Fehler: {e}")
+                finally:
+                    try:
+                        conn.close()
+                    except:
+                        pass
                     
         # 3. Fahrer in Uber und Bolt suchen (angepasstes Matching mit Bereinigung)
         def clean_name(name):
             # Entfernt doppelte Leerzeichen, trimmt und wandelt in Kleinbuchstaben um
             return re.sub(r"\s+", " ", str(name)).strip().lower()
+
+        def levenshtein_distance(s1, s2):
+            """Berechnet die Levenshtein-Distanz zwischen zwei Strings"""
+            if len(s1) < len(s2):
+                return levenshtein_distance(s2, s1)
+            
+            if len(s2) == 0:
+                return len(s1)
+            
+            previous_row = list(range(len(s2) + 1))
+            for i, c1 in enumerate(s1):
+                current_row = [i + 1]
+                for j, c2 in enumerate(s2):
+                    insertions = previous_row[j + 1] + 1
+                    deletions = current_row[j] + 1
+                    substitutions = previous_row[j] + (c1 != c2)
+                    current_row.append(min(insertions, deletions, substitutions))
+                previous_row = current_row
+            
+            return previous_row[-1]
+
+        def fuzzy_match_score(search_name, target_name, max_distance=3):
+            """Berechnet einen Fuzzy-Match-Score basierend auf Levenshtein-Distanz"""
+            if not search_name or not target_name:
+                return 0
+            
+            # Direkte Übereinstimmung
+            if search_name == target_name:
+                return 100
+            
+            # Token-basierte Übereinstimmung (bestehende Logik)
+            search_tokens = search_name.split()
+            target_tokens = target_name.split()
+            token_matches = sum(1 for t in search_tokens if t in target_tokens)
+            
+            # Levenshtein-Distanz für ähnliche Namen
+            distance = levenshtein_distance(search_name, target_name)
+            max_len = max(len(search_name), len(target_name))
+            
+            if max_len == 0:
+                return 0
+            
+            # Normalisierte Distanz (0-1, wobei 0 = perfekt)
+            normalized_distance = distance / max_len
+            
+            # Score basierend auf Distanz (höher = besser)
+            distance_score = max(0, 100 - (normalized_distance * 100))
+            
+            # Kombinierter Score: Token-Matches + Distanz-Score
+            combined_score = (token_matches * 30) + (distance_score * 0.7)
+            
+            return combined_score
 
         clean_fahrer_label = clean_name(fahrer)
 
@@ -544,14 +648,11 @@ class AbrechnungsSeiteQML(QObject):
                 if db_name == "Uber":
                     if "first_name" in df.columns and "last_name" in df.columns:
                         df["_combo_name"] = (df["first_name"].fillna("") + " " + df["last_name"].fillna("")).apply(clean_name)
-                        def match_score(name):
-                            such_tokens = clean_fahrer_label.split()
-                            name_tokens = name.split()
-                            return sum(1 for t in such_tokens if t in name_tokens)
-                        df["_match"] = df["_combo_name"].apply(match_score)
+                        df["_match"] = df["_combo_name"].apply(lambda name: fuzzy_match_score(clean_fahrer_label, name))
                         debug_matching(df, clean_fahrer_label, db_name)
                         max_score = df["_match"].max() if not df.empty else 0
-                        if max_score >= 2:
+                        # Niedrigere Schwelle für Fuzzy-Matching (50 statt 2)
+                        if max_score >= 50:
                             df = df[df["_match"] == max_score]
                             df = df.iloc[[0]] if len(df) > 1 else df
                         else:
@@ -562,14 +663,11 @@ class AbrechnungsSeiteQML(QObject):
                 elif db_name == "Bolt":
                     if "driver_name" in df.columns:
                         df["_driver_name_clean"] = df["driver_name"].apply(clean_name)
-                        def match_score(name):
-                            such_tokens = clean_fahrer_label.split()
-                            name_tokens = name.split()
-                            return sum(1 for t in such_tokens if t in name_tokens)
-                        df["_match"] = df["_driver_name_clean"].apply(match_score)
+                        df["_match"] = df["_driver_name_clean"].apply(lambda name: fuzzy_match_score(clean_fahrer_label, name))
                         debug_matching(df, clean_fahrer_label, db_name)
                         max_score = df["_match"].max() if not df.empty else 0
-                        if max_score >= 2:
+                        # Niedrigere Schwelle für Fuzzy-Matching (50 statt 2)
+                        if max_score >= 50:
                             df = df[df["_match"] == max_score]
                             df = df.iloc[[0]] if len(df) > 1 else df
                         else:
@@ -593,7 +691,8 @@ class AbrechnungsSeiteQML(QObject):
             self._ergebnisse = [{"type": "error", "message": "Keine Einträge gefunden."}]
             self.ergebnisseChanged.emit()
             return
-            
+        # Setze den aktuellen Deal-Typ für spätere Speicherung
+        self._deal = deal
         # Übersichtsseite anzeigen
         self.show_overview_page()
         
@@ -625,16 +724,65 @@ class AbrechnungsSeiteQML(QObject):
         details_40100 = []
         details_uber = []
         details_bolt = []
+        sum_31300 = 0
+        _31300_trinkgeld = 0
+        _31300_bargeld = 0
+        _31300_real = 0
+        # Detaillierte Ergebnisse für 31300
+        details_31300 = []
         print(f"Gefundene Seiten: {len(self._found_pages)}")
         for db_name, df, deal in self._found_pages:
             print(f"Verarbeite {db_name} mit {len(df) if df is not None else 0} Zeilen")
             if db_name == "40100" and df is not None:
-                sum_40100 += df["Umsatz"].sum() if "Umsatz" in df.columns else 0
-                sum_bargeld += df["Bargeld"].sum() if "Bargeld" in df.columns else 0  # NEU
-                _40100_trinkgeld += df["Trinkgeld"].sum() if "Trinkgeld" in df.columns else 0
-                _40100_bargeld += df["Bargeld"].sum() if "Bargeld" in df.columns else 0
-                _40100_real += (df["Umsatz"].sum() if "Umsatz" in df.columns else 0) - (df["Trinkgeld"].sum() if "Trinkgeld" in df.columns else 0)
+                # 40100-Logik: Verwende Umsatz-Spalte statt Fahrtkosten
+                # Filter: Nur Werte zwischen -250 und 250 berücksichtigen
+                if "Umsatz" in df.columns:
+                    df["Umsatz"] = pd.to_numeric(df["Umsatz"].astype(str).str.replace(",", "."), errors="coerce")
+                    umsatz_mask = (df["Umsatz"] <= 250) & (df["Umsatz"] >= -250)
+                    umsatz_40100 = df.loc[umsatz_mask, "Umsatz"]
+                else:
+                    umsatz_40100 = pd.Series(dtype=float)
+                
+                sum_40100 += umsatz_40100.sum()
+                # Bargeld und Trinkgeld auch nur für gefilterte Werte berechnen
+                bargeld_40100 = df.loc[umsatz_mask, "Bargeld"].sum() if "Bargeld" in df.columns else 0
+                trinkgeld_40100 = df.loc[umsatz_mask, "Trinkgeld"].sum() if "Trinkgeld" in df.columns else 0
+                sum_bargeld += bargeld_40100
+                _40100_trinkgeld += trinkgeld_40100
+                _40100_bargeld += bargeld_40100
+                _40100_real += umsatz_40100.sum() - trinkgeld_40100
                 details_40100 = self.calculate_40100_details(df, deal)
+            elif db_name == "31300" and df is not None:
+                # Umsatz = Summe Fahrtkosten (vorher Typumwandlung!)
+                if "Fahrtkosten" in df.columns:
+                    df["Fahrtkosten"] = pd.to_numeric(df["Fahrtkosten"].astype(str).str.replace(",", "."), errors="coerce")
+                    # Filter: Nur Werte zwischen -250 und 250 berücksichtigen
+                    fahrtkosten_mask = (df["Fahrtkosten"] <= 250) & (df["Fahrtkosten"] >= -250)
+                    fahrtkosten_31300 = df.loc[fahrtkosten_mask, "Fahrtkosten"]
+                else:
+                    fahrtkosten_31300 = pd.Series(dtype=float)
+                umsatz_31300 = fahrtkosten_31300.sum()
+                # Bargeld = Summe Umsatz, wenn Buchungsart 'Bar' enthält
+                if "Buchungsart" in df.columns and "Umsatz" in df.columns:
+                    bargeld_31300 = df.loc[df["Buchungsart"].str.contains("Bar", na=False), "Umsatz"].sum()
+                else:
+                    bargeld_31300 = 0
+                # Trinkgeld wie gehabt, falls vorhanden
+                trinkgeld_31300 = df["Trinkgeld"].sum() if "Trinkgeld" in df.columns else 0
+                echter_umsatz_31300 = umsatz_31300 - trinkgeld_31300
+                anteil_31300 = echter_umsatz_31300 / 2
+                restbetrag_31300 = anteil_31300 - bargeld_31300 + trinkgeld_31300
+                sum_31300 += umsatz_31300
+                sum_bargeld += bargeld_31300
+                _31300_trinkgeld += trinkgeld_31300
+                _31300_bargeld += bargeld_31300
+                _31300_real += echter_umsatz_31300
+                details_31300 = [
+                    {"label": "Real", "value": f"{echter_umsatz_31300:.2f} €"},
+                    {"label": "Anteil", "value": f"{anteil_31300:.2f} €"},
+                    {"label": "Bargeld", "value": f"{bargeld_31300:.2f} €"},
+                    {"label": "Rest", "value": f"{restbetrag_31300:.2f} €"}
+                ]
             elif db_name == "Uber" and df is not None:
                 sum_uber += df["gross_total"].sum() if "gross_total" in df.columns else 0
                 sum_bargeld += df["cash_collected"].sum() if "cash_collected" in df.columns else 0  # NEU
@@ -648,11 +796,24 @@ class AbrechnungsSeiteQML(QObject):
                 bolt_cash_collected += df["cash_collected"].sum() if "cash_collected" in df.columns else 0
                 bolt_echter_umsatz += (df["net_earnings"].sum() if "net_earnings" in df.columns else 0) - (df["rider_tips"].sum() if "rider_tips" in df.columns else 0)
                 details_bolt = self.calculate_bolt_details(df)
-        total_summe = sum_40100 + sum_uber + sum_bolt
+        # Summen für HeadCard und Gesamtzeile
+        if sum_40100 > 0:
+            taxi_summe = sum_40100
+            taxi_trinkgeld = _40100_trinkgeld
+            taxi_bargeld = _40100_bargeld
+            taxi_real = _40100_real
+        else:
+            taxi_summe = sum_31300
+            taxi_trinkgeld = _31300_trinkgeld
+            taxi_bargeld = _31300_bargeld
+            taxi_real = _31300_real
+
+        total_summe = taxi_summe + sum_uber + sum_bolt
+
         # HeadCard Summen berechnen
-        self._headcard_umsatz = uber_gross_total + bolt_echter_umsatz + _40100_real
-        self._headcard_trinkgeld = bolt_rider_tips + _40100_trinkgeld
-        self._headcard_bargeld = uber_cash_collected + bolt_cash_collected + _40100_bargeld
+        self._headcard_umsatz = sum_uber + sum_bolt + taxi_real
+        self._headcard_trinkgeld = bolt_rider_tips + taxi_trinkgeld
+        self._headcard_bargeld = uber_cash_collected + bolt_cash_collected + taxi_bargeld
         self.headcardUmsatzChanged.emit()
         self.headcardTrinkgeldChanged.emit()
         self.headcardBargeldChanged.emit()
@@ -665,10 +826,10 @@ class AbrechnungsSeiteQML(QObject):
         # Übersicht mit detaillierten Ergebnissen
         self._ergebnisse = [
             {"type": "title", "text": "Übersicht"},
-            {"type": "summary", "label": "40100", "value": f"{sum_40100:.2f} €", "details": details_40100},
+            *( [{"type": "summary", "label": "40100", "value": f"{taxi_summe:.2f} €", "details": details_40100 if sum_40100 > 0 else details_31300}] if taxi_summe > 0 else [] ),
             {"type": "summary", "label": "Uber", "value": f"{sum_uber:.2f} €", "details": details_uber},
             {"type": "summary", "label": "Bolt", "value": f"{sum_bolt:.2f} €", "details": details_bolt},
-            {"type": "summary", "label": "Bargeld", "value": f"{sum_bargeld:.2f} €"},  # NEU: Bargeld in HeadCard
+            {"type": "summary", "label": "Bargeld", "value": f"{self._headcard_bargeld:.2f} €"},
             {"type": "summary", "label": "Gesamt", "value": f"{total_summe:.2f} €"}
         ]
         print(f"Ergebnisse gesetzt: {len(self._ergebnisse)} Einträge")
@@ -685,9 +846,19 @@ class AbrechnungsSeiteQML(QObject):
                 return float(val)
             except (ValueError, TypeError):
                 return 0.0
-        gesamt_umsatz = df["Umsatz"].sum() if "Umsatz" in df.columns else 0
-        trinkgeld = df["Trinkgeld"].sum() if "Trinkgeld" in df.columns else 0
-        bargeld = df["Bargeld"].sum() if "Bargeld" in df.columns else 0
+        
+        # Filter: Nur Werte zwischen -250 und 250 berücksichtigen
+        if "Umsatz" in df.columns:
+            df["Umsatz"] = pd.to_numeric(df["Umsatz"].astype(str).str.replace(",", "."), errors="coerce")
+            umsatz_mask = (df["Umsatz"] <= 250) & (df["Umsatz"] >= -250)
+            umsatz_40100 = df.loc[umsatz_mask, "Umsatz"]
+        else:
+            umsatz_40100 = pd.Series(dtype=float)
+            
+        gesamt_umsatz = umsatz_40100.sum()
+        # Trinkgeld und Bargeld auch nur für gefilterte Werte berechnen
+        trinkgeld = df.loc[umsatz_mask, "Trinkgeld"].sum() if "Trinkgeld" in df.columns else 0
+        bargeld = df.loc[umsatz_mask, "Bargeld"].sum() if "Bargeld" in df.columns else 0
         echter_umsatz = gesamt_umsatz - trinkgeld
         anteil = echter_umsatz / 2
         restbetrag = anteil - bargeld + trinkgeld
@@ -775,8 +946,16 @@ class AbrechnungsSeiteQML(QObject):
                 return float(val)
             except (ValueError, TypeError):
                 return 0.0
-                
-        gesamt_umsatz = df["Umsatz"].sum() if "Umsatz" in df.columns else 0
+        
+        # Filter: Nur Werte zwischen -250 und 250 berücksichtigen
+        if "Umsatz" in df.columns:
+            df["Umsatz"] = pd.to_numeric(df["Umsatz"].astype(str).str.replace(",", "."), errors="coerce")
+            umsatz_mask = (df["Umsatz"] <= 250) & (df["Umsatz"] >= -250)
+            umsatz_40100 = df.loc[umsatz_mask, "Umsatz"]
+        else:
+            umsatz_40100 = pd.Series(dtype=float)
+            
+        gesamt_umsatz = umsatz_40100.sum()
         trinkgeld = df["Trinkgeld"].sum() if "Trinkgeld" in df.columns else 0
         bargeld = df["Bargeld"].sum() if "Bargeld" in df.columns else 0
         echter_umsatz = gesamt_umsatz - trinkgeld
@@ -925,34 +1104,22 @@ class AbrechnungsSeiteQML(QObject):
             ergebnis = (umsatz / 2) - bargeld + trinkgeld + zuschlag
             ergebnis += self._inputGas / 2
             ergebnis -= self._inputEinsteiger / 2
-            expense_sum = 0.0
-            for e in getattr(self, '_expense_cache', []):
-                try:
-                    expense_sum += float(str(e.get("amount", "0")).replace(",", ".") or 0)
-                except Exception:
-                    pass
-            ergebnis -= expense_sum
-            return ergebnis
         elif deal == "P":
-            # Neue Berechnung für P-Deal
-            try:
-                jahr = datetime.now().year
-                kw_int = int(kw)
-                erster_tag_kw = datetime.strptime(f'{jahr}-W{kw_int}-1', "%Y-W%W-%w")
-                monat = erster_tag_kw.month
-                cal = calendar.Calendar(firstweekday=0)
-                montage = [d for d in cal.itermonthdates(jahr, monat) if d.weekday() == 0 and d.month == monat]
-                anzahl_montage = len(montage)
-            except Exception as e:
-                anzahl_montage = 4  # Fallback
+            # Neue Berechnung für P-Deal: Ergebnis = Bankomat - Pauschale + Trinkgeld + Expenses
             bankomat = umsatz - bargeld
-            grenzabzug = (umsatz - umsatzgrenze) * 0.1 if umsatz > umsatzgrenze else 0.0
-            zuschlag = (garage / (2 * anzahl_montage)) if anzahl_montage > 0 else 0.0
-            ergebnis = bankomat - pauschale - grenzabzug + zuschlag
-            return ergebnis
+            ergebnis = bankomat - pauschale + trinkgeld
         else:
             # Standardfall
-            return 0.0
+            ergebnis = 0.0
+        # Expenses bei allen Deals addieren
+        expense_sum = 0.0
+        for e in getattr(self, '_expense_cache', []):
+            try:
+                expense_sum += float(str(e.get("amount", "0")).replace(",", ".") or 0)
+            except Exception:
+                pass
+        ergebnis += expense_sum
+        return ergebnis
 
     def update_ergebnis(self):
         # Werte aus aktueller Auswertung holen
@@ -965,12 +1132,329 @@ class AbrechnungsSeiteQML(QObject):
         pauschale = getattr(self, '_pauschale', 0.0)
         umsatzgrenze = getattr(self, '_umsatzgrenze', 0.0)
         garage = getattr(self, '_garage', 0.0)
-        self._ergebnis = self.berechne_ergebnis(umsatz, bargeld, trinkgeld, fahrer, kw, deal, pauschale, umsatzgrenze, garage)
+        # Anzahl Montage berechnen
+        try:
+            jahr = datetime.now().year
+            kw_int = int(kw) if kw else None
+            if kw_int is not None:
+                erster_tag_kw = datetime.strptime(f'{jahr}-W{kw_int}-1', "%Y-W%W-%w")
+                monat = erster_tag_kw.month
+                cal = calendar.Calendar(firstweekday=0)
+                montage = [d for d in cal.itermonthdates(jahr, monat) if d.weekday() == 0 and d.month == monat]
+                anzahl_montage = len(montage)
+            else:
+                anzahl_montage = 4
+        except Exception:
+            anzahl_montage = 4  # Fallback
+        if deal == "P":
+            bankomat = self._headcard_deal_value if hasattr(self, '_headcard_deal_value') else (umsatz - bargeld)
+            umsatzbeteiligung = (umsatz - umsatzgrenze) * 0.1 if umsatz > umsatzgrenze else 0.0
+            garage_bonus = garage / (anzahl_montage * 2) if anzahl_montage > 0 else 0.0
+            self._ergebnis = bankomat - pauschale - umsatzbeteiligung + garage_bonus
+            # Expenses addieren
+            expense_sum = 0.0
+            for e in getattr(self, '_expense_cache', []):
+                try:
+                    expense_sum += float(str(e.get("amount", "0")).replace(",", ".") or 0)
+                except Exception:
+                    pass
+            self._ergebnis += expense_sum
+        else:
+            self._ergebnis = self.berechne_ergebnis(umsatz, bargeld, trinkgeld, fahrer, kw, deal, pauschale, umsatzgrenze, garage)
         self.ergebnisChanged.emit()
+
+    def show_duplicate_comparison_dialog(self, existing_entry, new_entry, fahrzeug, kw, fahrer, deal):
+        """Zeigt einen Dialog zur Auswahl zwischen bestehendem und neuem Eintrag"""
+        from PySide6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QTextEdit
+        from PySide6.QtCore import Qt
+        
+        dialog = QDialog()
+        dialog.setWindowTitle("Duplikat gefunden - Eintrag auswählen")
+        dialog.setModal(True)
+        dialog.resize(700, 500)
+        dialog.setFixedSize(700, 500)
+        
+        layout = QVBoxLayout()
+        layout.setSpacing(20)
+        
+        # Überschrift
+        title = QLabel(f"Für {fahrer} - {fahrzeug} - KW {kw} existiert bereits ein Eintrag:")
+        title.setStyleSheet("font-size: 18pt; font-weight: bold; color: #ffffff; margin-bottom: 10px;")
+        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(title)
+        
+        # Vergleichsbereich
+        comparison_layout = QHBoxLayout()
+        comparison_layout.setSpacing(20)
+        
+        # Bestehender Eintrag
+        existing_layout = QVBoxLayout()
+        existing_title = QLabel("Bestehender Eintrag:")
+        existing_title.setStyleSheet("color: #ffffff; font-size: 14pt; font-weight: bold; margin-bottom: 5px;")
+        existing_layout.addWidget(existing_title)
+        
+        existing_text = QTextEdit()
+        existing_text.setReadOnly(True)
+        existing_text.setMaximumHeight(200)
+        existing_text.setStyleSheet("""
+            QTextEdit {
+                background: #2a2a2a;
+                border: 1px solid #444444;
+                border-radius: 4px;
+                padding: 10px;
+                color: #ffffff;
+                font-size: 11pt;
+                font-family: 'Consolas', 'Monaco', monospace;
+            }
+        """)
+        
+        # Expenses für bestehenden Eintrag abrufen
+        existing_expenses = self._get_expenses_for_week(fahrzeug, existing_entry[1])
+        existing_expenses_text = ""
+        if existing_expenses:
+            existing_expenses_text = "\n\n📋 Ausgaben:\n" + "\n".join([f"  • {exp[3]}: {exp[2]:.2f} €" for exp in existing_expenses])
+        
+        existing_text.setPlainText(f"""💰 Deal: {existing_entry[2]}
+💵 Total: {existing_entry[4]:.2f} €
+💸 Income: {existing_entry[5]:.2f} €
+⏰ Timestamp: {existing_entry[6]}{existing_expenses_text}""")
+        existing_layout.addWidget(existing_text)
+        
+        # Neuer Eintrag
+        new_layout = QVBoxLayout()
+        new_title = QLabel("Neuer Eintrag:")
+        new_title.setStyleSheet("color: #ffffff; font-size: 14pt; font-weight: bold; margin-bottom: 5px;")
+        new_layout.addWidget(new_title)
+        
+        new_text = QTextEdit()
+        new_text.setReadOnly(True)
+        new_text.setMaximumHeight(200)
+        new_text.setStyleSheet("""
+            QTextEdit {
+                background: #2a2a2a;
+                border: 1px solid #444444;
+                border-radius: 4px;
+                padding: 10px;
+                color: #ffffff;
+                font-size: 11pt;
+                font-family: 'Consolas', 'Monaco', monospace;
+            }
+        """)
+        
+        # Expenses für neuen Eintrag (aus Cache) formatieren
+        new_expenses_text = ""
+        if hasattr(self, '_expense_cache') and self._expense_cache:
+            new_expenses_text = "\n\n📋 Ausgaben:\n" + "\n".join([f"  • {exp.get('category', 'Unbekannt')}: {float(exp.get('amount', 0)):.2f} €" for exp in self._expense_cache])
+        
+        # Gas hinzufügen
+        if hasattr(self, '_inputGas') and self._inputGas:
+            gas_amount = float(self._inputGas)
+            if gas_amount > 0:
+                if new_expenses_text:
+                    new_expenses_text += f"\n  • Gas: {gas_amount:.2f} €"
+                else:
+                    new_expenses_text = f"\n\n📋 Ausgaben:\n  • Gas: {gas_amount:.2f} €"
+        
+        new_text.setPlainText(f"""💰 Deal: {new_entry['deal']}
+💵 Total: {new_entry['total']:.2f} €
+💸 Income: {new_entry['income']:.2f} €
+⏰ Timestamp: {new_entry['timestamp']}{new_expenses_text}""")
+        new_layout.addWidget(new_text)
+        
+        comparison_layout.addLayout(existing_layout)
+        comparison_layout.addLayout(new_layout)
+        layout.addLayout(comparison_layout)
+        
+        # Buttons
+        button_layout = QHBoxLayout()
+        button_layout.addStretch()
+        
+        keep_existing_btn = QPushButton("Bestehenden behalten")
+        keep_existing_btn.setStyleSheet("""
+            QPushButton {
+                background: transparent;
+                border: 1px solid #2E86AB;
+                border-radius: 4px;
+                padding: 10px 20px;
+                color: #2E86AB;
+                font-size: 12pt;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background: rgba(46, 134, 171, 0.1);
+            }
+        """)
+        keep_existing_btn.clicked.connect(lambda: self._handle_duplicate_choice(dialog, "keep_existing", existing_entry, new_entry, fahrzeug))
+        
+        replace_btn = QPushButton("Durch neuen ersetzen")
+        replace_btn.setStyleSheet("""
+            QPushButton {
+                background: transparent;
+                border: 1px solid #A23B72;
+                border-radius: 4px;
+                padding: 10px 20px;
+                color: #A23B72;
+                font-size: 12pt;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background: rgba(162, 59, 114, 0.1);
+            }
+        """)
+        replace_btn.clicked.connect(lambda: self._handle_duplicate_choice(dialog, "replace", existing_entry, new_entry, fahrzeug))
+        
+        cancel_btn = QPushButton("Abbrechen")
+        cancel_btn.setStyleSheet("""
+            QPushButton {
+                background: transparent;
+                border: 1px solid #444444;
+                border-radius: 4px;
+                padding: 10px 20px;
+                color: #ffffff;
+                font-size: 12pt;
+            }
+            QPushButton:hover {
+                border-color: #f79009;
+                background: rgba(247, 144, 9, 0.1);
+            }
+        """)
+        cancel_btn.clicked.connect(dialog.reject)
+        
+        button_layout.addWidget(keep_existing_btn)
+        button_layout.addWidget(replace_btn)
+        button_layout.addWidget(cancel_btn)
+        layout.addLayout(button_layout)
+        
+        # Dialog-Styling
+        dialog.setStyleSheet("""
+            QDialog {
+                background: #000000;
+            }
+        """)
+        
+        dialog.setLayout(layout)
+        return dialog.exec()
+
+    def _handle_duplicate_choice(self, dialog, choice, existing_entry, new_entry, fahrzeug):
+        """Behandelt die Benutzerauswahl bei Duplikaten"""
+        try:
+            import sqlite3
+            db_path = os.path.join("SQL", "revenue.db")
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+            
+            if choice == "replace":
+                # Bestehenden Eintrag löschen und neuen einfügen
+                cursor.execute(f"DELETE FROM '{fahrzeug}' WHERE id = ?", (existing_entry[0],))
+                cursor.execute(f"""
+                    INSERT INTO '{fahrzeug}' (cw, deal, driver, total, income, timestamp)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                """, (new_entry['cw'], new_entry['deal'], new_entry['driver'], 
+                      new_entry['total'], new_entry['income'], new_entry['timestamp']))
+                
+                # Flag setzen für Expenses-Behandlung
+                self._duplicate_replaced = True
+                
+                # Auch Expenses ersetzen
+                self._replace_expenses(fahrzeug, new_entry['cw'], new_entry['driver'])
+                
+                print(f"Eintrag ersetzt: Neuer Eintrag für {new_entry['driver']} - KW {new_entry['cw']}")
+                
+            elif choice == "keep_existing":
+                # Flag setzen für Expenses-Behandlung
+                self._duplicate_replaced = False
+                print(f"Bestehender Eintrag beibehalten für {existing_entry[3]} - KW {existing_entry[1]}")
+            
+            conn.commit()
+            conn.close()
+            dialog.accept()
+            
+        except Exception as e:
+            print(f"Fehler beim Verarbeiten der Duplikat-Auswahl: {e}")
+            dialog.reject()
+
+    def _replace_expenses(self, fahrzeug, cw, driver):
+        """Ersetzt Expenses für eine bestimmte KW"""
+        try:
+            db_path_exp = os.path.join("SQL", "running_costs.db")
+            conn_exp = sqlite3.connect(db_path_exp)
+            cursor_exp = conn_exp.cursor()
+            
+            # Erst prüfen, wie viele alte Expenses existieren
+            cursor_exp.execute(f"SELECT COUNT(*) FROM '{fahrzeug}' WHERE cw = ?", (cw,))
+            old_count = cursor_exp.fetchone()[0]
+            print(f"Gefundene alte Expenses für KW {cw}: {old_count}")
+            
+            # Alte Expenses für diese KW löschen
+            cursor_exp.execute(f"DELETE FROM '{fahrzeug}' WHERE cw = ?", (cw,))
+            deleted_count = cursor_exp.rowcount
+            print(f"Gelöschte Expenses: {deleted_count}")
+            
+            # Neue Expenses einfügen
+            new_count = 0
+            for eintrag in getattr(self, '_expense_cache', []):
+                exp_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                cursor_exp.execute(f"""
+                    INSERT INTO '{fahrzeug}' (cw, amount, category, details, timestamp)
+                    VALUES (?, ?, ?, ?, ?)
+                """, (cw, float(eintrag.get("amount", 0)),
+                      eintrag.get("category", ""), eintrag.get("details", ""), exp_timestamp))
+                new_count += 1
+            
+            # Gas als eigenen Expense speichern
+            if hasattr(self, '_inputGas') and self._inputGas:
+                exp_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                cursor_exp.execute(f"""
+                    INSERT INTO '{fahrzeug}' (cw, amount, category, details, timestamp)
+                    VALUES (?, ?, ?, ?, ?)
+                """, (cw, float(self._inputGas), "Gas", "", exp_timestamp))
+                new_count += 1
+            
+            print(f"Neue Expenses eingefügt: {new_count}")
+            
+            conn_exp.commit()
+            conn_exp.close()
+            
+        except Exception as e:
+            print(f"Fehler beim Ersetzen der Expenses: {e}")
+            import traceback
+            traceback.print_exc()
+
+    def _get_expenses_for_week(self, fahrzeug, cw):
+        """Holt alle Expenses für eine bestimmte KW"""
+        try:
+            db_path_exp = os.path.join("SQL", "running_costs.db")
+            conn_exp = sqlite3.connect(db_path_exp)
+            cursor_exp = conn_exp.cursor()
+            
+            cursor_exp.execute(f"SELECT * FROM '{fahrzeug}' WHERE cw = ? ORDER BY category, amount", (cw,))
+            expenses = cursor_exp.fetchall()
+            conn_exp.close()
+            return expenses
+            
+        except Exception as e:
+            print(f"Fehler beim Abrufen der Expenses: {e}")
+            return []
+
+    def _clear_expenses_for_week(self, fahrzeug, cw):
+        """Löscht alle Expenses für eine bestimmte KW"""
+        try:
+            db_path_exp = os.path.join("SQL", "running_costs.db")
+            conn_exp = sqlite3.connect(db_path_exp)
+            cursor_exp = conn_exp.cursor()
+            
+            cursor_exp.execute(f"DELETE FROM '{fahrzeug}' WHERE cw = ?", (cw,))
+            conn_exp.commit()
+            conn_exp.close()
+            
+        except Exception as e:
+            print(f"Fehler beim Löschen der Expenses: {e}")
 
     @Slot()
     def speichereUmsatz(self):
         try:
+            # Flag für Duplikatbehandlung zurücksetzen
+            self._duplicate_replaced = False
             import sqlite3
             db_path = os.path.join("SQL", "report.db")
             conn = sqlite3.connect(db_path)
@@ -987,7 +1471,7 @@ class AbrechnungsSeiteQML(QObject):
                     fahrzeug = fahrzeug_raw.split("(")[0].strip()
                 else:
                     fahrzeug = fahrzeug_raw
-            deal = self._wizard_data.get("deal", None)
+            deal = getattr(self, '_deal', '%')
             fahrer = self._wizard_data.get("fahrer", None)
             # total = headcard_umsatz + Einsteiger
             total = self._headcard_umsatz + self._inputEinsteiger
@@ -1005,54 +1489,116 @@ class AbrechnungsSeiteQML(QObject):
                     anzahl_montage = 4
             except Exception:
                 anzahl_montage = 4  # Fallback
-            if deal == "%":
-                income = (total / 2) - (self._garage / (anzahl_montage * 2)) - (self._inputGas / 2)
-            elif deal == "P":
-                income = self._pauschale - (self._garage / (anzahl_montage * 2))
+            if deal == "P":
+                grenzzuschlag = (self._headcard_umsatz - self._umsatzgrenze) * 0.1 if self._headcard_umsatz > self._umsatzgrenze else 0.0
+                income = self._pauschale - (self._garage / (anzahl_montage * 2)) + grenzzuschlag
             else:
-                income = self._ergebnis
-            cursor.execute("""
-                INSERT INTO revenue (cw, vehicle, deal, driver, total, income)
-                VALUES (?, ?, ?, ?, ?, ?)
-            """, (int(kw) if kw else None, fahrzeug, deal, fahrer, total, income))
-            # NEU: expenses speichern
-            jahr = None
-            if kw:
-                try:
-                    jahr = datetime.now().year
-                except Exception:
-                    jahr = None
-            for eintrag in getattr(self, '_expense_cache', []):
-                try:
-                    cursor.execute("""
-                        INSERT INTO expenses (vehicle, year, cw, amount, category, details)
-                        VALUES (?, ?, ?, ?, ?, ?)
-                    """, (
-                        fahrzeug,
-                        jahr,
-                        int(kw) if kw else None,
-                        float(eintrag.get("amount", 0)),
-                        eintrag.get("category", ""),
-                        eintrag.get("details", "")
-                    ))
-                except Exception as e:
-                    print(f"Fehler beim Speichern eines Expense-Eintrags: {e}")
-            # NEU: Gas als eigenen Expense speichern
-            if hasattr(self, '_inputGas') and self._inputGas:
-                try:
-                    cursor.execute("""
-                        INSERT INTO expenses (vehicle, year, cw, amount, category, details)
-                        VALUES (?, ?, ?, ?, ?, ?)
-                    """, (
-                        fahrzeug,
-                        jahr,
-                        int(kw) if kw else None,
-                        float(self._inputGas),
-                        "Gas",
-                        ""
-                    ))
-                except Exception as e:
-                    print(f"Fehler beim Speichern des Gas-Eintrags: {e}")
+                income = (total / 2) - (self._garage / (anzahl_montage * 2)) - (self._inputGas / 2)
+            # Umsätze in eigene Fahrzeug-Tabelle in revenue.db speichern
+            db_path = os.path.join("SQL", "revenue.db")
+            table_vehicle = fahrzeug  # Exakt das Kennzeichen, inkl. Sonderzeichen
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            # Tabelle anlegen, falls sie nicht existiert (ohne vehicle-Feld und ohne DEFAULT CURRENT_TIMESTAMP)
+            cursor.execute(f"""
+                CREATE TABLE IF NOT EXISTS '{table_vehicle}' (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    cw INTEGER NOT NULL CHECK (cw BETWEEN 1 AND 52),
+                    deal TEXT,
+                    driver TEXT,
+                    total DECIMAL(10,2),
+                    income DECIMAL(10,2) NOT NULL,
+                    timestamp DATETIME
+                )
+            """)
+            # Duplikatprüfung: Prüfen ob bereits ein Eintrag für diese Kombination existiert
+            cursor.execute(f"""
+                SELECT * FROM '{table_vehicle}' 
+                WHERE cw = ? AND driver = ? AND deal = ?
+            """, (int(kw) if kw else None, fahrer, deal))
+            existing_entry = cursor.fetchone()
+            
+            if existing_entry:
+                # Duplikat gefunden - Vergleichsdialog anzeigen
+                new_entry = {
+                    'cw': int(kw) if kw else None,
+                    'deal': deal,
+                    'driver': fahrer,
+                    'total': total,
+                    'income': income,
+                    'timestamp': timestamp
+                }
+                
+                result = self.show_duplicate_comparison_dialog(existing_entry, new_entry, table_vehicle, kw, fahrer, deal)
+                
+                if result == QDialog.Accepted:
+                    # Benutzer hat eine Auswahl getroffen - Daten wurden bereits verarbeitet
+                    print("Duplikat wurde verarbeitet")
+                else:
+                    # Benutzer hat abgebrochen
+                    print("Speichern abgebrochen")
+                    conn.close()
+                    return
+            else:
+                # Kein Duplikat - normal speichern
+                cursor.execute(f"""
+                    INSERT INTO '{table_vehicle}' (cw, deal, driver, total, income, timestamp)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                """, (int(kw) if kw else None, deal, fahrer, total, income, timestamp))
+            
+            conn.commit()
+            conn.close()
+            # NEU: expenses und Gas in eigene Datenbank pro Fahrzeug speichern (nur wenn kein Duplikat oder wenn ersetzt wird)
+            if not existing_entry or (existing_entry and hasattr(self, '_duplicate_replaced') and self._duplicate_replaced):
+                db_path_exp = os.path.join("SQL", "running_costs.db")
+                conn_exp = sqlite3.connect(db_path_exp)
+                cursor_exp = conn_exp.cursor()
+                # Tabelle für das Fahrzeug anlegen, falls sie nicht existiert
+                cursor_exp.execute(f"""
+                    CREATE TABLE IF NOT EXISTS '{table_vehicle}' (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        cw INTEGER,
+                        amount DECIMAL(10,2),
+                        category TEXT,
+                        details TEXT,
+                        timestamp DATETIME
+                    )
+                """)
+                # Expenses speichern
+                for eintrag in getattr(self, '_expense_cache', []):
+                    try:
+                        exp_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        cursor_exp.execute(f"""
+                            INSERT INTO '{table_vehicle}' (cw, amount, category, details, timestamp)
+                            VALUES (?, ?, ?, ?, ?)
+                        """, (
+                            int(kw) if kw else None,
+                            float(eintrag.get("amount", 0)),
+                            eintrag.get("category", ""),
+                            eintrag.get("details", ""),
+                            exp_timestamp
+                        ))
+                    except Exception as e:
+                        print(f"Fehler beim Speichern eines Expense-Eintrags: {e}")
+                # Gas als eigenen Expense speichern
+                if hasattr(self, '_inputGas') and self._inputGas:
+                    try:
+                        exp_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        cursor_exp.execute(f"""
+                            INSERT INTO '{table_vehicle}' (cw, amount, category, details, timestamp)
+                            VALUES (?, ?, ?, ?, ?)
+                        """, (
+                            int(kw) if kw else None,
+                            float(self._inputGas),
+                            "Gas",
+                            "",
+                            exp_timestamp
+                        ))
+                    except Exception as e:
+                        print(f"Fehler beim Speichern des Gas-Eintrags: {e}")
+                conn_exp.commit()
+                conn_exp.close()
             self._expense_cache = []  # Cache leeren
             self.inputGas = ""
             self.inputEinsteiger = ""
@@ -1060,7 +1606,7 @@ class AbrechnungsSeiteQML(QObject):
             conn.commit()
             conn.close()
         except Exception as e:
-            print(f"Fehler beim Speichern in report.db: {e}")
+            pass
 
     @Slot()
     def show_wizard_add_cost(self):
@@ -1092,8 +1638,9 @@ class AbrechnungsSeiteQML(QObject):
         deal = getattr(self, '_deal', '%')
         
         if deal == 'P':
-            # Für P-Deal: Bankomatwert (Umsatz - Bargeld) anzeigen
-            self._headcard_deal_value = self._headcard_umsatz - self._headcard_bargeld
+            # Für P-Deal: Bankomatwert (Total - Bargeld) anzeigen, ohne Trinkgeld-Abzug
+            total = self._headcard_umsatz + self._headcard_trinkgeld
+            self._headcard_deal_value = total - self._headcard_bargeld
             self._headcard_deal_icon = 'assets/icons/credit_card_gray.svg'
             self._headcard_deal_label = 'Bankomat'
         else:
