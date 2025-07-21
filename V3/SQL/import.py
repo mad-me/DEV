@@ -115,13 +115,28 @@ def verarbeite_datei(csv_datei):
         fahrerliste = lade_fahrerliste()
         df["name"] = df["driver_name"].apply(lambda n: match_name(n, fahrerliste))
 
-    elif platform == "40100" or platform == "31300":
+    elif platform == "40100":
         zielspalten = [
             "Fahrzeug", "Fahrer", "Fahrername", "Abschluss", "Buchungsart",
             "Zahlungsmittel", "Belegtext", "Fahrtkosten", "Trinkgeld", "Umsatz",
             "Bargeld", "Auftragsart", "Status", "week"
         ]
         for col in ["Fahrtkosten", "Trinkgeld", "Umsatz", "Bargeld"]:
+            if col in df.columns:
+                df[col] = (
+                    df[col].astype(str)
+                    .str.replace(",", ".")
+                    .str.replace(" ", "")
+                    .replace("nan", None)
+                )
+                df[col] = pd.to_numeric(df[col], errors="coerce")
+    elif platform == "31300":
+        zielspalten = [
+            "Fahrzeug", "Fahrer", "Fahrername", "Abschluss", "Beleg", "Zeitpunkt", "Leistung", "Tour",
+            "Buchungsart", "Zahlungsmittel", "Belegtext", "Gesamt", "Kst", "10%", "20%", "Fahrtkosten",
+            "Trinkgeld", "Auftragsart", "Status", "Bemerkung", "week"
+        ]
+        for col in ["Fahrtkosten", "Trinkgeld", "Gesamt", "10%", "20%"]:
             if col in df.columns:
                 df[col] = (
                     df[col].astype(str)
@@ -202,15 +217,22 @@ def verarbeite_datei(csv_datei):
                 Fahrer TEXT,
                 Fahrername TEXT,
                 Abschluss TEXT,
+                Beleg TEXT,
+                Zeitpunkt TEXT,
+                Leistung TEXT,
+                Tour TEXT,
                 Buchungsart TEXT,
                 Zahlungsmittel TEXT,
                 Belegtext TEXT,
+                Gesamt REAL,
+                Kst TEXT,
+                "10%" REAL,
+                "20%" REAL,
                 Fahrtkosten REAL,
                 Trinkgeld REAL,
-                Umsatz REAL,
-                Bargeld REAL,
                 Auftragsart TEXT,
                 Status TEXT,
+                Bemerkung TEXT,
                 week TEXT
             );
         """,

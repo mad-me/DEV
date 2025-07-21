@@ -196,7 +196,6 @@ Rectangle {
                         font.pixelSize: Style.fontSizeTitle
                         font.bold: true
                         color: Style.text
-                        Layout.alignment: Qt.AlignHCenter
                     }
 
                     Text {
@@ -204,7 +203,7 @@ Rectangle {
                         text: "Importieren Sie Ihre " + getImportDescription()
                         font.pixelSize: Style.fontSizeNormal
                         color: Style.text
-                        Layout.alignment: Qt.AlignHCenter
+                        wrapMode: Text.WordWrap
                         horizontalAlignment: Text.AlignHCenter
                     }
 
@@ -238,7 +237,6 @@ Rectangle {
                                     id: option1Icon
                                     text: getOption1Icon()
                                     font.pixelSize: 40
-                                    Layout.alignment: Qt.AlignHCenter
                                 }
 
                                 Text {
@@ -247,7 +245,6 @@ Rectangle {
                                     font.pixelSize: Style.fontSizeTitle
                                     font.bold: true
                                     color: Style.text
-                                    Layout.alignment: Qt.AlignHCenter
                                 }
                             }
                         }
@@ -274,7 +271,6 @@ Rectangle {
                                     id: option2Icon
                                     text: getOption2Icon()
                                     font.pixelSize: 40
-                                    Layout.alignment: Qt.AlignHCenter
                                 }
 
                                 Text {
@@ -283,7 +279,6 @@ Rectangle {
                                     font.pixelSize: Style.fontSizeTitle
                                     font.bold: true
                                     color: Style.text
-                                    Layout.alignment: Qt.AlignHCenter
                                 }
                             }
                         }
@@ -310,7 +305,6 @@ Rectangle {
                                     id: option3Icon
                                     text: getOption3Icon()
                                     font.pixelSize: 40
-                                    Layout.alignment: Qt.AlignHCenter
                                 }
 
                                 Text {
@@ -319,7 +313,6 @@ Rectangle {
                                     font.pixelSize: Style.fontSizeTitle
                                     font.bold: true
                                     color: Style.text
-                                    Layout.alignment: Qt.AlignHCenter
                                 }
                             }
                         }
@@ -500,7 +493,6 @@ Rectangle {
                             font.pixelSize: Style.fontSizeTitle
                             font.bold: true
                             color: Style.text
-                            Layout.alignment: Qt.AlignHCenter
                         }
 
                         // 2x2 Grid für die 4 Werte
@@ -519,7 +511,6 @@ Rectangle {
                                 Text {
                                     text: "💰"
                                     font.pixelSize: 20
-                                    Layout.alignment: Qt.AlignVCenter
                                 }
 
                                 ColumnLayout {
@@ -549,7 +540,6 @@ Rectangle {
                                 Text {
                                     text: "🚗"
                                     font.pixelSize: 20
-                                    Layout.alignment: Qt.AlignVCenter
                                 }
 
                                 ColumnLayout {
@@ -579,7 +569,6 @@ Rectangle {
                                 Text {
                                     text: "⏰"
                                     font.pixelSize: 20
-                                    Layout.alignment: Qt.AlignVCenter
                                 }
 
                                 ColumnLayout {
@@ -609,7 +598,6 @@ Rectangle {
                                 Text {
                                     text: "📈"
                                     font.pixelSize: 20
-                                    Layout.alignment: Qt.AlignVCenter
                                 }
 
                                 ColumnLayout {

@@ -38,21 +38,6 @@ ApplicationWindow {
         initialItem: Rectangle {
             color: "transparent"
         }
-
-        // Abrechnungsseite laden und goHome verbinden
-        Component.onCompleted: {
-            var abrechnungsComponent = Qt.createComponent("Abrechnungsseite.qml")
-            if (abrechnungsComponent.status === Component.Ready) {
-                stackView.push({
-                    item: abrechnungsComponent,
-                    properties: {
-                        goHome: function() { stackVisible = false; }
-                    }
-                })
-            } else {
-                console.log("Fehler beim Laden der Abrechnungsseite:", abrechnungsComponent.errorString())
-            }
-        }
     }
 
     // Start-Buttons Container
@@ -209,17 +194,6 @@ ApplicationWindow {
                 }
             }
         }
-    }
-
-    LoaderWithTerminal {
-        id: loaderOverlay
-        anchors.centerIn: parent
-        visible: salaryLoaderBackend.show_loader
-        statusText: "Import läuft..."
-        terminalContent: salaryLoaderBackend.terminal_content
-        processFinished: salaryLoaderBackend.process_finished
-        showTerminal: true
-        z: 9999
     }
 
     // Funktionen

@@ -7753,3 +7753,692 @@
 2025-07-13 17:32:48,126 - INFO - ⏭️ Duplikat übersprungen: Hasan Serin (DN-Nr: 54)
 2025-07-13 17:32:48,126 - INFO - ✅ 0 neue Einträge in Tabelle 04_25 gespeichert
 2025-07-13 17:32:48,126 - INFO - ⏭️ 24 Duplikate übersprungen
+2025-07-15 22:41:02,507 - INFO - ✅ 30 Fahrer in Cache geladen
+2025-07-15 22:41:02,508 - INFO - ✅ 29 DN-Nr. zu Driver-ID Mappings geladen
+2025-07-15 22:41:02,508 - INFO - 🔍 Verarbeite Datei: C:/DEV/DEV/V3/SQL/Abrechnungen/Abrechnungen 04_2025.pdf
+2025-07-15 22:41:02,508 - INFO - 📊 Erstelle Tabelle: 04_25 (Monat: 4, Jahr: 2025)
+2025-07-15 22:41:15,539 - INFO - ✅ Gefundener Fahrer für DN-Nr. 3: Ahmed Abd El All Diab
+2025-07-15 22:41:15,539 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Ahmed Abd El All Diab' für DN-Nr. 3
+2025-07-15 22:41:15,540 - INFO - ✅ Gefundener Fahrer für DN-Nr. 3: Ahmed Abd El All Diab
+2025-07-15 22:41:15,540 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Ahmed Abd El All Diab' für DN-Nr. 3
+2025-07-15 22:41:15,541 - INFO - ✅ Gefundener Fahrer für DN-Nr. 3: Ahmed Abd El All Diab
+2025-07-15 22:41:15,541 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Ahmed Abd El All Diab' für DN-Nr. 3
+2025-07-15 22:41:15,542 - INFO - ✅ Gefundener Fahrer für DN-Nr. 3: Ahmed Abd El All Diab
+2025-07-15 22:41:15,542 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Ahmed Abd El All Diab' für DN-Nr. 3
+2025-07-15 22:41:15,542 - INFO - ✅ Gefundener Fahrer für DN-Nr. 3: Ahmed Abd El All Diab
+2025-07-15 22:41:15,542 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Ahmed Abd El All Diab' für DN-Nr. 3
+2025-07-15 22:41:15,543 - INFO - ✅ Gefundener Fahrer für DN-Nr. 3: Ahmed Abd El All Diab
+2025-07-15 22:41:15,543 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Ahmed Abd El All Diab' für DN-Nr. 3
+2025-07-15 22:41:15,544 - INFO - ✅ Gefundener Fahrer für DN-Nr. 3: Ahmed Abd El All Diab
+2025-07-15 22:41:15,544 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Ahmed Abd El All Diab' für DN-Nr. 3
+2025-07-15 22:41:15,544 - INFO - ✅ Gefundener Fahrer für DN-Nr. 3: Ahmed Abd El All Diab
+2025-07-15 22:41:15,545 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Ahmed Abd El All Diab' für DN-Nr. 3
+2025-07-15 22:41:15,545 - INFO - ✅ Gefundener Fahrer für DN-Nr. 3: Ahmed Abd El All Diab
+2025-07-15 22:41:15,545 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Ahmed Abd El All Diab' für DN-Nr. 3
+2025-07-15 22:41:15,546 - INFO - ✅ Gefundener Fahrer für DN-Nr. 3: Ahmed Abd El All Diab
+2025-07-15 22:41:15,546 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Ahmed Abd El All Diab' für DN-Nr. 3
+2025-07-15 22:41:15,547 - INFO - ✅ Gefundener Fahrer für DN-Nr. 3: Ahmed Abd El All Diab
+2025-07-15 22:41:15,547 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Ahmed Abd El All Diab' für DN-Nr. 3
+2025-07-15 22:41:15,548 - INFO - ✅ Gefundener Fahrer für DN-Nr. 3: Ahmed Abd El All Diab
+2025-07-15 22:41:15,548 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Ahmed Abd El All Diab' für DN-Nr. 3
+2025-07-15 22:41:15,548 - INFO - ✅ Gefundener Fahrer für DN-Nr. 3: Ahmed Abd El All Diab
+2025-07-15 22:41:15,548 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Ahmed Abd El All Diab' für DN-Nr. 3
+2025-07-15 22:41:15,549 - INFO - ✅ Gefundener Fahrer für DN-Nr. 3: Ahmed Abd El All Diab
+2025-07-15 22:41:15,549 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Ahmed Abd El All Diab' für DN-Nr. 3
+2025-07-15 22:41:15,550 - INFO - ✅ Gefundener Fahrer für DN-Nr. 3: Ahmed Abd El All Diab
+2025-07-15 22:41:15,550 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Ahmed Abd El All Diab' für DN-Nr. 3
+2025-07-15 22:41:15,551 - INFO - ✅ Gefundener Fahrer für DN-Nr. 3: Ahmed Abd El All Diab
+2025-07-15 22:41:15,551 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Ahmed Abd El All Diab' für DN-Nr. 3
+2025-07-15 22:41:15,552 - INFO - ✅ Gefundener Fahrer für DN-Nr. 3: Ahmed Abd El All Diab
+2025-07-15 22:41:15,552 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Ahmed Abd El All Diab' für DN-Nr. 3
+2025-07-15 22:41:15,553 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 4538140185 gefunden
+2025-07-15 22:41:15,553 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 4538140185 gefunden
+2025-07-15 22:41:15,554 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 4538140185 gefunden
+2025-07-15 22:41:15,554 - INFO - Seite 1: 1 Einträge gefunden
+2025-07-15 22:41:17,108 - INFO - ✅ Gefundener Fahrer für DN-Nr. 7: Abd-Elmonem Naeim
+2025-07-15 22:41:17,109 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Abd-Elmonem Naeim' für DN-Nr. 7
+2025-07-15 22:41:17,109 - INFO - ✅ Gefundener Fahrer für DN-Nr. 7: Abd-Elmonem Naeim
+2025-07-15 22:41:17,109 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Abd-Elmonem Naeim' für DN-Nr. 7
+2025-07-15 22:41:17,110 - INFO - ✅ Gefundener Fahrer für DN-Nr. 7: Abd-Elmonem Naeim
+2025-07-15 22:41:17,110 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Abd-Elmonem Naeim' für DN-Nr. 7
+2025-07-15 22:41:17,111 - INFO - ✅ Gefundener Fahrer für DN-Nr. 7: Abd-Elmonem Naeim
+2025-07-15 22:41:17,111 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Abd-Elmonem Naeim' für DN-Nr. 7
+2025-07-15 22:41:17,112 - INFO - ✅ Gefundener Fahrer für DN-Nr. 7: Abd-Elmonem Naeim
+2025-07-15 22:41:17,112 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Abd-Elmonem Naeim' für DN-Nr. 7
+2025-07-15 22:41:17,112 - INFO - ✅ Gefundener Fahrer für DN-Nr. 7: Abd-Elmonem Naeim
+2025-07-15 22:41:17,113 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Abd-Elmonem Naeim' für DN-Nr. 7
+2025-07-15 22:41:17,113 - INFO - ✅ Gefundener Fahrer für DN-Nr. 7: Abd-Elmonem Naeim
+2025-07-15 22:41:17,113 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Abd-Elmonem Naeim' für DN-Nr. 7
+2025-07-15 22:41:17,114 - INFO - ✅ Gefundener Fahrer für DN-Nr. 7: Abd-Elmonem Naeim
+2025-07-15 22:41:17,114 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Abd-Elmonem Naeim' für DN-Nr. 7
+2025-07-15 22:41:17,115 - INFO - ✅ Gefundener Fahrer für DN-Nr. 7: Abd-Elmonem Naeim
+2025-07-15 22:41:17,115 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Abd-Elmonem Naeim' für DN-Nr. 7
+2025-07-15 22:41:17,115 - INFO - ✅ Gefundener Fahrer für DN-Nr. 7: Abd-Elmonem Naeim
+2025-07-15 22:41:17,116 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Abd-Elmonem Naeim' für DN-Nr. 7
+2025-07-15 22:41:17,117 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 6877060568 gefunden
+2025-07-15 22:41:17,117 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 6877060568 gefunden
+2025-07-15 22:41:17,118 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 6877060568 gefunden
+2025-07-15 22:41:17,118 - INFO - Seite 2: 1 Einträge gefunden
+2025-07-15 22:41:18,705 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 4909110373 gefunden
+2025-07-15 22:41:18,705 - WARNING - ⚠️ DN-Nr. 4909110373 nicht in Datenbank gefunden, verwende erkannten Namen
+2025-07-15 22:41:18,705 - INFO - Seite 3: 1 Einträge gefunden
+2025-07-15 22:41:20,285 - INFO - ✅ Gefundener Fahrer für DN-Nr. 9: Mohamed Hussein Hassan
+2025-07-15 22:41:20,285 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamed Hussein Hassan' für DN-Nr. 9
+2025-07-15 22:41:20,286 - INFO - ✅ Gefundener Fahrer für DN-Nr. 9: Mohamed Hussein Hassan
+2025-07-15 22:41:20,286 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamed Hussein Hassan' für DN-Nr. 9
+2025-07-15 22:41:20,287 - INFO - ✅ Gefundener Fahrer für DN-Nr. 9: Mohamed Hussein Hassan
+2025-07-15 22:41:20,287 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamed Hussein Hassan' für DN-Nr. 9
+2025-07-15 22:41:20,288 - INFO - ✅ Gefundener Fahrer für DN-Nr. 9: Mohamed Hussein Hassan
+2025-07-15 22:41:20,288 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamed Hussein Hassan' für DN-Nr. 9
+2025-07-15 22:41:20,288 - INFO - ✅ Gefundener Fahrer für DN-Nr. 9: Mohamed Hussein Hassan
+2025-07-15 22:41:20,288 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamed Hussein Hassan' für DN-Nr. 9
+2025-07-15 22:41:20,289 - INFO - ✅ Gefundener Fahrer für DN-Nr. 9: Mohamed Hussein Hassan
+2025-07-15 22:41:20,289 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamed Hussein Hassan' für DN-Nr. 9
+2025-07-15 22:41:20,289 - INFO - ✅ Gefundener Fahrer für DN-Nr. 9: Mohamed Hussein Hassan
+2025-07-15 22:41:20,290 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamed Hussein Hassan' für DN-Nr. 9
+2025-07-15 22:41:20,290 - INFO - ✅ Gefundener Fahrer für DN-Nr. 9: Mohamed Hussein Hassan
+2025-07-15 22:41:20,290 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamed Hussein Hassan' für DN-Nr. 9
+2025-07-15 22:41:20,291 - INFO - ✅ Gefundener Fahrer für DN-Nr. 9: Mohamed Hussein Hassan
+2025-07-15 22:41:20,291 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamed Hussein Hassan' für DN-Nr. 9
+2025-07-15 22:41:20,291 - INFO - ✅ Gefundener Fahrer für DN-Nr. 9: Mohamed Hussein Hassan
+2025-07-15 22:41:20,291 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamed Hussein Hassan' für DN-Nr. 9
+2025-07-15 22:41:20,292 - INFO - ✅ Gefundener Fahrer für DN-Nr. 9: Mohamed Hussein Hassan
+2025-07-15 22:41:20,292 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamed Hussein Hassan' für DN-Nr. 9
+2025-07-15 22:41:20,293 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 5567150192 gefunden
+2025-07-15 22:41:20,294 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 5567150192 gefunden
+2025-07-15 22:41:20,294 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 5567150192 gefunden
+2025-07-15 22:41:20,294 - INFO - Seite 4: 1 Einträge gefunden
+2025-07-15 22:41:21,928 - INFO - ✅ Gefundener Fahrer für DN-Nr. 18: Mohamad Sahraie
+2025-07-15 22:41:21,929 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamad Sahraie' für DN-Nr. 18
+2025-07-15 22:41:21,929 - INFO - ✅ Gefundener Fahrer für DN-Nr. 18: Mohamad Sahraie
+2025-07-15 22:41:21,929 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamad Sahraie' für DN-Nr. 18
+2025-07-15 22:41:21,930 - INFO - ✅ Gefundener Fahrer für DN-Nr. 18: Mohamad Sahraie
+2025-07-15 22:41:21,930 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamad Sahraie' für DN-Nr. 18
+2025-07-15 22:41:21,930 - INFO - ✅ Gefundener Fahrer für DN-Nr. 18: Mohamad Sahraie
+2025-07-15 22:41:21,930 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamad Sahraie' für DN-Nr. 18
+2025-07-15 22:41:21,931 - INFO - ✅ Gefundener Fahrer für DN-Nr. 18: Mohamad Sahraie
+2025-07-15 22:41:21,931 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamad Sahraie' für DN-Nr. 18
+2025-07-15 22:41:21,932 - INFO - ✅ Gefundener Fahrer für DN-Nr. 18: Mohamad Sahraie
+2025-07-15 22:41:21,932 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamad Sahraie' für DN-Nr. 18
+2025-07-15 22:41:21,932 - INFO - ✅ Gefundener Fahrer für DN-Nr. 18: Mohamad Sahraie
+2025-07-15 22:41:21,932 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamad Sahraie' für DN-Nr. 18
+2025-07-15 22:41:21,933 - INFO - ✅ Gefundener Fahrer für DN-Nr. 18: Mohamad Sahraie
+2025-07-15 22:41:21,933 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamad Sahraie' für DN-Nr. 18
+2025-07-15 22:41:21,934 - INFO - ✅ Gefundener Fahrer für DN-Nr. 18: Mohamad Sahraie
+2025-07-15 22:41:21,934 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamad Sahraie' für DN-Nr. 18
+2025-07-15 22:41:21,935 - INFO - ✅ Gefundener Fahrer für DN-Nr. 18: Mohamad Sahraie
+2025-07-15 22:41:21,935 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamad Sahraie' für DN-Nr. 18
+2025-07-15 22:41:21,935 - INFO - ✅ Gefundener Fahrer für DN-Nr. 18: Mohamad Sahraie
+2025-07-15 22:41:21,935 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamad Sahraie' für DN-Nr. 18
+2025-07-15 22:41:21,936 - INFO - ✅ Gefundener Fahrer für DN-Nr. 18: Mohamad Sahraie
+2025-07-15 22:41:21,936 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamad Sahraie' für DN-Nr. 18
+2025-07-15 22:41:21,937 - INFO - ✅ Gefundener Fahrer für DN-Nr. 18: Mohamad Sahraie
+2025-07-15 22:41:21,937 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamad Sahraie' für DN-Nr. 18
+2025-07-15 22:41:21,937 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 5756021170 gefunden
+2025-07-15 22:41:21,938 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 5756021170 gefunden
+2025-07-15 22:41:21,938 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 5756021170 gefunden
+2025-07-15 22:41:21,939 - INFO - Seite 5: 1 Einträge gefunden
+2025-07-15 22:41:23,500 - INFO - ✅ Gefundener Fahrer für DN-Nr. 20: Hersi Omar Mohamud
+2025-07-15 22:41:23,500 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Hersi Omar Mohamud' für DN-Nr. 20
+2025-07-15 22:41:23,501 - INFO - ✅ Gefundener Fahrer für DN-Nr. 20: Hersi Omar Mohamud
+2025-07-15 22:41:23,501 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Hersi Omar Mohamud' für DN-Nr. 20
+2025-07-15 22:41:23,502 - INFO - ✅ Gefundener Fahrer für DN-Nr. 20: Hersi Omar Mohamud
+2025-07-15 22:41:23,502 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Hersi Omar Mohamud' für DN-Nr. 20
+2025-07-15 22:41:23,503 - INFO - ✅ Gefundener Fahrer für DN-Nr. 20: Hersi Omar Mohamud
+2025-07-15 22:41:23,503 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Hersi Omar Mohamud' für DN-Nr. 20
+2025-07-15 22:41:23,503 - INFO - ✅ Gefundener Fahrer für DN-Nr. 20: Hersi Omar Mohamud
+2025-07-15 22:41:23,503 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Hersi Omar Mohamud' für DN-Nr. 20
+2025-07-15 22:41:23,504 - INFO - ✅ Gefundener Fahrer für DN-Nr. 20: Hersi Omar Mohamud
+2025-07-15 22:41:23,504 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Hersi Omar Mohamud' für DN-Nr. 20
+2025-07-15 22:41:23,505 - INFO - ✅ Gefundener Fahrer für DN-Nr. 20: Hersi Omar Mohamud
+2025-07-15 22:41:23,505 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Hersi Omar Mohamud' für DN-Nr. 20
+2025-07-15 22:41:23,505 - INFO - ✅ Gefundener Fahrer für DN-Nr. 20: Hersi Omar Mohamud
+2025-07-15 22:41:23,505 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Hersi Omar Mohamud' für DN-Nr. 20
+2025-07-15 22:41:23,506 - INFO - ✅ Gefundener Fahrer für DN-Nr. 20: Hersi Omar Mohamud
+2025-07-15 22:41:23,506 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Hersi Omar Mohamud' für DN-Nr. 20
+2025-07-15 22:41:23,506 - INFO - ✅ Gefundener Fahrer für DN-Nr. 20: Hersi Omar Mohamud
+2025-07-15 22:41:23,507 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Hersi Omar Mohamud' für DN-Nr. 20
+2025-07-15 22:41:23,507 - INFO - ✅ Gefundener Fahrer für DN-Nr. 20: Hersi Omar Mohamud
+2025-07-15 22:41:23,507 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Hersi Omar Mohamud' für DN-Nr. 20
+2025-07-15 22:41:23,508 - INFO - ✅ Gefundener Fahrer für DN-Nr. 20: Hersi Omar Mohamud
+2025-07-15 22:41:23,508 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Hersi Omar Mohamud' für DN-Nr. 20
+2025-07-15 22:41:23,508 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 5706040488 gefunden
+2025-07-15 22:41:23,509 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 5706040488 gefunden
+2025-07-15 22:41:23,509 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 5706040488 gefunden
+2025-07-15 22:41:23,510 - INFO - Seite 6: 1 Einträge gefunden
+2025-07-15 22:41:25,078 - INFO - ✅ Gefundener Fahrer für DN-Nr. 22: Goran Mitrovic
+2025-07-15 22:41:25,078 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Goran Mitrovic' für DN-Nr. 22
+2025-07-15 22:41:25,078 - INFO - ✅ Gefundener Fahrer für DN-Nr. 22: Goran Mitrovic
+2025-07-15 22:41:25,079 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Goran Mitrovic' für DN-Nr. 22
+2025-07-15 22:41:25,079 - INFO - ✅ Gefundener Fahrer für DN-Nr. 22: Goran Mitrovic
+2025-07-15 22:41:25,079 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Goran Mitrovic' für DN-Nr. 22
+2025-07-15 22:41:25,080 - INFO - ✅ Gefundener Fahrer für DN-Nr. 22: Goran Mitrovic
+2025-07-15 22:41:25,080 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Goran Mitrovic' für DN-Nr. 22
+2025-07-15 22:41:25,080 - INFO - ✅ Gefundener Fahrer für DN-Nr. 22: Goran Mitrovic
+2025-07-15 22:41:25,081 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Goran Mitrovic' für DN-Nr. 22
+2025-07-15 22:41:25,081 - INFO - ✅ Gefundener Fahrer für DN-Nr. 22: Goran Mitrovic
+2025-07-15 22:41:25,081 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Goran Mitrovic' für DN-Nr. 22
+2025-07-15 22:41:25,082 - INFO - ✅ Gefundener Fahrer für DN-Nr. 22: Goran Mitrovic
+2025-07-15 22:41:25,082 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Goran Mitrovic' für DN-Nr. 22
+2025-07-15 22:41:25,083 - INFO - ✅ Gefundener Fahrer für DN-Nr. 22: Goran Mitrovic
+2025-07-15 22:41:25,083 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Goran Mitrovic' für DN-Nr. 22
+2025-07-15 22:41:25,083 - INFO - ✅ Gefundener Fahrer für DN-Nr. 22: Goran Mitrovic
+2025-07-15 22:41:25,083 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Goran Mitrovic' für DN-Nr. 22
+2025-07-15 22:41:25,084 - INFO - ✅ Gefundener Fahrer für DN-Nr. 22: Goran Mitrovic
+2025-07-15 22:41:25,084 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Goran Mitrovic' für DN-Nr. 22
+2025-07-15 22:41:25,085 - INFO - ✅ Gefundener Fahrer für DN-Nr. 22: Goran Mitrovic
+2025-07-15 22:41:25,085 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Goran Mitrovic' für DN-Nr. 22
+2025-07-15 22:41:25,086 - INFO - ✅ Gefundener Fahrer für DN-Nr. 22: Goran Mitrovic
+2025-07-15 22:41:25,086 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Goran Mitrovic' für DN-Nr. 22
+2025-07-15 22:41:25,086 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 2293170677 gefunden
+2025-07-15 22:41:25,087 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 2293170677 gefunden
+2025-07-15 22:41:25,087 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 2293170677 gefunden
+2025-07-15 22:41:25,087 - INFO - Seite 7: 1 Einträge gefunden
+2025-07-15 22:41:26,671 - INFO - ✅ Gefundener Fahrer für DN-Nr. 25: Rajinder Singh
+2025-07-15 22:41:26,671 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Rajinder Singh' für DN-Nr. 25
+2025-07-15 22:41:26,672 - INFO - ✅ Gefundener Fahrer für DN-Nr. 25: Rajinder Singh
+2025-07-15 22:41:26,672 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Rajinder Singh' für DN-Nr. 25
+2025-07-15 22:41:26,672 - INFO - ✅ Gefundener Fahrer für DN-Nr. 25: Rajinder Singh
+2025-07-15 22:41:26,673 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Rajinder Singh' für DN-Nr. 25
+2025-07-15 22:41:26,673 - INFO - ✅ Gefundener Fahrer für DN-Nr. 25: Rajinder Singh
+2025-07-15 22:41:26,673 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Rajinder Singh' für DN-Nr. 25
+2025-07-15 22:41:26,674 - INFO - ✅ Gefundener Fahrer für DN-Nr. 25: Rajinder Singh
+2025-07-15 22:41:26,674 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Rajinder Singh' für DN-Nr. 25
+2025-07-15 22:41:26,674 - INFO - ✅ Gefundener Fahrer für DN-Nr. 25: Rajinder Singh
+2025-07-15 22:41:26,674 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Rajinder Singh' für DN-Nr. 25
+2025-07-15 22:41:26,675 - INFO - ✅ Gefundener Fahrer für DN-Nr. 25: Rajinder Singh
+2025-07-15 22:41:26,675 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Rajinder Singh' für DN-Nr. 25
+2025-07-15 22:41:26,675 - INFO - ✅ Gefundener Fahrer für DN-Nr. 25: Rajinder Singh
+2025-07-15 22:41:26,676 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Rajinder Singh' für DN-Nr. 25
+2025-07-15 22:41:26,676 - INFO - ✅ Gefundener Fahrer für DN-Nr. 25: Rajinder Singh
+2025-07-15 22:41:26,676 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Rajinder Singh' für DN-Nr. 25
+2025-07-15 22:41:26,677 - INFO - ✅ Gefundener Fahrer für DN-Nr. 25: Rajinder Singh
+2025-07-15 22:41:26,677 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Rajinder Singh' für DN-Nr. 25
+2025-07-15 22:41:26,678 - INFO - ✅ Gefundener Fahrer für DN-Nr. 25: Rajinder Singh
+2025-07-15 22:41:26,678 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Rajinder Singh' für DN-Nr. 25
+2025-07-15 22:41:26,678 - INFO - ✅ Gefundener Fahrer für DN-Nr. 25: Rajinder Singh
+2025-07-15 22:41:26,678 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Rajinder Singh' für DN-Nr. 25
+2025-07-15 22:41:26,679 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 5744251171 gefunden
+2025-07-15 22:41:26,679 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 5744251171 gefunden
+2025-07-15 22:41:26,680 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 5744251171 gefunden
+2025-07-15 22:41:26,680 - INFO - Seite 8: 1 Einträge gefunden
+2025-07-15 22:41:28,263 - INFO - ✅ Gefundener Fahrer für DN-Nr. 27: Osama Ahmed
+2025-07-15 22:41:28,263 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Osama Ahmed' für DN-Nr. 27
+2025-07-15 22:41:28,264 - INFO - ✅ Gefundener Fahrer für DN-Nr. 27: Osama Ahmed
+2025-07-15 22:41:28,264 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Osama Ahmed' für DN-Nr. 27
+2025-07-15 22:41:28,264 - INFO - ✅ Gefundener Fahrer für DN-Nr. 27: Osama Ahmed
+2025-07-15 22:41:28,264 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Osama Ahmed' für DN-Nr. 27
+2025-07-15 22:41:28,265 - INFO - ✅ Gefundener Fahrer für DN-Nr. 27: Osama Ahmed
+2025-07-15 22:41:28,265 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Osama Ahmed' für DN-Nr. 27
+2025-07-15 22:41:28,266 - INFO - ✅ Gefundener Fahrer für DN-Nr. 27: Osama Ahmed
+2025-07-15 22:41:28,266 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Osama Ahmed' für DN-Nr. 27
+2025-07-15 22:41:28,266 - INFO - ✅ Gefundener Fahrer für DN-Nr. 27: Osama Ahmed
+2025-07-15 22:41:28,266 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Osama Ahmed' für DN-Nr. 27
+2025-07-15 22:41:28,267 - INFO - ✅ Gefundener Fahrer für DN-Nr. 27: Osama Ahmed
+2025-07-15 22:41:28,267 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Osama Ahmed' für DN-Nr. 27
+2025-07-15 22:41:28,268 - INFO - ✅ Gefundener Fahrer für DN-Nr. 27: Osama Ahmed
+2025-07-15 22:41:28,268 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Osama Ahmed' für DN-Nr. 27
+2025-07-15 22:41:28,269 - INFO - ✅ Gefundener Fahrer für DN-Nr. 27: Osama Ahmed
+2025-07-15 22:41:28,269 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Osama Ahmed' für DN-Nr. 27
+2025-07-15 22:41:28,269 - INFO - ✅ Gefundener Fahrer für DN-Nr. 27: Osama Ahmed
+2025-07-15 22:41:28,270 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Osama Ahmed' für DN-Nr. 27
+2025-07-15 22:41:28,270 - INFO - ✅ Gefundener Fahrer für DN-Nr. 27: Osama Ahmed
+2025-07-15 22:41:28,270 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Osama Ahmed' für DN-Nr. 27
+2025-07-15 22:41:28,271 - INFO - ✅ Gefundener Fahrer für DN-Nr. 27: Osama Ahmed
+2025-07-15 22:41:28,271 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Osama Ahmed' für DN-Nr. 27
+2025-07-15 22:41:28,272 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 5394150863 gefunden
+2025-07-15 22:41:28,272 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 5394150863 gefunden
+2025-07-15 22:41:28,273 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 5394150863 gefunden
+2025-07-15 22:41:28,273 - INFO - Seite 9: 1 Einträge gefunden
+2025-07-15 22:41:29,898 - INFO - ✅ Gefundener Fahrer für DN-Nr. 30: Mohamed Tawfek
+2025-07-15 22:41:29,898 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamed Tawfek' für DN-Nr. 30
+2025-07-15 22:41:29,899 - INFO - ✅ Gefundener Fahrer für DN-Nr. 30: Mohamed Tawfek
+2025-07-15 22:41:29,899 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamed Tawfek' für DN-Nr. 30
+2025-07-15 22:41:29,899 - INFO - ✅ Gefundener Fahrer für DN-Nr. 30: Mohamed Tawfek
+2025-07-15 22:41:29,900 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamed Tawfek' für DN-Nr. 30
+2025-07-15 22:41:29,900 - INFO - ✅ Gefundener Fahrer für DN-Nr. 30: Mohamed Tawfek
+2025-07-15 22:41:29,900 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamed Tawfek' für DN-Nr. 30
+2025-07-15 22:41:29,901 - INFO - ✅ Gefundener Fahrer für DN-Nr. 30: Mohamed Tawfek
+2025-07-15 22:41:29,901 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamed Tawfek' für DN-Nr. 30
+2025-07-15 22:41:29,902 - INFO - ✅ Gefundener Fahrer für DN-Nr. 30: Mohamed Tawfek
+2025-07-15 22:41:29,902 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamed Tawfek' für DN-Nr. 30
+2025-07-15 22:41:29,902 - INFO - ✅ Gefundener Fahrer für DN-Nr. 30: Mohamed Tawfek
+2025-07-15 22:41:29,902 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamed Tawfek' für DN-Nr. 30
+2025-07-15 22:41:29,903 - INFO - ✅ Gefundener Fahrer für DN-Nr. 30: Mohamed Tawfek
+2025-07-15 22:41:29,903 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamed Tawfek' für DN-Nr. 30
+2025-07-15 22:41:29,904 - INFO - ✅ Gefundener Fahrer für DN-Nr. 30: Mohamed Tawfek
+2025-07-15 22:41:29,904 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamed Tawfek' für DN-Nr. 30
+2025-07-15 22:41:29,904 - INFO - ✅ Gefundener Fahrer für DN-Nr. 30: Mohamed Tawfek
+2025-07-15 22:41:29,904 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamed Tawfek' für DN-Nr. 30
+2025-07-15 22:41:29,905 - INFO - ✅ Gefundener Fahrer für DN-Nr. 30: Mohamed Tawfek
+2025-07-15 22:41:29,905 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamed Tawfek' für DN-Nr. 30
+2025-07-15 22:41:29,905 - INFO - ✅ Gefundener Fahrer für DN-Nr. 30: Mohamed Tawfek
+2025-07-15 22:41:29,905 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamed Tawfek' für DN-Nr. 30
+2025-07-15 22:41:29,906 - INFO - ✅ Gefundener Fahrer für DN-Nr. 30: Mohamed Tawfek
+2025-07-15 22:41:29,906 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mohamed Tawfek' für DN-Nr. 30
+2025-07-15 22:41:29,907 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 5059080175 gefunden
+2025-07-15 22:41:29,907 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 5059080175 gefunden
+2025-07-15 22:41:29,908 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 5059080175 gefunden
+2025-07-15 22:41:29,908 - INFO - Seite 10: 1 Einträge gefunden
+2025-07-15 22:41:31,499 - INFO - ✅ Gefundener Fahrer für DN-Nr. 33: Sayed Elsayed
+2025-07-15 22:41:31,499 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Sayed Elsayed' für DN-Nr. 33
+2025-07-15 22:41:31,499 - INFO - ✅ Gefundener Fahrer für DN-Nr. 33: Sayed Elsayed
+2025-07-15 22:41:31,500 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Sayed Elsayed' für DN-Nr. 33
+2025-07-15 22:41:31,500 - INFO - ✅ Gefundener Fahrer für DN-Nr. 33: Sayed Elsayed
+2025-07-15 22:41:31,501 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Sayed Elsayed' für DN-Nr. 33
+2025-07-15 22:41:31,501 - INFO - ✅ Gefundener Fahrer für DN-Nr. 33: Sayed Elsayed
+2025-07-15 22:41:31,501 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Sayed Elsayed' für DN-Nr. 33
+2025-07-15 22:41:31,502 - INFO - ✅ Gefundener Fahrer für DN-Nr. 33: Sayed Elsayed
+2025-07-15 22:41:31,502 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Sayed Elsayed' für DN-Nr. 33
+2025-07-15 22:41:31,503 - INFO - ✅ Gefundener Fahrer für DN-Nr. 33: Sayed Elsayed
+2025-07-15 22:41:31,503 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Sayed Elsayed' für DN-Nr. 33
+2025-07-15 22:41:31,504 - INFO - ✅ Gefundener Fahrer für DN-Nr. 33: Sayed Elsayed
+2025-07-15 22:41:31,504 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Sayed Elsayed' für DN-Nr. 33
+2025-07-15 22:41:31,505 - INFO - ✅ Gefundener Fahrer für DN-Nr. 33: Sayed Elsayed
+2025-07-15 22:41:31,505 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Sayed Elsayed' für DN-Nr. 33
+2025-07-15 22:41:31,506 - INFO - ✅ Gefundener Fahrer für DN-Nr. 33: Sayed Elsayed
+2025-07-15 22:41:31,506 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Sayed Elsayed' für DN-Nr. 33
+2025-07-15 22:41:31,507 - INFO - ✅ Gefundener Fahrer für DN-Nr. 33: Sayed Elsayed
+2025-07-15 22:41:31,507 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Sayed Elsayed' für DN-Nr. 33
+2025-07-15 22:41:31,508 - INFO - ✅ Gefundener Fahrer für DN-Nr. 33: Sayed Elsayed
+2025-07-15 22:41:31,508 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Sayed Elsayed' für DN-Nr. 33
+2025-07-15 22:41:31,508 - INFO - ✅ Gefundener Fahrer für DN-Nr. 33: Sayed Elsayed
+2025-07-15 22:41:31,509 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Sayed Elsayed' für DN-Nr. 33
+2025-07-15 22:41:31,509 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 4672110868 gefunden
+2025-07-15 22:41:31,510 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 4672110868 gefunden
+2025-07-15 22:41:31,511 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 4672110868 gefunden
+2025-07-15 22:41:31,511 - INFO - Seite 11: 1 Einträge gefunden
+2025-07-15 22:41:33,495 - INFO - ✅ Gefundener Fahrer für DN-Nr. 40: Mustafa Yürük
+2025-07-15 22:41:33,496 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mustafa Yürük' für DN-Nr. 40
+2025-07-15 22:41:33,496 - INFO - ✅ Gefundener Fahrer für DN-Nr. 40: Mustafa Yürük
+2025-07-15 22:41:33,496 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mustafa Yürük' für DN-Nr. 40
+2025-07-15 22:41:33,497 - INFO - ✅ Gefundener Fahrer für DN-Nr. 40: Mustafa Yürük
+2025-07-15 22:41:33,497 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mustafa Yürük' für DN-Nr. 40
+2025-07-15 22:41:33,497 - INFO - ✅ Gefundener Fahrer für DN-Nr. 40: Mustafa Yürük
+2025-07-15 22:41:33,498 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mustafa Yürük' für DN-Nr. 40
+2025-07-15 22:41:33,498 - INFO - ✅ Gefundener Fahrer für DN-Nr. 40: Mustafa Yürük
+2025-07-15 22:41:33,498 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mustafa Yürük' für DN-Nr. 40
+2025-07-15 22:41:33,499 - INFO - ✅ Gefundener Fahrer für DN-Nr. 40: Mustafa Yürük
+2025-07-15 22:41:33,499 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mustafa Yürük' für DN-Nr. 40
+2025-07-15 22:41:33,500 - INFO - ✅ Gefundener Fahrer für DN-Nr. 40: Mustafa Yürük
+2025-07-15 22:41:33,500 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mustafa Yürük' für DN-Nr. 40
+2025-07-15 22:41:33,500 - INFO - ✅ Gefundener Fahrer für DN-Nr. 40: Mustafa Yürük
+2025-07-15 22:41:33,500 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mustafa Yürük' für DN-Nr. 40
+2025-07-15 22:41:33,501 - INFO - ✅ Gefundener Fahrer für DN-Nr. 40: Mustafa Yürük
+2025-07-15 22:41:33,501 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mustafa Yürük' für DN-Nr. 40
+2025-07-15 22:41:33,502 - INFO - ✅ Gefundener Fahrer für DN-Nr. 40: Mustafa Yürük
+2025-07-15 22:41:33,502 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mustafa Yürük' für DN-Nr. 40
+2025-07-15 22:41:33,502 - INFO - ✅ Gefundener Fahrer für DN-Nr. 40: Mustafa Yürük
+2025-07-15 22:41:33,502 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mustafa Yürük' für DN-Nr. 40
+2025-07-15 22:41:33,503 - INFO - ✅ Gefundener Fahrer für DN-Nr. 40: Mustafa Yürük
+2025-07-15 22:41:33,503 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mustafa Yürük' für DN-Nr. 40
+2025-07-15 22:41:33,504 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 6977010162 gefunden
+2025-07-15 22:41:33,504 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 6977010162 gefunden
+2025-07-15 22:41:33,505 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 6977010162 gefunden
+2025-07-15 22:41:33,505 - INFO - Seite 12: 1 Einträge gefunden
+2025-07-15 22:41:35,157 - INFO - ✅ Gefundener Fahrer für DN-Nr. 41: Yasser Elsandidy
+2025-07-15 22:41:35,158 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Yasser Elsandidy' für DN-Nr. 41
+2025-07-15 22:41:35,158 - INFO - ✅ Gefundener Fahrer für DN-Nr. 41: Yasser Elsandidy
+2025-07-15 22:41:35,159 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Yasser Elsandidy' für DN-Nr. 41
+2025-07-15 22:41:35,159 - INFO - ✅ Gefundener Fahrer für DN-Nr. 41: Yasser Elsandidy
+2025-07-15 22:41:35,159 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Yasser Elsandidy' für DN-Nr. 41
+2025-07-15 22:41:35,160 - INFO - ✅ Gefundener Fahrer für DN-Nr. 41: Yasser Elsandidy
+2025-07-15 22:41:35,160 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Yasser Elsandidy' für DN-Nr. 41
+2025-07-15 22:41:35,160 - INFO - ✅ Gefundener Fahrer für DN-Nr. 41: Yasser Elsandidy
+2025-07-15 22:41:35,160 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Yasser Elsandidy' für DN-Nr. 41
+2025-07-15 22:41:35,161 - INFO - ✅ Gefundener Fahrer für DN-Nr. 41: Yasser Elsandidy
+2025-07-15 22:41:35,161 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Yasser Elsandidy' für DN-Nr. 41
+2025-07-15 22:41:35,161 - INFO - ✅ Gefundener Fahrer für DN-Nr. 41: Yasser Elsandidy
+2025-07-15 22:41:35,161 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Yasser Elsandidy' für DN-Nr. 41
+2025-07-15 22:41:35,162 - INFO - ✅ Gefundener Fahrer für DN-Nr. 41: Yasser Elsandidy
+2025-07-15 22:41:35,162 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Yasser Elsandidy' für DN-Nr. 41
+2025-07-15 22:41:35,163 - INFO - ✅ Gefundener Fahrer für DN-Nr. 41: Yasser Elsandidy
+2025-07-15 22:41:35,163 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Yasser Elsandidy' für DN-Nr. 41
+2025-07-15 22:41:35,163 - INFO - ✅ Gefundener Fahrer für DN-Nr. 41: Yasser Elsandidy
+2025-07-15 22:41:35,164 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Yasser Elsandidy' für DN-Nr. 41
+2025-07-15 22:41:35,164 - INFO - ✅ Gefundener Fahrer für DN-Nr. 41: Yasser Elsandidy
+2025-07-15 22:41:35,164 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Yasser Elsandidy' für DN-Nr. 41
+2025-07-15 22:41:35,165 - INFO - ✅ Gefundener Fahrer für DN-Nr. 41: Yasser Elsandidy
+2025-07-15 22:41:35,165 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Yasser Elsandidy' für DN-Nr. 41
+2025-07-15 22:41:35,166 - INFO - ✅ Gefundener Fahrer für DN-Nr. 41: Yasser Elsandidy
+2025-07-15 22:41:35,166 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Yasser Elsandidy' für DN-Nr. 41
+2025-07-15 22:41:35,167 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 7489010176 gefunden
+2025-07-15 22:41:35,167 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 7489010176 gefunden
+2025-07-15 22:41:35,168 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 7489010176 gefunden
+2025-07-15 22:41:35,168 - INFO - Seite 13: 1 Einträge gefunden
+2025-07-15 22:41:36,767 - INFO - ✅ Gefundener Fahrer für DN-Nr. 42: Shamel El Bahrawy
+2025-07-15 22:41:36,767 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Shamel El Bahrawy' für DN-Nr. 42
+2025-07-15 22:41:36,768 - INFO - ✅ Gefundener Fahrer für DN-Nr. 42: Shamel El Bahrawy
+2025-07-15 22:41:36,768 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Shamel El Bahrawy' für DN-Nr. 42
+2025-07-15 22:41:36,768 - INFO - ✅ Gefundener Fahrer für DN-Nr. 42: Shamel El Bahrawy
+2025-07-15 22:41:36,769 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Shamel El Bahrawy' für DN-Nr. 42
+2025-07-15 22:41:36,769 - INFO - ✅ Gefundener Fahrer für DN-Nr. 42: Shamel El Bahrawy
+2025-07-15 22:41:36,769 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Shamel El Bahrawy' für DN-Nr. 42
+2025-07-15 22:41:36,770 - INFO - ✅ Gefundener Fahrer für DN-Nr. 42: Shamel El Bahrawy
+2025-07-15 22:41:36,770 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Shamel El Bahrawy' für DN-Nr. 42
+2025-07-15 22:41:36,770 - INFO - ✅ Gefundener Fahrer für DN-Nr. 42: Shamel El Bahrawy
+2025-07-15 22:41:36,771 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Shamel El Bahrawy' für DN-Nr. 42
+2025-07-15 22:41:36,771 - INFO - ✅ Gefundener Fahrer für DN-Nr. 42: Shamel El Bahrawy
+2025-07-15 22:41:36,771 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Shamel El Bahrawy' für DN-Nr. 42
+2025-07-15 22:41:36,772 - INFO - ✅ Gefundener Fahrer für DN-Nr. 42: Shamel El Bahrawy
+2025-07-15 22:41:36,772 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Shamel El Bahrawy' für DN-Nr. 42
+2025-07-15 22:41:36,772 - INFO - ✅ Gefundener Fahrer für DN-Nr. 42: Shamel El Bahrawy
+2025-07-15 22:41:36,773 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Shamel El Bahrawy' für DN-Nr. 42
+2025-07-15 22:41:36,773 - INFO - ✅ Gefundener Fahrer für DN-Nr. 42: Shamel El Bahrawy
+2025-07-15 22:41:36,773 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Shamel El Bahrawy' für DN-Nr. 42
+2025-07-15 22:41:36,774 - INFO - ✅ Gefundener Fahrer für DN-Nr. 42: Shamel El Bahrawy
+2025-07-15 22:41:36,774 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Shamel El Bahrawy' für DN-Nr. 42
+2025-07-15 22:41:36,775 - INFO - ✅ Gefundener Fahrer für DN-Nr. 42: Shamel El Bahrawy
+2025-07-15 22:41:36,775 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Shamel El Bahrawy' für DN-Nr. 42
+2025-07-15 22:41:36,775 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 5909090362 gefunden
+2025-07-15 22:41:36,776 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 5909090362 gefunden
+2025-07-15 22:41:36,777 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 5909090362 gefunden
+2025-07-15 22:41:36,777 - INFO - Seite 14: 1 Einträge gefunden
+2025-07-15 22:41:38,363 - INFO - ✅ Gefundener Fahrer für DN-Nr. 44: Nasser-Ali Ali
+2025-07-15 22:41:38,363 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Nasser-Ali Ali' für DN-Nr. 44
+2025-07-15 22:41:38,364 - INFO - ✅ Gefundener Fahrer für DN-Nr. 44: Nasser-Ali Ali
+2025-07-15 22:41:38,364 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Nasser-Ali Ali' für DN-Nr. 44
+2025-07-15 22:41:38,365 - INFO - ✅ Gefundener Fahrer für DN-Nr. 44: Nasser-Ali Ali
+2025-07-15 22:41:38,365 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Nasser-Ali Ali' für DN-Nr. 44
+2025-07-15 22:41:38,365 - INFO - ✅ Gefundener Fahrer für DN-Nr. 44: Nasser-Ali Ali
+2025-07-15 22:41:38,365 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Nasser-Ali Ali' für DN-Nr. 44
+2025-07-15 22:41:38,366 - INFO - ✅ Gefundener Fahrer für DN-Nr. 44: Nasser-Ali Ali
+2025-07-15 22:41:38,366 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Nasser-Ali Ali' für DN-Nr. 44
+2025-07-15 22:41:38,366 - INFO - ✅ Gefundener Fahrer für DN-Nr. 44: Nasser-Ali Ali
+2025-07-15 22:41:38,367 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Nasser-Ali Ali' für DN-Nr. 44
+2025-07-15 22:41:38,367 - INFO - ✅ Gefundener Fahrer für DN-Nr. 44: Nasser-Ali Ali
+2025-07-15 22:41:38,367 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Nasser-Ali Ali' für DN-Nr. 44
+2025-07-15 22:41:38,368 - INFO - ✅ Gefundener Fahrer für DN-Nr. 44: Nasser-Ali Ali
+2025-07-15 22:41:38,368 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Nasser-Ali Ali' für DN-Nr. 44
+2025-07-15 22:41:38,368 - INFO - ✅ Gefundener Fahrer für DN-Nr. 44: Nasser-Ali Ali
+2025-07-15 22:41:38,368 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Nasser-Ali Ali' für DN-Nr. 44
+2025-07-15 22:41:38,369 - INFO - ✅ Gefundener Fahrer für DN-Nr. 44: Nasser-Ali Ali
+2025-07-15 22:41:38,369 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Nasser-Ali Ali' für DN-Nr. 44
+2025-07-15 22:41:38,369 - INFO - ✅ Gefundener Fahrer für DN-Nr. 44: Nasser-Ali Ali
+2025-07-15 22:41:38,370 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Nasser-Ali Ali' für DN-Nr. 44
+2025-07-15 22:41:38,370 - INFO - ✅ Gefundener Fahrer für DN-Nr. 44: Nasser-Ali Ali
+2025-07-15 22:41:38,370 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Nasser-Ali Ali' für DN-Nr. 44
+2025-07-15 22:41:38,371 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 6444080563 gefunden
+2025-07-15 22:41:38,371 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 6444080563 gefunden
+2025-07-15 22:41:38,372 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 6444080563 gefunden
+2025-07-15 22:41:38,372 - INFO - Seite 15: 1 Einträge gefunden
+2025-07-15 22:41:40,019 - INFO - ✅ Gefundener Fahrer für DN-Nr. 45: Atef Ing. Khater
+2025-07-15 22:41:40,020 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Atef Ing. Khater' für DN-Nr. 45
+2025-07-15 22:41:40,020 - INFO - ✅ Gefundener Fahrer für DN-Nr. 45: Atef Ing. Khater
+2025-07-15 22:41:40,021 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Atef Ing. Khater' für DN-Nr. 45
+2025-07-15 22:41:40,021 - INFO - ✅ Gefundener Fahrer für DN-Nr. 45: Atef Ing. Khater
+2025-07-15 22:41:40,021 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Atef Ing. Khater' für DN-Nr. 45
+2025-07-15 22:41:40,022 - INFO - ✅ Gefundener Fahrer für DN-Nr. 45: Atef Ing. Khater
+2025-07-15 22:41:40,022 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Atef Ing. Khater' für DN-Nr. 45
+2025-07-15 22:41:40,022 - INFO - ✅ Gefundener Fahrer für DN-Nr. 45: Atef Ing. Khater
+2025-07-15 22:41:40,022 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Atef Ing. Khater' für DN-Nr. 45
+2025-07-15 22:41:40,023 - INFO - ✅ Gefundener Fahrer für DN-Nr. 45: Atef Ing. Khater
+2025-07-15 22:41:40,023 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Atef Ing. Khater' für DN-Nr. 45
+2025-07-15 22:41:40,023 - INFO - ✅ Gefundener Fahrer für DN-Nr. 45: Atef Ing. Khater
+2025-07-15 22:41:40,024 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Atef Ing. Khater' für DN-Nr. 45
+2025-07-15 22:41:40,024 - INFO - ✅ Gefundener Fahrer für DN-Nr. 45: Atef Ing. Khater
+2025-07-15 22:41:40,024 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Atef Ing. Khater' für DN-Nr. 45
+2025-07-15 22:41:40,025 - INFO - ✅ Gefundener Fahrer für DN-Nr. 45: Atef Ing. Khater
+2025-07-15 22:41:40,025 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Atef Ing. Khater' für DN-Nr. 45
+2025-07-15 22:41:40,025 - INFO - ✅ Gefundener Fahrer für DN-Nr. 45: Atef Ing. Khater
+2025-07-15 22:41:40,025 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Atef Ing. Khater' für DN-Nr. 45
+2025-07-15 22:41:40,026 - INFO - ✅ Gefundener Fahrer für DN-Nr. 45: Atef Ing. Khater
+2025-07-15 22:41:40,026 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Atef Ing. Khater' für DN-Nr. 45
+2025-07-15 22:41:40,026 - INFO - ✅ Gefundener Fahrer für DN-Nr. 45: Atef Ing. Khater
+2025-07-15 22:41:40,027 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Atef Ing. Khater' für DN-Nr. 45
+2025-07-15 22:41:40,027 - INFO - ✅ Gefundener Fahrer für DN-Nr. 45: Atef Ing. Khater
+2025-07-15 22:41:40,027 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Atef Ing. Khater' für DN-Nr. 45
+2025-07-15 22:41:40,028 - INFO - ✅ Gefundener Fahrer für DN-Nr. 45: Atef Ing. Khater
+2025-07-15 22:41:40,028 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Atef Ing. Khater' für DN-Nr. 45
+2025-07-15 22:41:40,028 - INFO - ✅ Gefundener Fahrer für DN-Nr. 45: Atef Ing. Khater
+2025-07-15 22:41:40,029 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Atef Ing. Khater' für DN-Nr. 45
+2025-07-15 22:41:40,029 - INFO - ✅ Gefundener Fahrer für DN-Nr. 45: Atef Ing. Khater
+2025-07-15 22:41:40,029 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Atef Ing. Khater' für DN-Nr. 45
+2025-07-15 22:41:40,030 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 5360091156 gefunden
+2025-07-15 22:41:40,030 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 5360091156 gefunden
+2025-07-15 22:41:40,031 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 5360091156 gefunden
+2025-07-15 22:41:40,031 - INFO - Seite 16: 1 Einträge gefunden
+2025-07-15 22:41:41,662 - INFO - ✅ Gefundener Fahrer für DN-Nr. 46: Walid Elsayed
+2025-07-15 22:41:41,663 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Walid Elsayed' für DN-Nr. 46
+2025-07-15 22:41:41,663 - INFO - ✅ Gefundener Fahrer für DN-Nr. 46: Walid Elsayed
+2025-07-15 22:41:41,663 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Walid Elsayed' für DN-Nr. 46
+2025-07-15 22:41:41,664 - INFO - ✅ Gefundener Fahrer für DN-Nr. 46: Walid Elsayed
+2025-07-15 22:41:41,664 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Walid Elsayed' für DN-Nr. 46
+2025-07-15 22:41:41,665 - INFO - ✅ Gefundener Fahrer für DN-Nr. 46: Walid Elsayed
+2025-07-15 22:41:41,665 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Walid Elsayed' für DN-Nr. 46
+2025-07-15 22:41:41,666 - INFO - ✅ Gefundener Fahrer für DN-Nr. 46: Walid Elsayed
+2025-07-15 22:41:41,666 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Walid Elsayed' für DN-Nr. 46
+2025-07-15 22:41:41,666 - INFO - ✅ Gefundener Fahrer für DN-Nr. 46: Walid Elsayed
+2025-07-15 22:41:41,666 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Walid Elsayed' für DN-Nr. 46
+2025-07-15 22:41:41,667 - INFO - ✅ Gefundener Fahrer für DN-Nr. 46: Walid Elsayed
+2025-07-15 22:41:41,667 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Walid Elsayed' für DN-Nr. 46
+2025-07-15 22:41:41,668 - INFO - ✅ Gefundener Fahrer für DN-Nr. 46: Walid Elsayed
+2025-07-15 22:41:41,668 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Walid Elsayed' für DN-Nr. 46
+2025-07-15 22:41:41,669 - INFO - ✅ Gefundener Fahrer für DN-Nr. 46: Walid Elsayed
+2025-07-15 22:41:41,669 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Walid Elsayed' für DN-Nr. 46
+2025-07-15 22:41:41,670 - INFO - ✅ Gefundener Fahrer für DN-Nr. 46: Walid Elsayed
+2025-07-15 22:41:41,670 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Walid Elsayed' für DN-Nr. 46
+2025-07-15 22:41:41,670 - INFO - ✅ Gefundener Fahrer für DN-Nr. 46: Walid Elsayed
+2025-07-15 22:41:41,671 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Walid Elsayed' für DN-Nr. 46
+2025-07-15 22:41:41,671 - INFO - ✅ Gefundener Fahrer für DN-Nr. 46: Walid Elsayed
+2025-07-15 22:41:41,671 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Walid Elsayed' für DN-Nr. 46
+2025-07-15 22:41:41,672 - INFO - ✅ Gefundener Fahrer für DN-Nr. 46: Walid Elsayed
+2025-07-15 22:41:41,672 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Walid Elsayed' für DN-Nr. 46
+2025-07-15 22:41:41,673 - INFO - ✅ Gefundener Fahrer für DN-Nr. 46: Walid Elsayed
+2025-07-15 22:41:41,673 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Walid Elsayed' für DN-Nr. 46
+2025-07-15 22:41:41,673 - INFO - ✅ Gefundener Fahrer für DN-Nr. 46: Walid Elsayed
+2025-07-15 22:41:41,674 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Walid Elsayed' für DN-Nr. 46
+2025-07-15 22:41:41,674 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 2632130187 gefunden
+2025-07-15 22:41:41,675 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 2632130187 gefunden
+2025-07-15 22:41:41,675 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 2632130187 gefunden
+2025-07-15 22:41:41,676 - INFO - Seite 17: 1 Einträge gefunden
+2025-07-15 22:41:43,296 - INFO - ✅ Gefundener Fahrer für DN-Nr. 47: Raman Kumar
+2025-07-15 22:41:43,296 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Raman Kumar' für DN-Nr. 47
+2025-07-15 22:41:43,297 - INFO - ✅ Gefundener Fahrer für DN-Nr. 47: Raman Kumar
+2025-07-15 22:41:43,297 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Raman Kumar' für DN-Nr. 47
+2025-07-15 22:41:43,297 - INFO - ✅ Gefundener Fahrer für DN-Nr. 47: Raman Kumar
+2025-07-15 22:41:43,297 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Raman Kumar' für DN-Nr. 47
+2025-07-15 22:41:43,298 - INFO - ✅ Gefundener Fahrer für DN-Nr. 47: Raman Kumar
+2025-07-15 22:41:43,298 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Raman Kumar' für DN-Nr. 47
+2025-07-15 22:41:43,299 - INFO - ✅ Gefundener Fahrer für DN-Nr. 47: Raman Kumar
+2025-07-15 22:41:43,299 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Raman Kumar' für DN-Nr. 47
+2025-07-15 22:41:43,299 - INFO - ✅ Gefundener Fahrer für DN-Nr. 47: Raman Kumar
+2025-07-15 22:41:43,299 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Raman Kumar' für DN-Nr. 47
+2025-07-15 22:41:43,300 - INFO - ✅ Gefundener Fahrer für DN-Nr. 47: Raman Kumar
+2025-07-15 22:41:43,300 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Raman Kumar' für DN-Nr. 47
+2025-07-15 22:41:43,300 - INFO - ✅ Gefundener Fahrer für DN-Nr. 47: Raman Kumar
+2025-07-15 22:41:43,301 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Raman Kumar' für DN-Nr. 47
+2025-07-15 22:41:43,301 - INFO - ✅ Gefundener Fahrer für DN-Nr. 47: Raman Kumar
+2025-07-15 22:41:43,301 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Raman Kumar' für DN-Nr. 47
+2025-07-15 22:41:43,302 - INFO - ✅ Gefundener Fahrer für DN-Nr. 47: Raman Kumar
+2025-07-15 22:41:43,302 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Raman Kumar' für DN-Nr. 47
+2025-07-15 22:41:43,302 - INFO - ✅ Gefundener Fahrer für DN-Nr. 47: Raman Kumar
+2025-07-15 22:41:43,303 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Raman Kumar' für DN-Nr. 47
+2025-07-15 22:41:43,303 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 4211070680 gefunden
+2025-07-15 22:41:43,304 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 4211070680 gefunden
+2025-07-15 22:41:43,304 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 4211070680 gefunden
+2025-07-15 22:41:43,304 - INFO - Seite 18: 1 Einträge gefunden
+2025-07-15 22:41:44,852 - INFO - ✅ Gefundener Fahrer für DN-Nr. 49: Sabry Kalib
+2025-07-15 22:41:44,852 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Sabry Kalib' für DN-Nr. 49
+2025-07-15 22:41:44,853 - INFO - ✅ Gefundener Fahrer für DN-Nr. 49: Sabry Kalib
+2025-07-15 22:41:44,853 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Sabry Kalib' für DN-Nr. 49
+2025-07-15 22:41:44,854 - INFO - ✅ Gefundener Fahrer für DN-Nr. 49: Sabry Kalib
+2025-07-15 22:41:44,854 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Sabry Kalib' für DN-Nr. 49
+2025-07-15 22:41:44,854 - INFO - ✅ Gefundener Fahrer für DN-Nr. 49: Sabry Kalib
+2025-07-15 22:41:44,855 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Sabry Kalib' für DN-Nr. 49
+2025-07-15 22:41:44,855 - INFO - ✅ Gefundener Fahrer für DN-Nr. 49: Sabry Kalib
+2025-07-15 22:41:44,855 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Sabry Kalib' für DN-Nr. 49
+2025-07-15 22:41:44,856 - INFO - ✅ Gefundener Fahrer für DN-Nr. 49: Sabry Kalib
+2025-07-15 22:41:44,856 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Sabry Kalib' für DN-Nr. 49
+2025-07-15 22:41:44,856 - INFO - ✅ Gefundener Fahrer für DN-Nr. 49: Sabry Kalib
+2025-07-15 22:41:44,856 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Sabry Kalib' für DN-Nr. 49
+2025-07-15 22:41:44,857 - INFO - ✅ Gefundener Fahrer für DN-Nr. 49: Sabry Kalib
+2025-07-15 22:41:44,857 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Sabry Kalib' für DN-Nr. 49
+2025-07-15 22:41:44,858 - INFO - ✅ Gefundener Fahrer für DN-Nr. 49: Sabry Kalib
+2025-07-15 22:41:44,858 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Sabry Kalib' für DN-Nr. 49
+2025-07-15 22:41:44,858 - INFO - ✅ Gefundener Fahrer für DN-Nr. 49: Sabry Kalib
+2025-07-15 22:41:44,858 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Sabry Kalib' für DN-Nr. 49
+2025-07-15 22:41:44,859 - INFO - ✅ Gefundener Fahrer für DN-Nr. 49: Sabry Kalib
+2025-07-15 22:41:44,859 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Sabry Kalib' für DN-Nr. 49
+2025-07-15 22:41:44,859 - INFO - ✅ Gefundener Fahrer für DN-Nr. 49: Sabry Kalib
+2025-07-15 22:41:44,860 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Sabry Kalib' für DN-Nr. 49
+2025-07-15 22:41:44,860 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 6006290763 gefunden
+2025-07-15 22:41:44,861 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 6006290763 gefunden
+2025-07-15 22:41:44,861 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 6006290763 gefunden
+2025-07-15 22:41:44,861 - INFO - Seite 19: 1 Einträge gefunden
+2025-07-15 22:41:46,461 - INFO - ✅ Gefundener Fahrer für DN-Nr. 50: Mostafa Dawoud
+2025-07-15 22:41:46,461 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mostafa Dawoud' für DN-Nr. 50
+2025-07-15 22:41:46,462 - INFO - ✅ Gefundener Fahrer für DN-Nr. 50: Mostafa Dawoud
+2025-07-15 22:41:46,462 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mostafa Dawoud' für DN-Nr. 50
+2025-07-15 22:41:46,463 - INFO - ✅ Gefundener Fahrer für DN-Nr. 50: Mostafa Dawoud
+2025-07-15 22:41:46,463 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mostafa Dawoud' für DN-Nr. 50
+2025-07-15 22:41:46,463 - INFO - ✅ Gefundener Fahrer für DN-Nr. 50: Mostafa Dawoud
+2025-07-15 22:41:46,464 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mostafa Dawoud' für DN-Nr. 50
+2025-07-15 22:41:46,464 - INFO - ✅ Gefundener Fahrer für DN-Nr. 50: Mostafa Dawoud
+2025-07-15 22:41:46,464 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mostafa Dawoud' für DN-Nr. 50
+2025-07-15 22:41:46,465 - INFO - ✅ Gefundener Fahrer für DN-Nr. 50: Mostafa Dawoud
+2025-07-15 22:41:46,465 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mostafa Dawoud' für DN-Nr. 50
+2025-07-15 22:41:46,465 - INFO - ✅ Gefundener Fahrer für DN-Nr. 50: Mostafa Dawoud
+2025-07-15 22:41:46,465 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mostafa Dawoud' für DN-Nr. 50
+2025-07-15 22:41:46,466 - INFO - ✅ Gefundener Fahrer für DN-Nr. 50: Mostafa Dawoud
+2025-07-15 22:41:46,466 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mostafa Dawoud' für DN-Nr. 50
+2025-07-15 22:41:46,466 - INFO - ✅ Gefundener Fahrer für DN-Nr. 50: Mostafa Dawoud
+2025-07-15 22:41:46,467 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mostafa Dawoud' für DN-Nr. 50
+2025-07-15 22:41:46,467 - INFO - ✅ Gefundener Fahrer für DN-Nr. 50: Mostafa Dawoud
+2025-07-15 22:41:46,467 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mostafa Dawoud' für DN-Nr. 50
+2025-07-15 22:41:46,468 - INFO - ✅ Gefundener Fahrer für DN-Nr. 50: Mostafa Dawoud
+2025-07-15 22:41:46,468 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mostafa Dawoud' für DN-Nr. 50
+2025-07-15 22:41:46,468 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 6096080566 gefunden
+2025-07-15 22:41:46,469 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 6096080566 gefunden
+2025-07-15 22:41:46,469 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 6096080566 gefunden
+2025-07-15 22:41:46,469 - INFO - Seite 20: 1 Einträge gefunden
+2025-07-15 22:41:48,047 - INFO - ✅ Gefundener Fahrer für DN-Nr. 51: Vedat Özdemir
+2025-07-15 22:41:48,047 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Vedat Özdemir' für DN-Nr. 51
+2025-07-15 22:41:48,048 - INFO - ✅ Gefundener Fahrer für DN-Nr. 51: Vedat Özdemir
+2025-07-15 22:41:48,048 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Vedat Özdemir' für DN-Nr. 51
+2025-07-15 22:41:48,048 - INFO - ✅ Gefundener Fahrer für DN-Nr. 51: Vedat Özdemir
+2025-07-15 22:41:48,049 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Vedat Özdemir' für DN-Nr. 51
+2025-07-15 22:41:48,049 - INFO - ✅ Gefundener Fahrer für DN-Nr. 51: Vedat Özdemir
+2025-07-15 22:41:48,049 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Vedat Özdemir' für DN-Nr. 51
+2025-07-15 22:41:48,050 - INFO - ✅ Gefundener Fahrer für DN-Nr. 51: Vedat Özdemir
+2025-07-15 22:41:48,050 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Vedat Özdemir' für DN-Nr. 51
+2025-07-15 22:41:48,051 - INFO - ✅ Gefundener Fahrer für DN-Nr. 51: Vedat Özdemir
+2025-07-15 22:41:48,051 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Vedat Özdemir' für DN-Nr. 51
+2025-07-15 22:41:48,051 - INFO - ✅ Gefundener Fahrer für DN-Nr. 51: Vedat Özdemir
+2025-07-15 22:41:48,051 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Vedat Özdemir' für DN-Nr. 51
+2025-07-15 22:41:48,052 - INFO - ✅ Gefundener Fahrer für DN-Nr. 51: Vedat Özdemir
+2025-07-15 22:41:48,052 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Vedat Özdemir' für DN-Nr. 51
+2025-07-15 22:41:48,052 - INFO - ✅ Gefundener Fahrer für DN-Nr. 51: Vedat Özdemir
+2025-07-15 22:41:48,053 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Vedat Özdemir' für DN-Nr. 51
+2025-07-15 22:41:48,053 - INFO - ✅ Gefundener Fahrer für DN-Nr. 51: Vedat Özdemir
+2025-07-15 22:41:48,053 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Vedat Özdemir' für DN-Nr. 51
+2025-07-15 22:41:48,054 - INFO - ✅ Gefundener Fahrer für DN-Nr. 51: Vedat Özdemir
+2025-07-15 22:41:48,054 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Vedat Özdemir' für DN-Nr. 51
+2025-07-15 22:41:48,055 - INFO - ✅ Gefundener Fahrer für DN-Nr. 51: Vedat Özdemir
+2025-07-15 22:41:48,055 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Vedat Özdemir' für DN-Nr. 51
+2025-07-15 22:41:48,056 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 1719150776 gefunden
+2025-07-15 22:41:48,056 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 1719150776 gefunden
+2025-07-15 22:41:48,056 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 1719150776 gefunden
+2025-07-15 22:41:48,057 - INFO - Seite 21: 1 Einträge gefunden
+2025-07-15 22:41:49,611 - INFO - ✅ Gefundener Fahrer für DN-Nr. 52: Sunaina Sharma
+2025-07-15 22:41:49,611 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Sunaina Sharma' für DN-Nr. 52
+2025-07-15 22:41:49,612 - INFO - ✅ Gefundener Fahrer für DN-Nr. 52: Sunaina Sharma
+2025-07-15 22:41:49,612 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Sunaina Sharma' für DN-Nr. 52
+2025-07-15 22:41:49,613 - INFO - ✅ Gefundener Fahrer für DN-Nr. 52: Sunaina Sharma
+2025-07-15 22:41:49,613 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Sunaina Sharma' für DN-Nr. 52
+2025-07-15 22:41:49,613 - INFO - ✅ Gefundener Fahrer für DN-Nr. 52: Sunaina Sharma
+2025-07-15 22:41:49,613 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Sunaina Sharma' für DN-Nr. 52
+2025-07-15 22:41:49,614 - INFO - ✅ Gefundener Fahrer für DN-Nr. 52: Sunaina Sharma
+2025-07-15 22:41:49,614 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Sunaina Sharma' für DN-Nr. 52
+2025-07-15 22:41:49,614 - INFO - ✅ Gefundener Fahrer für DN-Nr. 52: Sunaina Sharma
+2025-07-15 22:41:49,615 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Sunaina Sharma' für DN-Nr. 52
+2025-07-15 22:41:49,615 - INFO - ✅ Gefundener Fahrer für DN-Nr. 52: Sunaina Sharma
+2025-07-15 22:41:49,615 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Sunaina Sharma' für DN-Nr. 52
+2025-07-15 22:41:49,616 - INFO - ✅ Gefundener Fahrer für DN-Nr. 52: Sunaina Sharma
+2025-07-15 22:41:49,616 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Sunaina Sharma' für DN-Nr. 52
+2025-07-15 22:41:49,616 - INFO - ✅ Gefundener Fahrer für DN-Nr. 52: Sunaina Sharma
+2025-07-15 22:41:49,616 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Sunaina Sharma' für DN-Nr. 52
+2025-07-15 22:41:49,617 - INFO - ✅ Gefundener Fahrer für DN-Nr. 52: Sunaina Sharma
+2025-07-15 22:41:49,617 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Sunaina Sharma' für DN-Nr. 52
+2025-07-15 22:41:49,618 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 6696150388 gefunden
+2025-07-15 22:41:49,618 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 6696150388 gefunden
+2025-07-15 22:41:49,619 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 6696150388 gefunden
+2025-07-15 22:41:49,619 - INFO - Seite 22: 1 Einträge gefunden
+2025-07-15 22:41:51,123 - INFO - ✅ Gefundener Fahrer für DN-Nr. 53: Mesut Uysal
+2025-07-15 22:41:51,123 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mesut Uysal' für DN-Nr. 53
+2025-07-15 22:41:51,124 - INFO - ✅ Gefundener Fahrer für DN-Nr. 53: Mesut Uysal
+2025-07-15 22:41:51,124 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mesut Uysal' für DN-Nr. 53
+2025-07-15 22:41:51,125 - INFO - ✅ Gefundener Fahrer für DN-Nr. 53: Mesut Uysal
+2025-07-15 22:41:51,125 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mesut Uysal' für DN-Nr. 53
+2025-07-15 22:41:51,125 - INFO - ✅ Gefundener Fahrer für DN-Nr. 53: Mesut Uysal
+2025-07-15 22:41:51,125 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mesut Uysal' für DN-Nr. 53
+2025-07-15 22:41:51,126 - INFO - ✅ Gefundener Fahrer für DN-Nr. 53: Mesut Uysal
+2025-07-15 22:41:51,126 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mesut Uysal' für DN-Nr. 53
+2025-07-15 22:41:51,126 - INFO - ✅ Gefundener Fahrer für DN-Nr. 53: Mesut Uysal
+2025-07-15 22:41:51,126 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mesut Uysal' für DN-Nr. 53
+2025-07-15 22:41:51,127 - INFO - ✅ Gefundener Fahrer für DN-Nr. 53: Mesut Uysal
+2025-07-15 22:41:51,127 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mesut Uysal' für DN-Nr. 53
+2025-07-15 22:41:51,128 - INFO - ✅ Gefundener Fahrer für DN-Nr. 53: Mesut Uysal
+2025-07-15 22:41:51,128 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mesut Uysal' für DN-Nr. 53
+2025-07-15 22:41:51,128 - INFO - ✅ Gefundener Fahrer für DN-Nr. 53: Mesut Uysal
+2025-07-15 22:41:51,128 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mesut Uysal' für DN-Nr. 53
+2025-07-15 22:41:51,129 - INFO - ✅ Gefundener Fahrer für DN-Nr. 53: Mesut Uysal
+2025-07-15 22:41:51,129 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Mesut Uysal' für DN-Nr. 53
+2025-07-15 22:41:51,130 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 2645031188 gefunden
+2025-07-15 22:41:51,130 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 2645031188 gefunden
+2025-07-15 22:41:51,130 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 2645031188 gefunden
+2025-07-15 22:41:51,131 - INFO - Seite 23: 1 Einträge gefunden
+2025-07-15 22:41:52,659 - INFO - ✅ Gefundener Fahrer für DN-Nr. 54: Hasan Serin
+2025-07-15 22:41:52,659 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Hasan Serin' für DN-Nr. 54
+2025-07-15 22:41:52,660 - INFO - ✅ Gefundener Fahrer für DN-Nr. 54: Hasan Serin
+2025-07-15 22:41:52,660 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Hasan Serin' für DN-Nr. 54
+2025-07-15 22:41:52,661 - INFO - ✅ Gefundener Fahrer für DN-Nr. 54: Hasan Serin
+2025-07-15 22:41:52,661 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Hasan Serin' für DN-Nr. 54
+2025-07-15 22:41:52,661 - INFO - ✅ Gefundener Fahrer für DN-Nr. 54: Hasan Serin
+2025-07-15 22:41:52,661 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Hasan Serin' für DN-Nr. 54
+2025-07-15 22:41:52,662 - INFO - ✅ Gefundener Fahrer für DN-Nr. 54: Hasan Serin
+2025-07-15 22:41:52,662 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Hasan Serin' für DN-Nr. 54
+2025-07-15 22:41:52,662 - INFO - ✅ Gefundener Fahrer für DN-Nr. 54: Hasan Serin
+2025-07-15 22:41:52,663 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Hasan Serin' für DN-Nr. 54
+2025-07-15 22:41:52,663 - INFO - ✅ Gefundener Fahrer für DN-Nr. 54: Hasan Serin
+2025-07-15 22:41:52,663 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Hasan Serin' für DN-Nr. 54
+2025-07-15 22:41:52,664 - INFO - ✅ Gefundener Fahrer für DN-Nr. 54: Hasan Serin
+2025-07-15 22:41:52,664 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Hasan Serin' für DN-Nr. 54
+2025-07-15 22:41:52,664 - INFO - ✅ Gefundener Fahrer für DN-Nr. 54: Hasan Serin
+2025-07-15 22:41:52,664 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Hasan Serin' für DN-Nr. 54
+2025-07-15 22:41:52,665 - INFO - ✅ Gefundener Fahrer für DN-Nr. 54: Hasan Serin
+2025-07-15 22:41:52,665 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Hasan Serin' für DN-Nr. 54
+2025-07-15 22:41:52,666 - INFO - ✅ Gefundener Fahrer für DN-Nr. 54: Hasan Serin
+2025-07-15 22:41:52,666 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Hasan Serin' für DN-Nr. 54
+2025-07-15 22:41:52,666 - INFO - ✅ Gefundener Fahrer für DN-Nr. 54: Hasan Serin
+2025-07-15 22:41:52,666 - INFO - ✅ DN-Nr. Match - Verwende Namen aus Datenbank: 'Hasan Serin' für DN-Nr. 54
+2025-07-15 22:41:52,667 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 5454100279 gefunden
+2025-07-15 22:41:52,668 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 5454100279 gefunden
+2025-07-15 22:41:52,668 - WARNING - ⚠️ Kein Fahrer für DN-Nr. 5454100279 gefunden
+2025-07-15 22:41:52,668 - INFO - Seite 24: 1 Einträge gefunden
+2025-07-15 22:41:52,669 - INFO - ⏭️ Duplikat übersprungen: Ahmed Abd El All Diab (DN-Nr: 3)
+2025-07-15 22:41:52,669 - INFO - ⏭️ Duplikat übersprungen: Abd-Elmonem Naeim (DN-Nr: 7)
+2025-07-15 22:41:52,669 - INFO - ⏭️ Duplikat übersprungen: Insari Imtiaz Ahmad (DN-Nr: 4909110373)
+2025-07-15 22:41:52,669 - INFO - ⏭️ Duplikat übersprungen: Mohamed Hussein Hassan (DN-Nr: 9)
+2025-07-15 22:41:52,670 - INFO - ⏭️ Duplikat übersprungen: Mohamad Sahraie (DN-Nr: 18)
+2025-07-15 22:41:52,670 - INFO - ⏭️ Duplikat übersprungen: Hersi Omar Mohamud (DN-Nr: 20)
+2025-07-15 22:41:52,670 - INFO - ⏭️ Duplikat übersprungen: Goran Mitrovic (DN-Nr: 22)
+2025-07-15 22:41:52,670 - INFO - ⏭️ Duplikat übersprungen: Rajinder Singh (DN-Nr: 25)
+2025-07-15 22:41:52,670 - INFO - ⏭️ Duplikat übersprungen: Osama Ahmed (DN-Nr: 27)
+2025-07-15 22:41:52,670 - INFO - ⏭️ Duplikat übersprungen: Mohamed Tawfek (DN-Nr: 30)
+2025-07-15 22:41:52,671 - INFO - ⏭️ Duplikat übersprungen: Sayed Elsayed (DN-Nr: 33)
+2025-07-15 22:41:52,671 - INFO - ⏭️ Duplikat übersprungen: Mustafa Yürük (DN-Nr: 40)
+2025-07-15 22:41:52,671 - INFO - ⏭️ Duplikat übersprungen: Yasser Elsandidy (DN-Nr: 41)
+2025-07-15 22:41:52,671 - INFO - ⏭️ Duplikat übersprungen: Shamel El Bahrawy (DN-Nr: 42)
+2025-07-15 22:41:52,671 - INFO - ⏭️ Duplikat übersprungen: Nasser-Ali Ali (DN-Nr: 44)
+2025-07-15 22:41:52,672 - INFO - ⏭️ Duplikat übersprungen: Atef Ing. Khater (DN-Nr: 45)
+2025-07-15 22:41:52,672 - INFO - ⏭️ Duplikat übersprungen: Walid Elsayed (DN-Nr: 46)
+2025-07-15 22:41:52,672 - INFO - ⏭️ Duplikat übersprungen: Raman Kumar (DN-Nr: 47)
+2025-07-15 22:41:52,672 - INFO - ⏭️ Duplikat übersprungen: Sabry Kalib (DN-Nr: 49)
+2025-07-15 22:41:52,672 - INFO - ⏭️ Duplikat übersprungen: Mostafa Dawoud (DN-Nr: 50)
+2025-07-15 22:41:52,672 - INFO - ⏭️ Duplikat übersprungen: Vedat Özdemir (DN-Nr: 51)
+2025-07-15 22:41:52,673 - INFO - ⏭️ Duplikat übersprungen: Sunaina Sharma (DN-Nr: 52)
+2025-07-15 22:41:52,673 - INFO - ⏭️ Duplikat übersprungen: Mesut Uysal (DN-Nr: 53)
+2025-07-15 22:41:52,673 - INFO - ⏭️ Duplikat übersprungen: Hasan Serin (DN-Nr: 54)
+2025-07-15 22:41:52,673 - INFO - ✅ 0 neue Einträge in Tabelle 04_25 gespeichert
+2025-07-15 22:41:52,673 - INFO - ⏭️ 24 Duplikate übersprungen

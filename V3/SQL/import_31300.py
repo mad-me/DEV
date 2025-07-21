@@ -36,13 +36,14 @@ def verarbeite_datei(csv_datei):
     df.columns = df.columns.str.strip()
     df["week"] = kalenderwoche
 
-    # === Spalten wie bei 40100 behandeln
+    # === Spalten wie im Screenshot behandeln
     zielspalten = [
-        "Fahrzeug", "Fahrer", "Fahrername", "Abschluss", "Buchungsart",
-        "Zahlungsmittel", "Belegtext", "Fahrtkosten", "Trinkgeld", "Umsatz",
-        "Bargeld", "Auftragsart", "Status", "week"
+        "Fahrzeug", "Fahrer", "Fahrername", "Abschluss", "Beleg", "Zeitpunkt", "Leistung", "Tour",
+        "Buchungsart", "Zahlungsmittel", "Belegtext", "Gesamt", "Kst", "10%", "20%", "Fahrtkosten",
+        "Trinkgeld", "Auftragsart", "Status", "Bemerkung"
     ]
-    for col in ["Fahrtkosten", "Trinkgeld", "Umsatz", "Bargeld"]:
+    # Typkonvertierung für numerische Spalten
+    for col in ["Fahrtkosten", "Trinkgeld", "Gesamt", "10%", "20%"]:
         if col in df.columns:
             df[col] = (
                 df[col].astype(str)
@@ -66,16 +67,22 @@ def verarbeite_datei(csv_datei):
             Fahrer TEXT,
             Fahrername TEXT,
             Abschluss TEXT,
+            Beleg TEXT,
+            Zeitpunkt TEXT,
+            Leistung TEXT,
+            Tour TEXT,
             Buchungsart TEXT,
             Zahlungsmittel TEXT,
             Belegtext TEXT,
+            Gesamt REAL,
+            Kst TEXT,
+            "10%" REAL,
+            "20%" REAL,
             Fahrtkosten REAL,
             Trinkgeld REAL,
-            Umsatz REAL,
-            Bargeld REAL,
             Auftragsart TEXT,
             Status TEXT,
-            week TEXT
+            Bemerkung TEXT
         );
     """
     cursor.execute(create_sql)

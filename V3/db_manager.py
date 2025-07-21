@@ -27,7 +27,7 @@ class DBManager:
         with self._connect() as conn:
             cursor = conn.cursor()
             cursor.execute("""
-                SELECT license_plate, brand, model, year, insurance, credit
+                SELECT license_plate, rfrnc, model, year, insurance, credit
                 FROM vehicles
                 WHERE license_plate = ?
             """, (license_plate,))
@@ -196,5 +196,37 @@ class DBManager:
                 data.get("hire_date", None),
                 data.get("status", "active"),
                 driver_id
+            ))
+            conn.commit() 
+
+    def get_mitarbeiter_by_id(self, driver_id):
+        """Gibt einen Mitarbeiter als Tupel anhand der ID zurück"""
+        with self._connect() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT driver_id, driver_license_number, first_name, last_name, phone, email, hire_date, status
+                FROM drivers
+                WHERE driver_id = ?
+            """, (driver_id,))
+            return cursor.fetchone() 
+
+    def update_mitarbeiter_id_and_data(self, alte_id, neue_id, data):
+        """Aktualisiert alle Felder eines Mitarbeiters und setzt auch die ID neu."""
+        with self._connect() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                UPDATE drivers
+                SET driver_id = ?, driver_license_number = ?, first_name = ?, last_name = ?, phone = ?, email = ?, hire_date = ?, status = ?
+                WHERE driver_id = ?
+            """, (
+                neue_id,
+                data["driver_license_number"],
+                data["first_name"],
+                data["last_name"],
+                data.get("phone", ""),
+                data.get("email", ""),
+                data.get("hire_date", None),
+                data.get("status", "active"),
+                alte_id
             ))
             conn.commit() 

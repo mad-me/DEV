@@ -1,10 +1,13 @@
 import sys
 import os
+print("Arbeitsverzeichnis:", os.getcwd())
+print("QML_IMPORT_PATH:", os.environ.get("QML_IMPORT_PATH"))
+print("Python-Executable:", sys.executable)
 # Arbeitsverzeichnis auf das Skriptverzeichnis setzen
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 # Qt-Logging reduzieren
-os.environ["QT_LOGGING_RULES"] = "*.debug=false;qt.qpa.*=false;qt.qml.*=false;*.warning=false"
+#os.environ["QT_LOGGING_RULES"] = "*.debug=false;qt.qpa.*=false;qt.qml.*=false;*.warning=false"
 
 from PySide6.QtCore import QObject, Signal, QUrl, Property
 from PySide6.QtQml import QQmlApplicationEngine
@@ -53,7 +56,7 @@ class DashboardApp(QObject):
         print(f"Lade QML-Datei: {qml_file}")
         print(f"Import-Pfad: {current_dir}")
         print(f"qmldir-Inhalt:")
-        qmldir_path = os.path.join(current_dir, "qmldir")
+        qmldir_path = os.path.join(current_dir, "Style", "qmldir")
         if os.path.exists(qmldir_path):
             with open(qmldir_path, 'r') as f:
                 print(f"  {f.read().strip()}")
@@ -74,6 +77,7 @@ class DashboardApp(QObject):
             print("QML-Datei erfolgreich geladen!")
             root_window = self.engine.rootObjects()[0]
             self.abrechnungs_backend.set_root_window(root_window)
+            # root_window.showFullScreen()
     
 def main():
     # QApplication für QML-Singleton-Support
@@ -89,4 +93,4 @@ def main():
     sys.exit(app.exec())
 
 if __name__ == "__main__":
-    main() 
+    main()

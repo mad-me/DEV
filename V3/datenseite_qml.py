@@ -525,13 +525,21 @@ class DatenSeiteQML(QObject):
                                 monat = monat_data["monat"]
                                 jahr = datetime.now().year # Standardwert
                                 self.erstelle_monatsbericht(fahrzeug, monat, jahr)
-                                if self._monat_wizard:
-                                    self._monat_wizard.close()
+                                if getattr(self, '_monat_wizard', None):
+                                    try:
+                                        self._monat_wizard.close()
+                                    except RuntimeError:
+                                        pass
+                                    self._monat_wizard = None
                             fahrzeug_fields = [("Fahrzeug", "fahrzeug", "combo", fahrzeuge)]
                             self._fahrzeug_wizard = GenericWizard(fahrzeug_fields, callback=fahrzeug_callback, parent=None, title="Fahrzeug wählen")
                             self._fahrzeug_wizard.show()
-                            if self._monat_wizard:
-                                self._monat_wizard.close()
+                            if getattr(self, '_monat_wizard', None):
+                                try:
+                                    self._monat_wizard.close()
+                                except RuntimeError:
+                                    pass
+                                self._monat_wizard = None
                         monat_fields = [("Monat", "monat", "combo", monate)]
                         self._monat_wizard = GenericWizard(monat_fields, callback=monat_callback, parent=None, title="Abgeschlossener Monat")
                         self._monat_wizard.show()
