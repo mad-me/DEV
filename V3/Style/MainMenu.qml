@@ -239,7 +239,9 @@ ApplicationWindow {
     }
 
     function loadAbrechnungsseite() {
-        stackView.replace("Abrechnungsseite.qml")
+        stackView.replace("Abrechnungsseite.qml", {
+            goHome: function() { goBack(); }
+        })
     }
 
     function loadDatenseite() {

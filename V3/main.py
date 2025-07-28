@@ -6,8 +6,6 @@ print("Python-Executable:", sys.executable)
 # Arbeitsverzeichnis auf das Skriptverzeichnis setzen
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-# Qt-Logging reduzieren
-#os.environ["QT_LOGGING_RULES"] = "*.debug=false;qt.qpa.*=false;qt.qml.*=false;*.warning=false"
 
 from PySide6.QtCore import QObject, Signal, QUrl, Property
 from PySide6.QtQml import QQmlApplicationEngine
@@ -43,6 +41,9 @@ class DashboardApp(QObject):
         self.main_menu_backend = MainMenuQML()
         self.salary_loader_backend = SalaryLoaderBackend()
 
+        print("DEBUG: Backend-Instanzen erstellt")
+        print("DEBUG: abrechnungs_backend:", self.abrechnungs_backend)
+
         # Backends an QML-Kontext registrieren
         self.engine.rootContext().setContextProperty("abrechnungsBackend", self.abrechnungs_backend)
         self.engine.rootContext().setContextProperty("datenBackend", self.daten_backend)
@@ -51,19 +52,21 @@ class DashboardApp(QObject):
         self.engine.rootContext().setContextProperty("mainMenuBackend", self.main_menu_backend)
         self.engine.rootContext().setContextProperty("salaryLoaderBackend", self.salary_loader_backend)
 
+        print("DEBUG: Backends an QML-Kontext registriert")
+
         # QML-Datei laden
         qml_file = os.path.join(current_dir, "Style/MainMenu.qml")
         print(f"Lade QML-Datei: {qml_file}")
         print(f"Import-Pfad: {current_dir}")
-        print(f"qmldir-Inhalt:")
-        qmldir_path = os.path.join(current_dir, "Style", "qmldir")
-        if os.path.exists(qmldir_path):
+        print(f"qmldir-Inhalt:")             # qmldir-Datei auslesen       
+        qmldir_path = os.path.join(current_dir, "Style", "qmldir")          # qmldir-Datei suchen   
+        if os.path.exists(qmldir_path):      # Wenn qmldir-Datei gefunden wurde, dann:
             with open(qmldir_path, 'r') as f:
                 print(f"  {f.read().strip()}")
-        else:
+        else:           # Wenn qmldir-Datei nicht gefunden wurde, dann:
             print("  qmldir-Datei nicht gefunden!")
 
-        self.engine.load(QUrl.fromLocalFile(qml_file))
+        self.engine.load(QUrl.fromLocalFile(qml_file)) # QML-Datei laden
 
         # Prüfen ob QML erfolgreich geladen wurde
         if not self.engine.rootObjects():
@@ -73,17 +76,17 @@ class DashboardApp(QObject):
                 if file.endswith('.qml'):
                     print(f"  - {file}")
             sys.exit(-1)
-        else:
+        else:           # Wenn QML erfolgreich geladen wurde, dann:
             print("QML-Datei erfolgreich geladen!")
             root_window = self.engine.rootObjects()[0]
             self.abrechnungs_backend.set_root_window(root_window)
             # root_window.showFullScreen()
     
-def main():
-    # QApplication für QML-Singleton-Support
-    app = QApplication(sys.argv)
+def main(): # Hauptfunktion
+    # QApplication für QML-Singleton-Support                
+    app = QApplication(sys.argv)    # QApplication erstellen    
     app.setStyle("Basic")  # Reduziert QML-Style-Warnungen
-    engine = QQmlApplicationEngine()
+    engine = QQmlApplicationEngine()        # QML-Engine erstellen  
     app.engine = engine  # <--- WICHTIG!
 
     # Dashboard-App erstellen und starten

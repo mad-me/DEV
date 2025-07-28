@@ -5,15 +5,13 @@ import Style 1.0
 
 Rectangle {
     id: root
-    property var goHome: function() {
-        // Fallback: Blende die Abrechnungsseite aus und zeige das MainMenu
-        root.visible = false;
-        if (typeof mainWindow !== 'undefined') {
-            mainWindow.stackVisible = false;
-        }
-    }
+    width: Screen.width
+    height: Screen.height
     color: Style.background
     radius: Style.radiusNormal
+    
+    // Property für Navigation zur Startseite
+    property var goHome: null
 
     FontLoader {
         id: ubuntuFont
@@ -38,45 +36,132 @@ Rectangle {
     // Seite bleibt leer, solange das Wizard offen ist
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: Style.spacingHuge
-        anchors.topMargin: 52
-        anchors.bottomMargin: 115
-        anchors.rightMargin: 100
-        anchors.leftMargin: 100
-        spacing: 8
+        anchors.margins: Math.max(24, parent.width * 0.05)
+        spacing: Math.max(32, parent.height * 0.03)
         visible: werteGeladen
 
-        // Titel dynamisch setzen
-        Component.onCompleted: {
-            if (typeof mainWindow !== 'undefined') {
-                mainWindow.title = (wizardSelection.fahrzeug ? wizardSelection.fahrzeug.split(" ")[0] : "-") + " - " + (wizardSelection.fahrer || "-");
+        // Summenzeile (zentriert, responsive)
+        RowLayout {
+            Layout.alignment: Qt.AlignHCenter
+            spacing: Math.max(32, parent.width * 0.03)
+            RowLayout {
+                spacing: 4
+                Image { source: "assets/icons/sales_gray.svg"; width: 24; height: 24; fillMode: Image.PreserveAspectFit }
+                Text { text: (abrechnungsBackend ? abrechnungsBackend.headcard_umsatz.toFixed(2) : "0.00") + " €"; font.pixelSize: Math.max(18, root.width * 0.018); color: "white"; font.bold: true; font.family: ubuntuFont.name }
             }
-        }
-        Connections {
-            target: abrechnungsBackend
-            function onErgebnisseChanged() {
-                if (typeof mainWindow !== 'undefined') {
-                    mainWindow.title = (wizardSelection.fahrzeug ? wizardSelection.fahrzeug.split(" ")[0] : "-") + " - " + (wizardSelection.fahrer || "-");
+            RowLayout {
+                spacing: 4
+                visible: abrechnungsBackend && abrechnungsBackend.headcard_trinkgeld > 0
+                Image { source: "assets/icons/tips_gray.svg"; width: 24; height: 24; fillMode: Image.PreserveAspectFit }
+                Text { text: (abrechnungsBackend ? abrechnungsBackend.headcard_trinkgeld.toFixed(2) : "0.00") + " €"; font.pixelSize: Math.max(18, root.width * 0.018); color: "white"; font.bold: true; font.family: ubuntuFont.name }
+            }
+            RowLayout {
+                spacing: 4
+                Image { source: "assets/icons/cash_gray.svg"; width: 24; height: 24; fillMode: Image.PreserveAspectFit }
+                Text { text: (abrechnungsBackend ? abrechnungsBackend.headcard_cash.toFixed(2) : "0.00") + " €"; font.pixelSize: Math.max(18, root.width * 0.018); color: "white"; font.bold: true; font.family: ubuntuFont.name }
+            }
+            RowLayout {
+                spacing: 4
+                Image { source: "assets/icons/credit_card_gray.svg"; width: 24; height: 24; fillMode: Image.PreserveAspectFit }
+                Text { text: (abrechnungsBackend ? abrechnungsBackend.headcard_credit_card.toFixed(2) : "0.00") + " €"; font.pixelSize: Math.max(18, root.width * 0.018); color: "white"; font.bold: true; font.family: ubuntuFont.name }
+            }
+            RowLayout {
+                spacing: 4
+                visible: abrechnungsBackend && abrechnungsBackend.headcard_garage !== undefined
+                Image { source: "assets/icons/parking_gray.svg"; width: 24; height: 24; fillMode: Image.PreserveAspectFit }
+                Text { text: (abrechnungsBackend ? abrechnungsBackend.headcard_garage.toFixed(2) : "0.00") + " €"; font.pixelSize: Math.max(18, root.width * 0.018); color: "white"; font.bold: true; font.family: ubuntuFont.name }
+            }
+            // Deal-Icon und Deal-Typ
+            RowLayout {
+                spacing: Math.max(15, parent.width * 0.015) // Responsive Abstand
+                MouseArea {
+                    id: dealIconArea
+                    width: Math.max(40, parent.width * 0.04) // Responsive Größe
+                    height: Math.max(40, parent.width * 0.04)
+                    hoverEnabled: true
+                    z: 10
+                    Layout.alignment: Qt.AlignVCenter
+                    cursorShape: Qt.PointingHandCursor
+                    onEntered: { }
+                    onExited: { }
+                    onClicked: {
+                        console.log("🔵 OVERLAY ÖFFNEN");
+                        
+                        // WICHTIG: wizardSelection vor dem Laden aktualisieren
+                        wizardSelection = abrechnungsBackend.get_current_selection();
+                        console.log("DEBUG: wizardSelection beim Öffnen aktualisiert:", wizardSelection);
+                        
+                        // Konfiguration laden VOR dem Anzeigen des Overlays
+                        updateMatchedPlatforms();
+                        
+                        // Overlay sichtbar machen
+                        dealOverlay.visible = true;
+                        
+                        // WICHTIG: overlayConfigApplied sofort setzen, damit Berechnungen funktionieren
+                        overlayConfigApplied = true;
+                        console.log("DEBUG: overlayConfigApplied auf true gesetzt beim Öffnen");
+                        console.log("DEBUG: Overlay geöffnet, overlayIncome:", overlayIncome + "€");
+                        console.log("DEBUG: Overlay geöffnet, overlayErgebnis:", overlayErgebnis + "€");
+                        
+                        // Speicher-Status nur zurücksetzen, wenn keine gespeicherte Konfiguration vorhanden ist
+                        if (!overlayConfigCache || overlayConfigCache.length === 0) {
+                            overlayConfigSaved = false;
+                            console.log("  ↪️ overlayConfigSaved auf false gesetzt (keine Cache)");
+                        } else {
+                            console.log("  ✅ overlayConfigSaved bleibt unverändert (Cache vorhanden)");
+                        }
+                        // BottomBar sichtbar halten
+                        bottomBar.visible = true;
+                        bottomBarVisible = true;
+                    }
+                    Image {
+                        anchors.centerIn: parent
+                        width: Math.max(40, parent.width * 0.04) // Responsive Größe
+                        height: Math.max(40, parent.width * 0.04)
+                        source: dealIconArea.containsMouse ? "assets/icons/deal_orange.svg" : "assets/icons/deal_white.svg"
+                        fillMode: Image.PreserveAspectFit
+                        anchors.margins: 0
+                        anchors.leftMargin: 0
+                        anchors.rightMargin: 0
+                        anchors.topMargin: 0
+                        anchors.bottomMargin: 0
+                    }
+                }
+                Text {
+                    text: abrechnungsBackend ? abrechnungsBackend.deal : "P"
+                    font.pixelSize: Math.max(18, root.width * 0.018) // Gleiche Größe wie andere Werte
+                    font.bold: true
+                    color: Style.primary
+                    font.family: ubuntuFont.name
+                    verticalAlignment: Text.AlignVCenter
+                    // Entferne alle Margins/Paddings
+                    leftPadding: 0
+                    rightPadding: 0
+                    topPadding: 0
+                    bottomPadding: 0
+                    padding: 0
                 }
             }
         }
 
-        // Cards für Plattformen und Input-Card nebeneinander
+        // Cards für Plattformen (zentriert, responsive)
         RowLayout {
-            spacing: Style.spacingLarge * 1.6
-            anchors.centerIn: parent
-            anchors.horizontalCenterOffset: -84
-            Layout.topMargin: 150
-            // Cards für Plattformen
+            id: cardsRow
+            Layout.alignment: Qt.AlignHCenter
+            Layout.fillWidth: true
+            Layout.topMargin: -Math.max(32, parent.height * 0.025) // Weiter nach oben versetzen
+            spacing: visibleCardCount > 2 ? Math.max(24, parent.width * 0.02) : Math.max(32, parent.width * 0.03)
+            // Taxi Card
             ColumnLayout {
-                spacing: 32 // vorher 20
+                spacing: Math.max(12, parent.height * 0.01)
                 Layout.alignment: Qt.AlignTop
-                Layout.preferredWidth: 288 // vorher 180
+                Layout.preferredWidth: Math.max(220, parent.width * 0.22)
+                Layout.fillWidth: false
                 visible: card40100.zeile1 !== "-" && !isNaN(parseFloat(card40100.zeile1))
-                Text { text: card40100.label; font.pixelSize: Style.fontSizeTitle * 1.6; font.bold: true; color: "#b0b0b0"; horizontalAlignment: Text.AlignRight; Layout.alignment: Qt.AlignRight; font.family: ubuntuFont.name }
+                Text { text: card40100.label; font.pixelSize: Math.max(20, root.width * 0.02); color: "#f79009"; font.bold: true; font.family: ubuntuFont.name }
                 Rectangle {
-                    Layout.preferredWidth: 288
-                    Layout.preferredHeight: 288
+                    Layout.preferredWidth: Math.max(220, parent.width * 0.22)
+                    Layout.preferredHeight: Math.max(220, parent.width * 0.22)
                     color: "black"
                     radius: Style.radiusLarge
                     border.width: 0
@@ -84,23 +169,25 @@ Rectangle {
                         anchors.fill: parent
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        Layout.margins: Style.spacingLarge * 1.6
-                        spacing: Style.spacingLarge * 1.6
-                        Text { text: card40100.zeile1 + ' €'; font.pixelSize: Style.fontSizeHeader * 1.6; color: Style.text; horizontalAlignment: Text.AlignRight; Layout.alignment: Qt.AlignRight; font.family: ubuntuFont.name }
-                        Text { text: card40100.zeile2 + ' €'; font.pixelSize: Style.fontSizeHeader * 1.6; color: Style.text; horizontalAlignment: Text.AlignRight; Layout.alignment: Qt.AlignRight; font.family: ubuntuFont.name }
-                        Text { text: card40100.zeile3 + ' €'; font.pixelSize: Style.fontSizeHeader * 1.6; font.bold: true; color: Style.text; horizontalAlignment: Text.AlignRight; Layout.alignment: Qt.AlignRight; font.family: ubuntuFont.name }
+                        Layout.margins: Math.max(16, parent.width * 0.02)
+                        spacing: Math.max(12, parent.height * 0.01)
+                        Text { text: card40100.zeile1 + ' €'; font.pixelSize: Math.max(18, root.width * 0.018); color: Style.text; font.family: ubuntuFont.name }
+                        Text { text: card40100.zeile2 + ' €'; font.pixelSize: Math.max(18, root.width * 0.018); color: Style.text; font.family: ubuntuFont.name }
+                        Text { text: card40100.zeile3 + ' €'; font.pixelSize: Math.max(18, root.width * 0.018); font.bold: true; color: Style.text; font.family: ubuntuFont.name }
                     }
                 }
             }
+            // Uber Card
             ColumnLayout {
-                spacing: 32
+                spacing: Math.max(12, parent.height * 0.01)
                 Layout.alignment: Qt.AlignTop
-                Layout.preferredWidth: 288
+                Layout.preferredWidth: Math.max(220, parent.width * 0.22)
+                Layout.fillWidth: false
                 visible: cardUber.zeile1 !== "-" && parseFloat(cardUber.zeile1) > 0
-                Text { text: cardUber.label === "Uber" ? "UBER" : cardUber.label; font.pixelSize: Style.fontSizeTitle * 1.6; font.bold: true; color: "#b0b0b0"; horizontalAlignment: Text.AlignRight; Layout.alignment: Qt.AlignRight; font.family: ubuntuFont.name }
+                Text { text: cardUber.label === "Uber" ? "UBER" : cardUber.label; font.pixelSize: Math.max(20, root.width * 0.02); color: "#f79009"; font.bold: true; font.family: ubuntuFont.name }
                 Rectangle {
-                    Layout.preferredWidth: 288
-                    Layout.preferredHeight: 288
+                    Layout.preferredWidth: Math.max(220, parent.width * 0.22)
+                    Layout.preferredHeight: Math.max(220, parent.width * 0.22)
                     color: "black"
                     radius: Style.radiusLarge
                     border.width: 0
@@ -108,23 +195,25 @@ Rectangle {
                         anchors.fill: parent
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        Layout.margins: Style.spacingLarge * 1.6
-                        spacing: Style.spacingLarge * 1.6
-                        Text { text: cardUber.zeile1 + ' €'; font.pixelSize: Style.fontSizeHeader * 1.6; color: Style.text; horizontalAlignment: Text.AlignRight; Layout.alignment: Qt.AlignRight; font.family: ubuntuFont.name }
-                        Text { text: cardUber.zeile2 + ' €'; font.pixelSize: Style.fontSizeHeader * 1.6; color: Style.text; horizontalAlignment: Text.AlignRight; Layout.alignment: Qt.AlignRight; font.family: ubuntuFont.name }
-                        Text { text: cardUber.zeile3 + ' €'; font.pixelSize: Style.fontSizeHeader * 1.6; font.bold: true; color: Style.text; horizontalAlignment: Text.AlignRight; Layout.alignment: Qt.AlignRight; font.family: ubuntuFont.name }
+                        Layout.margins: Math.max(16, parent.width * 0.02)
+                        spacing: Math.max(12, parent.height * 0.01)
+                        Text { text: cardUber.zeile1 + ' €'; font.pixelSize: Math.max(18, root.width * 0.018); color: Style.text; font.family: ubuntuFont.name }
+                        Text { text: cardUber.zeile2 + ' €'; font.pixelSize: Math.max(18, root.width * 0.018); color: Style.text; font.family: ubuntuFont.name }
+                        Text { text: cardUber.zeile3 + ' €'; font.pixelSize: Math.max(18, root.width * 0.018); font.bold: true; color: Style.text; font.family: ubuntuFont.name }
                     }
                 }
             }
+            // Bolt Card
             ColumnLayout {
-                spacing: 32
+                spacing: Math.max(12, parent.height * 0.01)
                 Layout.alignment: Qt.AlignTop
-                Layout.preferredWidth: 288
+                Layout.preferredWidth: Math.max(220, parent.width * 0.22)
+                Layout.fillWidth: false
                 visible: cardBolt.zeile1 !== "-" && parseFloat(cardBolt.zeile1) > 0
-                Text { text: cardBolt.label === "Bolt" ? "BOLT" : cardBolt.label; font.pixelSize: Style.fontSizeTitle * 1.6; font.bold: true; color: "#b0b0b0"; horizontalAlignment: Text.AlignRight; Layout.alignment: Qt.AlignRight; font.family: ubuntuFont.name }
+                Text { text: cardBolt.label === "Bolt" ? "BOLT" : cardBolt.label; font.pixelSize: Math.max(20, root.width * 0.02); color: "#f79009"; font.bold: true; font.family: ubuntuFont.name }
                 Rectangle {
-                    Layout.preferredWidth: 288
-                    Layout.preferredHeight: 288
+                    Layout.preferredWidth: Math.max(220, parent.width * 0.22)
+                    Layout.preferredHeight: Math.max(220, parent.width * 0.22)
                     color: "black"
                     radius: Style.radiusLarge
                     border.width: 0
@@ -132,25 +221,32 @@ Rectangle {
                         anchors.fill: parent
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        Layout.margins: Style.spacingLarge * 1.6
-                        spacing: Style.spacingLarge * 1.6
-                        Text { text: cardBolt.zeile1 + ' €'; font.pixelSize: Style.fontSizeHeader * 1.6; color: Style.text; horizontalAlignment: Text.AlignRight; Layout.alignment: Qt.AlignRight; font.family: ubuntuFont.name }
-                        Text { text: cardBolt.zeile2 + ' €'; font.pixelSize: Style.fontSizeHeader * 1.6; color: Style.text; horizontalAlignment: Text.AlignRight; Layout.alignment: Qt.AlignRight; font.family: ubuntuFont.name }
-                        Text { text: cardBolt.zeile3 + ' €'; font.pixelSize: Style.fontSizeHeader * 1.6; font.bold: true; color: Style.text; horizontalAlignment: Text.AlignRight; Layout.alignment: Qt.AlignRight; font.family: ubuntuFont.name }
+                        Layout.margins: Math.max(16, parent.width * 0.02)
+                        spacing: Math.max(12, parent.height * 0.01)
+                        Text { text: cardBolt.zeile1 + ' €'; font.pixelSize: Math.max(18, root.width * 0.018); color: Style.text; font.family: ubuntuFont.name }
+                        Text { text: cardBolt.zeile2 + ' €'; font.pixelSize: Math.max(18, root.width * 0.018); color: Style.text; font.family: ubuntuFont.name }
+                        Text { text: cardBolt.zeile3 + ' €'; font.pixelSize: Math.max(18, root.width * 0.018); font.bold: true; color: Style.text; font.family: ubuntuFont.name }
                     }
                 }
             }
-            Item { width: 64 } // Platzhalter größer
-            // Input-Card und Ergebnis-Element untereinander
+            // Input-Card als zusätzliche Card rechts
             ColumnLayout {
-                spacing: 16
+                spacing: Math.max(12, parent.height * 0.01)
                 Layout.alignment: Qt.AlignTop
-                Layout.preferredWidth: 288
-                Layout.topMargin: 70
+                Layout.preferredWidth: Math.max(220, parent.width * 0.22)
+                Layout.fillWidth: false
+                // Titel für die Eingabefelder
+                Text {
+                    text: "Input"
+                    font.pixelSize: Math.max(20, root.width * 0.02)
+                    color: "#f79009"
+                    font.bold: true
+                    font.family: ubuntuFont.name
+                }
                 // Input-Card
                 Rectangle {
-                    Layout.preferredWidth: 288
-                    Layout.preferredHeight: 288
+                    Layout.preferredWidth: Math.max(220, parent.width * 0.22)
+                    Layout.preferredHeight: Math.max(220, parent.width * 0.22)
                     color: "black"
                     radius: Style.radiusLarge
                     border.width: 0
@@ -158,7 +254,7 @@ Rectangle {
                         anchors.fill: parent
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        Layout.margins: Style.spacingLarge * 1.6
+                        Layout.margins: Math.max(16, parent.width * 0.02)
                         spacing: 14
                         RowLayout {
                             spacing: 12
@@ -176,10 +272,10 @@ Rectangle {
                                 padding: 10
                                 horizontalAlignment: Text.AlignHCenter
                                 verticalAlignment: Text.AlignVCenter
-                                text: abrechnungsBackend.inputGas
-                                onTextChanged: abrechnungsBackend.inputGas = text
+                                text: abrechnungsBackend ? abrechnungsBackend.inputGas : ""
+                                onTextChanged: if (abrechnungsBackend) abrechnungsBackend.inputGas = text
                             }
-                                Text {
+                            Text {
                                 text: "€"
                                 font.pixelSize: 24
                                 color: "#b0b0b0"
@@ -204,15 +300,17 @@ Rectangle {
                                 placeholderText: ""
                                 font.pixelSize: 28
                                 font.family: ubuntuFont.name
-                                    color: Style.text
+                                color: Style.text
                                 background: Rectangle { color: "#222"; radius: 8 }
                                 padding: 10
-                                    horizontalAlignment: Text.AlignHCenter
-                                    verticalAlignment: Text.AlignVCenter
-                                text: abrechnungsBackend.inputEinsteiger
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                                text: abrechnungsBackend ? abrechnungsBackend.inputEinsteiger : ""
                                 onTextChanged: {
+                                    if (abrechnungsBackend) {
                                     abrechnungsBackend.inputEinsteiger = text;
                                     overlayIncome = calculateOverlayIncome();
+                                    }
                                 }
                             }
                             Text {
@@ -220,8 +318,8 @@ Rectangle {
                                 font.pixelSize: 24
                                 color: "#b0b0b0"
                                 font.family: ubuntuFont.name
-                                    verticalAlignment: Text.AlignVCenter
-                                }
+                                verticalAlignment: Text.AlignVCenter
+                            }
                             Image {
                                 source: "assets/icons/hail_gray.svg"
                                 width: 20; height: 20
@@ -240,14 +338,14 @@ Rectangle {
                                 placeholderText: ""
                                 font.pixelSize: 28
                                 font.family: ubuntuFont.name
-                            color: Style.text
+                                color: Style.text
                                 background: Rectangle { color: "#222"; radius: 8 }
                                 padding: 10
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
-                                text: abrechnungsBackend.inputExpense
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                                text: abrechnungsBackend ? abrechnungsBackend.inputExpense : ""
                                 onTextChanged: {
-                                    if (abrechnungsBackend.inputExpense !== text)
+                                    if (abrechnungsBackend && abrechnungsBackend.inputExpense !== text)
                                         abrechnungsBackend.inputExpense = text
                                 }
                             }
@@ -258,12 +356,12 @@ Rectangle {
                                 font.family: ubuntuFont.name
                                 verticalAlignment: Text.AlignVCenter
                             }
-                        Item {
+                            Item {
                                 width: 49
                                 height: 49
                                 MouseArea {
                                     id: addHoverArea
-                                anchors.fill: parent
+                                    anchors.fill: parent
                                     hoverEnabled: true
                                     onClicked: abrechnungsBackend.show_wizard_add_cost()
                                 }
@@ -279,23 +377,23 @@ Rectangle {
                         }
                     }
                 }
-                // Ergebnis-Element direkt unter der Input Card
-                Item {
-                    id: ergebnisElement
-                    width: 288
-                    height: 90
-                    Layout.alignment: Qt.AlignTop
+                // Ergebnis-Card unter der Input-Card
+                Rectangle {
+                    Layout.preferredWidth: Math.max(220, parent.width * 0.22)
+                    Layout.preferredHeight: Math.max(110, parent.width * 0.11)
+                    color: "transparent"
+                    radius: Style.radiusLarge
+                    border.width: 0
                     visible: werteGeladen
                     z: 10
                     Text {
                         anchors.fill: parent
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
-                        text: abrechnungsBackend.ergebnis.toFixed(2) + ' €'
-                        font.pixelSize: 64
+                        text: (abrechnungsBackend ? abrechnungsBackend.ergebnis.toFixed(2) : "0.00") + ' €'
+                        font.pixelSize: Math.max(24, root.width * 0.024)
                         font.bold: true
                         color: Style.primary
-                        visible: werteGeladen
                         font.family: ubuntuFont.name
                     }
                 }
@@ -303,151 +401,7 @@ Rectangle {
         }
     }
 
-    // Nach den Cards für Plattformen:
-    RowLayout {
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.horizontalCenterOffset: -100
-        anchors.top: parent.top
-        anchors.topMargin: 250
-        spacing: 64
-        // Summenzeile (links)
-        RowLayout {
-            id: summenZeile
-            spacing: 170
-            // Umsatz
-            RowLayout {
-                spacing: 4
-                Image {
-                    source: "assets/icons/sales_gray.svg"
-                    width: 16; height: 16
-                    fillMode: Image.PreserveAspectFit
-                    Layout.alignment: Qt.AlignVCenter
-                }
-                Text { 
-                    text: abrechnungsBackend.headcard_umsatz.toFixed(2); 
-                    font.pixelSize: Style.fontSizeHeader; 
-                    font.bold: true; 
-                    color: Style.text; 
-                    font.family: ubuntuFont.name 
-                }
-                Text { text: " €"; font.pixelSize: Style.fontSizeHeader; color: Style.text; font.family: ubuntuFont.name }
-            }
-            // Trinkgeld nur anzeigen, wenn > 0
-            RowLayout {
-                spacing: 4
-                visible: abrechnungsBackend.headcard_trinkgeld > 0
-                Image {
-                    source: "assets/icons/tips_gray.svg"
-                    width: 16; height: 16
-                    fillMode: Image.PreserveAspectFit
-                    Layout.alignment: Qt.AlignVCenter
-                }
-                Text { text: abrechnungsBackend.headcard_trinkgeld.toFixed(2); font.pixelSize: Style.fontSizeHeader; font.bold: true; color: Style.text; font.family: ubuntuFont.name }
-                Text { text: " €"; font.pixelSize: Style.fontSizeHeader; color: Style.text; font.family: ubuntuFont.name }
-            }
-            // Bargeld
-            RowLayout {
-                spacing: 4
-                Image {
-                    source: "assets/icons/cash_gray.svg"
-                    width: 16; height: 16
-                    fillMode: Image.PreserveAspectFit
-                    Layout.alignment: Qt.AlignVCenter
-                }
-                Text { 
-                    text: abrechnungsBackend.headcard_cash.toFixed(2); 
-                    font.pixelSize: Style.fontSizeHeader; 
-                    font.bold: true; 
-                    color: Style.text; 
-                    font.family: ubuntuFont.name 
-                }
-                Text { text: " €"; font.pixelSize: Style.fontSizeHeader; color: Style.text; font.family: ubuntuFont.name }
-            }
-            // Kreditkarte/Bankomat
-            RowLayout {
-                spacing: 4
-                Image {
-                    source: "assets/icons/credit_card_gray.svg"
-                    width: 16; height: 16
-                    fillMode: Image.PreserveAspectFit
-                    Layout.alignment: Qt.AlignVCenter
-                }
-                Text { 
-                    text: abrechnungsBackend.headcard_credit_card.toFixed(2); 
-                    font.pixelSize: Style.fontSizeHeader; 
-                    font.bold: true; 
-                    color: Style.text; 
-                    font.family: ubuntuFont.name 
-                }
-                Text { text: " €"; font.pixelSize: Style.fontSizeHeader; color: Style.text; font.family: ubuntuFont.name }
-            }
-            // Garage nur anzeigen, wenn > 0
-            RowLayout {
-                spacing: 4
-                visible: abrechnungsBackend.headcard_garage > 0
-                Image {
-                    source: "assets/icons/parking_gray.svg"
-                    width: 16; height: 16
-                    fillMode: Image.PreserveAspectFit
-                    Layout.alignment: Qt.AlignVCenter
-                }
-                Text { 
-                    text: abrechnungsBackend.headcard_garage.toFixed(2); 
-                    font.pixelSize: Style.fontSizeHeader; 
-                    font.bold: true; 
-                    color: Style.text; 
-                    font.family: ubuntuFont.name 
-                }
-                Text { text: " €"; font.pixelSize: Style.fontSizeHeader; color: Style.text; font.family: ubuntuFont.name }
-            }
-            // NEU: Deal-Icon und Deal-Typ
-            RowLayout {
-                spacing: 15 // Abstand zwischen Icon und Text erhöht
-                MouseArea {
-                    id: dealIconArea
-                    width: 40
-                    height: 40
-                    hoverEnabled: true
-                    z: 10
-                    anchors.verticalCenter: parent.verticalCenter
-                    cursorShape: Qt.PointingHandCursor
-                    onEntered: { console.log("DEBUG: Mouse entered Overlay-Icon!"); }
-                    onExited: { console.log("DEBUG: Mouse exited Overlay-Icon!"); }
-                    onClicked: {
-                        updateMatchedPlatforms();
-                        dealOverlay.visible = true;
-                        overlayAlreadyOpened = true;
-                    }
-                    Image {
-                        anchors.centerIn: parent
-                        width: 40
-                        height: 40
-                        source: dealIconArea.containsMouse ? "assets/icons/deal_orange.svg" : "assets/icons/deal_white.svg"
-                        fillMode: Image.PreserveAspectFit
-                        anchors.margins: 0
-                        anchors.leftMargin: 0
-                        anchors.rightMargin: 0
-                        anchors.topMargin: 0
-                        anchors.bottomMargin: 0
-                    }
-                }
-                Text {
-                    text: abrechnungsBackend.deal
-                    font.pixelSize: Style.fontSizeHeader * 1.2 // etwas größer
-                    font.bold: true
-                    color: Style.primary
-                    font.family: ubuntuFont.name
-                    verticalAlignment: Text.AlignVCenter
-                    // Entferne alle Margins/Paddings
-                    leftPadding: 0
-                    rightPadding: 0
-                    topPadding: 0
-                    bottomPadding: 0
-                    padding: 0
-                }
-            }
-        }
-    }
+
 
     // Property für Plattform-Liste im Overlay
     property var matchedPlatforms: []
@@ -466,13 +420,67 @@ Rectangle {
     
     // Property für den Overlay-Konfigurations-Cache
     property var overlayConfigCache: []
-
-    // Hilfsfunktion, ob mindestens eine Box auf P steht
-    function hasPDeal() {
-        for (var i = 0; i < matchedDeals.length; i++) {
-            if (matchedDeals[i] === 0) return true;
+    
+    // Property um zu tracken, ob das Overlay gespeichert wurde
+    property bool overlayConfigSaved: false
+    
+    // Properties für ursprüngliche Werte beim Öffnen des Overlays
+    property var originalMatchedSliderValues: []
+    property var originalMatchedDeals: []
+    property real originalPauschale: 500
+    property real originalUmsatzgrenze: 1200
+    
+    // Properties für den letzten Speicherstand
+    property var lastSavedMatchedSliderValues: []
+    property var lastSavedMatchedDeals: []
+    property real lastSavedPauschale: 500
+    property real lastSavedUmsatzgrenze: 1200
+    property bool lastSavedValuesInitialized: false
+    
+    // Property für BottomBar-Sichtbarkeit
+    property bool bottomBarVisible: true
+    
+    // Property für Card-Zentrierung
+    property int visibleCardCount: 0
+    
+    // Timer für BottomBar-Sichtbarkeit
+    Timer {
+        id: bottomBarTimer
+        interval: 100
+        repeat: false
+        onTriggered: {
+            bottomBar.visible = true;
+            bottomBarVisible = true;
         }
-        return false;
+    }
+    
+    // Funktion zur Berechnung der sichtbaren Cards
+    function updateVisibleCardCount() {
+        var count = 0;
+        if (card40100.zeile1 !== "-" && !isNaN(parseFloat(card40100.zeile1))) count++;
+        if (cardUber.zeile1 !== "-" && parseFloat(cardUber.zeile1) > 0) count++;
+        if (cardBolt.zeile1 !== "-" && parseFloat(cardBolt.zeile1) > 0) count++;
+        count++; // Input-Card ist immer sichtbar
+        visibleCardCount = count;
+    }
+    
+
+    
+
+
+    // Hilfsfunktion, ob mindestens eine relevante Plattform auf P steht
+    function hasPDeal() {
+        var relevantPlatforms = ["Taxi", "Uber", "Bolt", "Einsteiger"];
+        
+        for (var i = 0; i < matchedPlatforms.length; i++) {
+            if (relevantPlatforms.indexOf(matchedPlatforms[i]) !== -1) {
+                var dealType = matchedDeals[i];
+                if (dealType === 0) { // 0 = P-Deal
+                    return true; // Mindestens eine relevante Plattform ist auf P
+                }
+            }
+        }
+        return false; // Keine relevante Plattform ist auf P
     }
 
     function getEchterUmsatzForPlattform(name) {
@@ -482,12 +490,17 @@ Rectangle {
         }
         
         var ergebnisse = abrechnungsBackend.ergebnisse;
+        
         for (var i = 0; i < ergebnisse.length; i++) {
             if (ergebnisse[i].label === "Taxi" && name === "Taxi") {
                 if (ergebnisse[i].details) {
                     for (var j = 0; j < ergebnisse[i].details.length; j++) {
-                        if (ergebnisse[i].details[j].label === "Total") {
-                            return parseFloat(ergebnisse[i].details[j].value);
+                        // Taxi hat "Real" statt "Total"
+                        if (ergebnisse[i].details[j].label === "Real") {
+                            var valueStr = ergebnisse[i].details[j].value;
+                            // Entferne €-Symbol und Leerzeichen
+                            valueStr = valueStr.replace("€", "").replace(" ", "").trim();
+                            return parseFloat(valueStr);
                         }
                     }
                 }
@@ -496,7 +509,9 @@ Rectangle {
                 if (ergebnisse[i].details) {
                     for (var j = 0; j < ergebnisse[i].details.length; j++) {
                         if (ergebnisse[i].details[j].label === "Total") {
-                            return parseFloat(ergebnisse[i].details[j].value);
+                            var valueStr = ergebnisse[i].details[j].value;
+                            valueStr = valueStr.replace("€", "").replace(" ", "").trim();
+                            return parseFloat(valueStr);
                         }
                     }
                 }
@@ -505,7 +520,9 @@ Rectangle {
                 if (ergebnisse[i].details) {
                     for (var j = 0; j < ergebnisse[i].details.length; j++) {
                         if (ergebnisse[i].details[j].label === "Echter Umsatz") {
-                            return parseFloat(ergebnisse[i].details[j].value);
+                            var valueStr = ergebnisse[i].details[j].value;
+                            valueStr = valueStr.replace("€", "").replace(" ", "").trim();
+                            return parseFloat(valueStr);
                         }
                     }
                 }
@@ -514,61 +531,170 @@ Rectangle {
         return 0;
     }
 
-    property real overlayIncome: calculateOverlayIncome()
+    // Einkommen = Plattformen × Faktor (ohne Abzüge)
+    property real overlayIncome: 0.0
+    onOverlayIncomeChanged: {
+        console.log("DEBUG: overlayIncome geändert auf:", overlayIncome + "€");
+    }
+    
+    // Anteil = Einkommen - Tank - Garage - Expenses
+    property real overlayErgebnis: 0.0
+    onOverlayErgebnisChanged: {
+        console.log("DEBUG: overlayErgebnis geändert auf:", overlayErgebnis + "€");
+    }
+    
+    // Flag um zu verhindern, dass overlayIncome zu früh berechnet wird
+    property bool overlayConfigApplied: false
     
     function calculateOverlayIncome() {
+        // WICHTIG: Nicht berechnen, bevor die Konfiguration angewendet wurde
+        if (!overlayConfigApplied) {
+            console.log("DEBUG: Konfiguration noch nicht angewendet, überspringe Berechnung");
+            return 0;
+        }
+        
         var income = 0;
         
-        // Pauschale und Umsatzgrenze aus den Slider-Werten holen
-        var pauschaleIndex = matchedPlatforms.indexOf("Pauschale");
-        var umsatzgrenzeIndex = matchedPlatforms.indexOf("Umsatzgrenze");
-        var pauschale = pauschaleIndex !== -1 ? (matchedSliderValues[pauschaleIndex] || 500) : (Number(abrechnungsBackend.pauschale) || 0);
-        var umsatzgrenze = umsatzgrenzeIndex !== -1 ? (matchedSliderValues[umsatzgrenzeIndex] || 1200) : (Number(abrechnungsBackend.umsatzgrenze) || 0);
+        // Pauschale und Umsatzgrenze direkt aus dem Backend holen
+        var pauschale = abrechnungsBackend.pauschale || 500;
+        var umsatzgrenze = abrechnungsBackend.umsatzgrenze || 1200;
         
-        var hatPDeal = false;
-        var summe_P_umsatz = 0;
-        // 1. Prüfen, ob mindestens eine Plattform auf P steht und Pauschale setzen
+        // Prüfen, ob mindestens eine relevante Plattform auf P steht
+        var hasAnyPDeal = false;
+        var relevantPlatforms = ["Taxi", "Uber", "Bolt", "Einsteiger"];
+        
         for (var i = 0; i < matchedPlatforms.length; i++) {
-            if (["Taxi", "Uber", "Bolt", "Einsteiger"].indexOf(matchedPlatforms[i]) !== -1 && matchedDeals[i] === 0) {
-                hatPDeal = true;
-                summe_P_umsatz += getEchterUmsatzForPlattform(matchedPlatforms[i]);
+            if (relevantPlatforms.indexOf(matchedPlatforms[i]) !== -1) {
+                var dealType = matchedDeals[i];
+                if (dealType === 0) { // 0 = P-Deal
+                    hasAnyPDeal = true;
+                    console.log("DEBUG: P-Deal gefunden für", matchedPlatforms[i]);
+                    break;
+                }
             }
         }
-        if (hatPDeal) {
+        
+        console.log("DEBUG: Mindestens eine Plattform auf P?", hasAnyPDeal);
+        
+        // 1. Pauschale und Grenzzuschlag (nur wenn mindestens eine Plattform auf P steht)
+        if (hasAnyPDeal) {
+            // Pauschale hinzufügen
             income += pauschale;
-            if (summe_P_umsatz > umsatzgrenze) {
-                income += (summe_P_umsatz - umsatzgrenze) * 0.1;
+            console.log("DEBUG: Pauschale hinzugefügt:", pauschale + "€");
+        
+            // Grenzzuschlag prüfen
+            var taxiUmsatz = getEchterUmsatzForPlattform("Taxi");
+            var uberUmsatz = getEchterUmsatzForPlattform("Uber");
+            var boltUmsatz = getEchterUmsatzForPlattform("Bolt");
+            var summeUmsatz = taxiUmsatz + uberUmsatz + boltUmsatz;
+            
+            if (summeUmsatz > umsatzgrenze) {
+                var bonus = (summeUmsatz - umsatzgrenze) * 0.1;
+                income += bonus;
+                console.log("DEBUG: Grenzzuschlag hinzugefügt:", bonus + "€");
             }
+        } else {
+            console.log("DEBUG: Keine P-Deals gefunden, Pauschale wird NICHT hinzugefügt");
         }
-        // 3. Prozent- oder Custom-Deals
+        
+        // 2. Faktor-basierte Berechnung für alle Plattformen
         for (var i = 0; i < matchedPlatforms.length; i++) {
-            if (["Taxi", "Uber", "Bolt", "Einsteiger"].indexOf(matchedPlatforms[i]) !== -1 && (matchedDeals[i] === 1 || matchedDeals[i] === 2)) {
+            if (["Taxi", "Uber", "Bolt", "Einsteiger"].indexOf(matchedPlatforms[i]) !== -1) {
                 var umsatz = getEchterUmsatzForPlattform(matchedPlatforms[i]);
-                var sliderValue = matchedSliderValues[i] !== undefined ? matchedSliderValues[i] : (matchedDeals[i] === 1 ? 50 : 0);
-                income += umsatz * sliderValue / 100;
+                var sliderValue = matchedSliderValues[i] !== undefined ? matchedSliderValues[i] : 0;
+                var faktor = sliderValue / 100; // Slider-Wert in Faktor umwandeln (0-100 -> 0.0-1.0)
+                
+                // WICHTIG: Verwende Backend-Faktoren, wenn sie verfügbar sind
+                if (matchedPlatforms[i] === "Taxi" && abrechnungsBackend.taxi_faktor !== undefined) {
+                    faktor = abrechnungsBackend.taxi_faktor;
+                    console.log("DEBUG: Verwende Backend Taxi-Faktor:", faktor);
+                } else if (matchedPlatforms[i] === "Uber" && abrechnungsBackend.uber_faktor !== undefined) {
+                    faktor = abrechnungsBackend.uber_faktor;
+                    console.log("DEBUG: Verwende Backend Uber-Faktor:", faktor);
+                } else if (matchedPlatforms[i] === "Bolt" && abrechnungsBackend.bolt_faktor !== undefined) {
+                    faktor = abrechnungsBackend.bolt_faktor;
+                    console.log("DEBUG: Verwende Backend Bolt-Faktor:", faktor);
+                } else if (matchedPlatforms[i] === "Einsteiger" && abrechnungsBackend.einsteiger_faktor !== undefined) {
+                    faktor = abrechnungsBackend.einsteiger_faktor;
+                    console.log("DEBUG: Verwende Backend Einsteiger-Faktor:", faktor);
+                }
+                
+                var plattformIncome = umsatz * faktor;
+                income += plattformIncome;
+                console.log("DEBUG: Plattform", matchedPlatforms[i], "Umsatz:", umsatz + "€, Slider:", sliderValue + "%, Faktor:", faktor + ", Income:", plattformIncome + "€");
             }
         }
-        // KEIN Abzug von Garage oder Tank!
+        
+        // WICHTIG: Debug-Ausgabe der Backend-Faktoren
+        console.log("DEBUG: Backend-Faktoren:");
+        console.log("  Taxi-Faktor:", abrechnungsBackend.taxi_faktor);
+        console.log("  Uber-Faktor:", abrechnungsBackend.uber_faktor);
+        console.log("  Bolt-Faktor:", abrechnungsBackend.bolt_faktor);
+        console.log("  Einsteiger-Faktor:", abrechnungsBackend.einsteiger_faktor);
+        console.log("  Tank-Faktor:", abrechnungsBackend.tank_faktor);
+        console.log("  Garage-Faktor:", abrechnungsBackend.garage_faktor);
+        
+        console.log("DEBUG: Einkommen (ohne Abzüge):", income + "€");
+        console.log("DEBUG: calculateOverlayIncome() gibt zurück:", income);
         return income;
     }
-
-    property real overlayErgebnis: {
-        var ergebnis = overlayIncome;
-        // Garage abziehen (Headerwert * Slider-Prozent)
-        var garageIndex = matchedPlatforms.indexOf("Garage");
-        if (garageIndex !== -1) {
-            var garageValue = Number(abrechnungsBackend.headcard_garage) || 0;
-            var garagePercent = matchedSliderValues[garageIndex] || 0;
-            ergebnis -= garageValue * (garagePercent / 100);
-        }
-        // Tank abziehen (InputGas * Slider-Prozent)
+    
+    function calculateOverlayAnteil() {
+        // Anteil = Einkommen - Tank - Garage - Expenses
+        var einkommen = calculateOverlayIncome();
+        var abzuege = 0;
+        
+        // 1. Tank-Abzug
         var tankIndex = matchedPlatforms.indexOf("Tank");
         if (tankIndex !== -1) {
             var tankValue = Number(abrechnungsBackend.inputGas) || 0;
             var tankPercent = matchedSliderValues[tankIndex] || 0;
-            ergebnis -= tankValue * (tankPercent / 100);
+            var tankFaktor = tankPercent / 100;
+            
+            // WICHTIG: Verwende Backend Tank-Faktor, wenn verfügbar
+            if (abrechnungsBackend.tank_faktor !== undefined) {
+                tankFaktor = abrechnungsBackend.tank_faktor;
+                console.log("DEBUG: Verwende Backend Tank-Faktor:", tankFaktor);
+            }
+            
+            var tankAbzug = tankValue * tankFaktor;
+            abzuege += tankAbzug;
+            if (tankAbzug > 0) console.log("DEBUG: Tank Abzug:", tankValue + "€ × " + tankFaktor + " = " + tankAbzug + "€");
         }
-        return ergebnis;
+        
+        // 2. Garage-Abzug
+        var garageIndex = matchedPlatforms.indexOf("Garage");
+        if (garageIndex !== -1) {
+            var garageValue = Number(abrechnungsBackend.headcard_garage) || 0;
+            var garagePercent = matchedSliderValues[garageIndex] || 0;
+            var garageFaktor = garagePercent / 100;
+            
+            // WICHTIG: Verwende Backend Garage-Faktor, wenn verfügbar
+            if (abrechnungsBackend.garage_faktor !== undefined) {
+                garageFaktor = abrechnungsBackend.garage_faktor;
+                console.log("DEBUG: Verwende Backend Garage-Faktor:", garageFaktor);
+            }
+            
+            var garageAbzug = garageValue * garageFaktor;
+            abzuege += garageAbzug;
+            if (garageAbzug > 0) console.log("DEBUG: Garage Abzug:", garageValue + "€ × " + garageFaktor + " = " + garageAbzug + "€");
+        }
+        
+        // 3. Expenses-Abzug (falls verfügbar)
+        var expenses = 0;
+        if (abrechnungsBackend && abrechnungsBackend.expenses) {
+            expenses = abrechnungsBackend.expenses || 0;
+            if (expenses > 0) {
+                abzuege += expenses;
+                console.log("DEBUG: Expenses Abzug:", expenses + "€");
+            }
+        }
+        
+        // Finales Ergebnis = Einkommen - Abzüge
+        var anteil = einkommen - abzuege;
+        if (abzuege > 0) console.log("DEBUG: Gesamtabzüge:", abzuege + "€");
+        console.log("DEBUG: Anteil (Einkommen - Abzüge):", anteil + "€");
+        return anteil;
     }
 
     // Overlay für leere schwarze Seite mit dünnem grauem Rahmen und ListView
@@ -660,12 +786,22 @@ Rectangle {
                                     arr[index] = next;
                                     matchedDeals = arr;
                                     
-                                    // Bei '%' Deal automatisch Slider auf 50 setzen
-                                    if (next === 1) {
-                                        var sliderArr = matchedSliderValues.slice();
+                                    // Automatische Slider-Anpassung basierend auf Deal-Typ
+                                    var sliderArr = matchedSliderValues.slice();
+                                    
+                                    if (next === 0) {
+                                        // P-Deal: Slider auf 0 setzen (kein Anteil)
+                                        sliderArr[index] = 0;
+                                    } else if (next === 1) {
+                                        // %-Deal: Slider auf 50 setzen (50% Anteil)
                                         sliderArr[index] = 50;
-                                        matchedSliderValues = sliderArr;
+                                    } else if (next === 2) {
+                                        // C-Deal: Slider auf aktuellen Wert belassen oder 0 falls undefined
+                                        if (sliderArr[index] === undefined) {
+                                            sliderArr[index] = 0;
+                                        }
                                     }
+                                    matchedSliderValues = sliderArr;
                                     
                                     // Wenn Taxi geändert wird, Einsteiger auch ändern
                                     if (matchedPlatforms[index] === "Taxi") {
@@ -674,13 +810,25 @@ Rectangle {
                                             arr[einsteigerIndex] = next;
                                             matchedDeals = arr;
                                             
-                                            // Bei '%' Deal auch für Einsteiger Slider auf 50 setzen
-                                            if (next === 1) {
+                                            // Gleiche Slider-Logik für Einsteiger
+                                            if (next === 0) {
+                                                sliderArr[einsteigerIndex] = 0;
+                                            } else if (next === 1) {
                                                 sliderArr[einsteigerIndex] = 50;
-                                                matchedSliderValues = sliderArr;
+                                            } else if (next === 2) {
+                                                if (sliderArr[einsteigerIndex] === undefined) {
+                                                    sliderArr[einsteigerIndex] = 0;
+                                                }
                                             }
+                                            matchedSliderValues = sliderArr;
                                         }
                                     }
+                                    
+                                    console.log("DEBUG: Deal geändert für", matchedPlatforms[index], "von", current, "zu", next, "Slider:", sliderArr[index]);
+                                    
+                                    // WICHTIG: Letzten Speicherstand aktualisieren, wenn sich Deal-Typen ändern
+                                    saveLastSavedValues();
+                                    console.log("DEBUG: Letzten Speicherstand aktualisiert nach Deal-Änderung");
                                     
                                     // Einkommen sofort neu berechnen
                                     forceOverlayIncomeUpdate();
@@ -693,6 +841,9 @@ Rectangle {
                                 color: "#fff"
                                 font.pixelSize: 16
                                 font.family: spaceMonoFont.name
+                                Component.onCompleted: {
+                                    console.log("DEBUG: Deal-Box für", matchedPlatforms[index], "gesetzt auf:", dealOptions[matchedDeals[index] !== undefined ? matchedDeals[index] : 0]);
+                                }
                             }
                         }
                     }
@@ -725,8 +876,21 @@ Rectangle {
                                         var arr = matchedSliderValues.slice();
                                         arr[index] = value;
                                         matchedSliderValues = arr;
+                                        // Pauschale an Backend senden
+                                        if (abrechnungsBackend && abrechnungsBackend.setPauschale) {
+                                            abrechnungsBackend.setPauschale(value);
+                                        }
+                                        // WICHTIG: overlayConfigApplied sicherstellen
+                                        overlayConfigApplied = true;
+                                        // WICHTIG: Letzten Speicherstand aktualisieren bei Slider-Änderungen
+                                        saveLastSavedValues();
+                                        console.log("DEBUG: Letzten Speicherstand aktualisiert nach Pauschale-Slider-Änderung");
                                         // Einkommen sofort neu berechnen
                                         forceOverlayIncomeUpdate();
+                                        // WICHTIG: Explizite Aktualisierung der Anzeige
+                                        overlayIncome = calculateOverlayIncome();
+                                        overlayErgebnis = calculateOverlayAnteil();
+                                        console.log("DEBUG: Anzeige explizit aktualisiert nach Pauschale-Slider");
                                     }
                                 }
                             }
@@ -756,8 +920,21 @@ Rectangle {
                                         var arr = matchedSliderValues.slice();
                                         arr[index] = value;
                                         matchedSliderValues = arr;
+                                        // Umsatzgrenze an Backend senden
+                                        if (abrechnungsBackend && abrechnungsBackend.setUmsatzgrenze) {
+                                            abrechnungsBackend.setUmsatzgrenze(value);
+                                        }
+                                        // WICHTIG: overlayConfigApplied sicherstellen
+                                        overlayConfigApplied = true;
+                                        // WICHTIG: Letzten Speicherstand aktualisieren bei Slider-Änderungen
+                                        saveLastSavedValues();
+                                        console.log("DEBUG: Letzten Speicherstand aktualisiert nach Umsatzgrenze-Slider-Änderung");
                                         // Einkommen sofort neu berechnen
                                         forceOverlayIncomeUpdate();
+                                        // WICHTIG: Explizite Aktualisierung der Anzeige
+                                        overlayIncome = calculateOverlayIncome();
+                                        overlayErgebnis = calculateOverlayAnteil();
+                                        console.log("DEBUG: Anzeige explizit aktualisiert nach Umsatzgrenze-Slider");
                                     }
                                 }
                             }
@@ -792,16 +969,39 @@ Rectangle {
                                         var arr = matchedSliderValues.slice();
                                         arr[index] = value;
                                         matchedSliderValues = arr;
+                                        console.log("DEBUG: Slider bewegt für", matchedPlatforms[index], "auf", value);
+                                        // WICHTIG: overlayConfigApplied sicherstellen
+                                        overlayConfigApplied = true;
+                                        // WICHTIG: Letzten Speicherstand aktualisieren bei Slider-Änderungen
+                                        saveLastSavedValues();
+                                        console.log("DEBUG: Letzten Speicherstand aktualisiert nach Slider-Änderung");
                                         // Einkommen sofort neu berechnen
                                         forceOverlayIncomeUpdate();
+                                        // WICHTIG: Explizite Aktualisierung der Anzeige
+                                        overlayIncome = calculateOverlayIncome();
+                                        overlayErgebnis = calculateOverlayAnteil();
+                                        console.log("DEBUG: Anzeige explizit aktualisiert nach Slider-Bewegung");
                                     }
                                 }
                                 onValueChanged: {
-                                    // Bei '%' Deal automatisch 50 setzen, wenn noch nicht gesetzt
-                                    if (matchedDeals[index] === 1 && (matchedSliderValues[index] === undefined || matchedSliderValues[index] !== 50)) {
+                                    // Automatische Slider-Anpassung basierend auf Deal-Typ
+                                    var currentDeal = matchedDeals[index];
+                                    var currentSlider = matchedSliderValues[index];
+                                    
+                                    if (currentDeal === 1 && (currentSlider === undefined || currentSlider !== 50)) {
+                                        // %-Deal: Immer 50% erzwingen
                                         var arr = matchedSliderValues.slice();
                                         arr[index] = 50;
                                         matchedSliderValues = arr;
+                                        console.log("DEBUG: %-Deal erkannt, Slider auf 50 gesetzt für", matchedPlatforms[index]);
+                                        // Einkommen sofort neu berechnen
+                                        forceOverlayIncomeUpdate();
+                                    } else if (currentDeal === 0 && currentSlider !== 0) {
+                                        // P-Deal: Immer 0% erzwingen
+                                        var arr = matchedSliderValues.slice();
+                                        arr[index] = 0;
+                                        matchedSliderValues = arr;
+                                        console.log("DEBUG: P-Deal erkannt, Slider auf 0 gesetzt für", matchedPlatforms[index]);
                                         // Einkommen sofort neu berechnen
                                         forceOverlayIncomeUpdate();
                                     }
@@ -816,6 +1016,9 @@ Rectangle {
                                 verticalAlignment: Text.AlignVCenter
                                 width: 48
                                 horizontalAlignment: Text.AlignLeft
+                                Component.onCompleted: {
+                                    console.log("DEBUG: Slider-Text für", matchedPlatforms[index], "gesetzt auf:", (matchedDeals[index] === 1 ? 50 : Math.round(matchedSliderValues[index] !== undefined ? matchedSliderValues[index] : 0)) + " %");
+                                }
                             }
                         }
                     }
@@ -861,6 +1064,13 @@ Rectangle {
                             font.pixelSize: 16
                             font.bold: true
                             font.family: spaceMonoFont.name
+                            Component.onCompleted: {
+                                console.log("DEBUG: Einkommen-Text erstellt, overlayIncome:", overlayIncome);
+                            }
+                            onTextChanged: {
+                                console.log("DEBUG: Einkommen-Text geändert auf:", text);
+                            }
+
                         }
                     }
                     
@@ -891,11 +1101,46 @@ Rectangle {
                         width: 40; height: 40
                         onClicked: {
                             if (validateOverlayConfiguration()) {
+                                console.log("💾 SPEICHERN-BUTTON GEKLICKT");
+                                
+                                // 1. Aktuelle Konfiguration im Cache speichern
                                 saveOverlayConfiguration();
-                                // Einkommen (ohne Abzüge) als Income speichern
+                                console.log("  ✅ Konfiguration im Cache gespeichert");
+                                
+                                // 2. Konfiguration als neue Standard-Konfiguration annehmen
+                                updateOriginalValues();
+                                console.log("  ✅ Konfiguration als neue Standard-Konfiguration angenommen");
+                                
+                                // 3. Letzten Speicherstand mit aktuellen Werten überschreiben
+                                saveLastSavedValues();
+                                console.log("  ✅ Letzten Speicherstand aktualisiert");
+                                
+                                // 4. Einkommen (ohne Abzüge) als Income speichern
                                 console.log("QML: overlayConfigCache vor Backend-Call:", JSON.stringify(overlayConfigCache));
                                 abrechnungsBackend.speichereUmsatzCustom(overlayIncome, JSON.stringify(overlayConfigCache));
-                                abrechnungsBackend.update_ergebnis(); // Ergebnis nach Overlay-Speichern aktualisieren
+                                
+                                // 5. Konfiguration in Datenbank finalisieren (nur für Custom-Deals)
+                                if (abrechnungsBackend.deal === "C") {
+                                    console.log("  🔍 Versuche Konfiguration in Datenbank zu speichern...");
+                                    console.log("  wizardSelection:", wizardSelection);
+                                    console.log("  fahrer_id:", wizardSelection ? wizardSelection.fahrer_id : "undefined");
+                                    console.log("  fahrer:", wizardSelection ? wizardSelection.fahrer : "undefined");
+                                    
+                                    if (wizardSelection && wizardSelection.fahrer_id) {
+                                        saveOverlayConfigToDatabase();
+                                        console.log("  ✅ Konfiguration in Datenbank finalisiert");
+                                    } else {
+                                        console.log("  ⚠️ wizardSelection nicht verfügbar, überspringe Datenbank-Speicherung");
+                                    }
+                                }
+                                
+                                // 6. Markiere als gespeichert
+                                overlayConfigSaved = true;
+                                console.log("  ✅ overlayConfigSaved auf true gesetzt");
+                                console.log("  ✅ Werte gespeichert, Overlay wird geschlossen");
+                                
+                                // WICHTIG: overlayAlreadyOpened zurücksetzen beim Schließen
+                                overlayAlreadyOpened = false;
                                 dealOverlay.visible = false;
                             }
                         }
@@ -907,10 +1152,23 @@ Rectangle {
                         }
                     }
                     
-                    // Schließen-Button
+                                            // Schließen-Button
                     MouseArea {
                         width: 40; height: 40
-                        onClicked: dealOverlay.visible = false
+                        onClicked: {
+                            console.log("🔴 SCHLIEßEN-BUTTON GEKLICKT");
+                            console.log("  overlayConfigSaved:", overlayConfigSaved);
+                            console.log("  overlayConfigCache:", JSON.stringify(overlayConfigCache));
+                            console.log("  lastSavedValuesInitialized:", lastSavedValuesInitialized);
+                            console.log("  lastSavedMatchedSliderValues.length:", lastSavedMatchedSliderValues.length);
+                            
+                            // IMMER auf den Originalzustand zurücksetzen beim Schließen
+                            console.log("  ↪️ Zurücksetzen auf Originalzustand");
+                            restoreOriginalValues();
+                            // WICHTIG: overlayAlreadyOpened zurücksetzen beim Schließen
+                            overlayAlreadyOpened = false;
+                            dealOverlay.visible = false;
+                        }
                         Image {
                             anchors.centerIn: parent
                             source: "assets/icons/close_red.svg"
@@ -923,12 +1181,7 @@ Rectangle {
         }
     }
 
-    // CustomDealDialog auskommentieren/entfernen
-    // CustomDealDialog {
-    //     id: customDealDialog
-    //     anchors.centerIn: parent
-    //     onClosed: { customDealDialog.visible = false; }
-    // }
+
 
     function parseUberCard(results, deal) {
         for (var i = 0; i < results.length; i++) {
@@ -1008,15 +1261,20 @@ Rectangle {
     function parse40100Card(results, deal) {
         for (var i = 0; i < results.length; i++) {
             if (results[i].type === "summary" && (results[i].label === "40100" || results[i].label === "Taxi")) {
-                // Zeile 1: Der Gesamtwert aus der Zusammenfassung
-                var total = parseFloat(String(results[i].value).replace(/[^\d.,-]/g, "").replace(',', '.')) || 0;
-
                 var details = results[i].details || [];
+                var real_umsatz = 0;
+                var total = 0;
                 var bargeld = 0;
                 var anteil = 0;
 
-                // Werte für andere Zeilen aus den Details summieren
+                // Werte aus den Details extrahieren
                 for (var j = 0; j < details.length; j++) {
+                    if (details[j].label === "Real") {
+                        real_umsatz = parseFloat(String(details[j].value).replace(/[^\d.,-]/g, "").replace(',', '.')) || 0;
+                    }
+                    if (details[j].label === "Total") {
+                        total = parseFloat(String(details[j].value).replace(/[^\d.,-]/g, "").replace(',', '.')) || 0;
+                    }
                     if (details[j].label === "Bargeld") {
                         bargeld += parseFloat(String(details[j].value).replace(/[^\d.,-]/g, "").replace(',', '.')) || 0;
                     }
@@ -1030,14 +1288,14 @@ Rectangle {
                 if (deal === "P") {
                     return {
                         label: "Taxi",
-                        zeile1: total.toFixed(2),
+                        zeile1: real_umsatz.toFixed(2),  // Erste Zeile zeigt jetzt echten Umsatz
                         zeile2: bargeld.toFixed(2),
                         zeile3: credit_card.toFixed(2)
                     };
                 } else {
                     return {
                         label: "Taxi",
-                        zeile1: total.toFixed(2),
+                        zeile1: real_umsatz.toFixed(2),  // Erste Zeile zeigt jetzt echten Umsatz
                         zeile2: anteil.toFixed(2),
                         zeile3: credit_card.toFixed(2)
                     };
@@ -1057,26 +1315,46 @@ Rectangle {
             cardBolt = parseBoltCard(results, deal);
             werteGeladen = true;
             wizardSelection = abrechnungsBackend.get_current_selection();
+            // BottomBar immer sichtbar machen wenn Ergebnisse geladen werden
+            bottomBar.visible = true;
+            bottomBarVisible = true;
+            // Card-Anzahl aktualisieren für bessere Zentrierung
+            updateVisibleCardCount();
         }
         
         function onDealChanged() {
             // Ergebnis automatisch neu berechnen wenn sich der Deal-Typ ändert
-            console.log("Deal-Typ geändert, Ergebnis wird neu berechnet");
+            console.log("DEBUG: Deal geändert, berechne Ergebnis neu");
+            if (abrechnungsBackend && abrechnungsBackend.update_ergebnis) {
+                abrechnungsBackend.update_ergebnis();
+            }
         }
         
         function onInputGasChanged() {
             // Ergebnis automatisch neu berechnen wenn sich Tank-Wert ändert
-            console.log("Tank-Wert geändert, Ergebnis wird neu berechnet");
+            console.log("DEBUG: Tank-Wert geändert, berechne Ergebnis neu");
+            forceOverlayIncomeUpdate();
+            if (abrechnungsBackend && abrechnungsBackend.update_ergebnis) {
+                abrechnungsBackend.update_ergebnis();
+            }
         }
         
         function onHeadcardGarageChanged() {
             // Ergebnis automatisch neu berechnen wenn sich Garage-Wert ändert
-            console.log("Garage-Wert geändert, Ergebnis wird neu berechnet");
+            console.log("DEBUG: Garage-Wert geändert, berechne Ergebnis neu");
+            forceOverlayIncomeUpdate();
+            if (abrechnungsBackend && abrechnungsBackend.update_ergebnis) {
+                abrechnungsBackend.update_ergebnis();
+            }
         }
         
         function onInputEinsteigerChanged() {
             // Ergebnis automatisch neu berechnen wenn sich Einsteiger-Wert ändert
-            console.log("Einsteiger-Wert geändert, Ergebnis wird neu berechnet");
+            console.log("DEBUG: Einsteiger-Wert geändert, berechne Ergebnis neu");
+            forceOverlayIncomeUpdate();
+            if (abrechnungsBackend && abrechnungsBackend.update_ergebnis) {
+                abrechnungsBackend.update_ergebnis();
+            }
         }
     }
 
@@ -1089,7 +1367,18 @@ Rectangle {
             cardBolt = parseBoltCard(results, deal);
             werteGeladen = true;
         }
+        
+        // WICHTIG: wizardSelection korrekt setzen
         wizardSelection = abrechnungsBackend.get_current_selection();
+        console.log("DEBUG: wizardSelection in Component.onCompleted gesetzt:", wizardSelection);
+        
+        // Stelle sicher, dass BottomBar sichtbar ist
+        bottomBar.visible = true;
+        bottomBarVisible = true;
+        // Timer starten für zusätzliche Sicherheit
+        bottomBarTimer.start();
+        bottomBarVisible = true;
+
     }
 
     // Hilfsfunktion für Overlay-Konfiguration
@@ -1113,27 +1402,32 @@ Rectangle {
             if (matchedDeals[i] !== 1) isPercent = false;
             if (matchedDeals[i] !== 0) isPauschale = false;
         }
+        
+        // Deal-Typ setzen, wenn gemischte Konfiguration
         if (!isPercent && !isPauschale) {
+            console.log("DEBUG: Deal-Typ auf 'C' gesetzt (gemischte Konfiguration)");
             abrechnungsBackend.setDeal("C");
         }
         
         // 2. Konfiguration als JSON im Cache speichern
         var config = getOverlayConfig();
         overlayConfigCache = config;
-        console.log("Overlay-Konfiguration im Cache gespeichert (neu):", JSON.stringify(config));
+        console.log("DEBUG: Konfiguration im Cache gespeichert:", JSON.stringify(overlayConfigCache));
         
         // 3. Backend-Konfiguration anwenden
         applyOverlayConfigurationToBackend();
+        
+        // 4. Speicher-Status setzen
+        overlayConfigSaved = true;
+        console.log("DEBUG: overlayConfigSaved auf true gesetzt");
     }
     
     function saveOverlayConfigToDatabase() {
         if (!overlayConfigCache || overlayConfigCache.length === 0) {
-            console.log("Keine Overlay-Konfiguration im Cache vorhanden");
             return;
         }
         
         if (!wizardSelection || !wizardSelection.fahrer_id) {
-            console.warn("Kein Fahrer ausgewählt, kann Konfiguration nicht in Datenbank speichern");
             return;
         }
         
@@ -1177,33 +1471,48 @@ Rectangle {
         
         try {
             abrechnungsBackend.speichereOverlayKonfiguration(driverId, fahrer, taxiDeal, taxiSlider, uberDeal, uberSlider, boltDeal, boltSlider, einsteigerDeal, einsteigerSlider, garageSlider, tankSlider);
-            console.log("Overlay-Konfiguration erfolgreich in Datenbank gespeichert für Fahrer ID:", driverId);
+            
+            console.log("DEBUG: Overlay-Konfiguration erfolgreich in Datenbank gespeichert");
+            console.log("DEBUG: Cache geleert und Speicher-Status zurückgesetzt");
             
             // Cache leeren nach erfolgreichem Speichern
             overlayConfigCache = [];
+            // Speicher-Status zurücksetzen, da Cache geleert wurde
+            overlayConfigSaved = false;
         } catch (e) {
             console.error("Fehler beim Speichern der Overlay-Konfiguration in Datenbank:", e);
         }
     }
     
     function loadOverlayConfiguration() {
-        // Lade gespeicherte Konfiguration nur beim ersten Öffnen in dieser Session
-        if (overlayAlreadyOpened) {
-            console.log("Overlay bereits in dieser Session geöffnet, überspringe Laden der Datenbank-Konfiguration");
-            return;
-        }
+        // loadOverlayConfiguration() gestartet
+        console.log("DEBUG: loadOverlayConfiguration() gestartet");
+        console.log("DEBUG: overlayAlreadyOpened:", overlayAlreadyOpened);
+        console.log("DEBUG: wizardSelection:", wizardSelection);
         
-        // Lade gespeicherte Konfiguration aus dem Backend
+        // Lade gespeicherte Konfiguration immer beim Öffnen des Overlays
+        
+        // Prüfe Deal-Typ
+        var dealType = abrechnungsBackend.deal;
+        console.log("DEBUG: Aktueller Deal-Typ:", dealType);
+        console.log("DEBUG: abrechnungsBackend:", abrechnungsBackend);
+        
+        // WICHTIG: Immer versuchen, gespeicherte Konfiguration zu laden, unabhängig vom Deal-Typ
         if (!wizardSelection || !wizardSelection.fahrer_id) {
-            console.log("Kein Fahrer ausgewählt, überspringe Laden der Konfiguration");
+            console.log("DEBUG: Kein wizardSelection oder fahrer_id verfügbar");
+            // WICHTIG: Auch hier Flag setzen, damit Einkommen berechnet wird
+            overlayConfigApplied = true;
+            console.log("DEBUG: overlayConfigApplied auf true gesetzt (kein wizardSelection)");
             return;
         }
         
         var driverId = wizardSelection.fahrer_id;
+        console.log("DEBUG: Lade Konfiguration für Driver ID:", driverId);
         try {
             var config = abrechnungsBackend.ladeOverlayKonfiguration(driverId);
+            console.log("DEBUG: Backend-Konfiguration geladen:", JSON.stringify(config));
             if (config && config.length > 0) {
-                console.log("Gespeicherte Konfiguration aus Datenbank geladen:", config);
+                console.log("DEBUG: Konfiguration gefunden, wende an...");
                 
                 // Konfiguration auf matchedDeals und matchedSliderValues anwenden
                 var newDeals = matchedDeals.slice();
@@ -1221,6 +1530,14 @@ Rectangle {
                 var garageSlider = config[8] || 0;
                 var tankSlider = config[9] || 0;
                 
+                console.log("DEBUG: Extrahierte Werte:");
+                console.log("  Taxi: Deal=", taxiDeal, "Slider=", taxiSlider);
+                console.log("  Uber: Deal=", uberDeal, "Slider=", uberSlider);
+                console.log("  Bolt: Deal=", boltDeal, "Slider=", boltSlider);
+                console.log("  Einsteiger: Deal=", einsteigerDeal, "Slider=", einsteigerSlider);
+                console.log("  Garage: Slider=", garageSlider);
+                console.log("  Tank: Slider=", tankSlider);
+                
                 // Werte auf die entsprechenden Indizes anwenden
                 var taxiIndex = matchedPlatforms.indexOf("Taxi");
                 var uberIndex = matchedPlatforms.indexOf("Uber");
@@ -1229,57 +1546,173 @@ Rectangle {
                 var garageIndex = matchedPlatforms.indexOf("Garage");
                 var tankIndex = matchedPlatforms.indexOf("Tank");
                 
+                console.log("DEBUG: Gefundene Indizes:");
+                console.log("  Taxi Index:", taxiIndex);
+                console.log("  Uber Index:", uberIndex);
+                console.log("  Bolt Index:", boltIndex);
+                console.log("  Einsteiger Index:", einsteigerIndex);
+                console.log("  Garage Index:", garageIndex);
+                console.log("  Tank Index:", tankIndex);
+                
                 if (taxiIndex !== -1) {
                     newDeals[taxiIndex] = taxiDeal;
                     newSliders[taxiIndex] = taxiSlider;
-                    console.log("Taxi: Deal=" + taxiDeal + ", Slider=" + taxiSlider);
+                    console.log("DEBUG: Taxi-Werte angewendet");
                 }
                 
                 if (uberIndex !== -1) {
                     newDeals[uberIndex] = uberDeal;
                     newSliders[uberIndex] = uberSlider;
-                    console.log("Uber: Deal=" + uberDeal + ", Slider=" + uberSlider);
+                    console.log("DEBUG: Uber-Werte angewendet");
                 }
                 
                 if (boltIndex !== -1) {
                     newDeals[boltIndex] = boltDeal;
                     newSliders[boltIndex] = boltSlider;
-                    console.log("Bolt: Deal=" + boltDeal + ", Slider=" + boltSlider);
+                    console.log("DEBUG: Bolt-Werte angewendet");
                 }
                 
                 if (einsteigerIndex !== -1) {
                     newDeals[einsteigerIndex] = einsteigerDeal;
                     newSliders[einsteigerIndex] = einsteigerSlider;
-                    console.log("Einsteiger: Deal=" + einsteigerDeal + ", Slider=" + einsteigerSlider);
+                    console.log("DEBUG: Einsteiger-Werte angewendet");
                 }
                 
                 if (garageIndex !== -1) {
                     newSliders[garageIndex] = garageSlider;
-                    console.log("Garage: Slider=" + garageSlider);
+                    console.log("DEBUG: Garage-Werte angewendet");
                 }
                 
                 if (tankIndex !== -1) {
                     newSliders[tankIndex] = tankSlider;
-                    console.log("Tank: Slider=" + tankSlider);
+                    console.log("DEBUG: Tank-Werte angewendet");
                 }
+                
+                console.log("DEBUG: Arrays vor Update:");
+                console.log("  matchedDeals:", JSON.stringify(matchedDeals));
+                console.log("  matchedSliderValues:", JSON.stringify(matchedSliderValues));
                 
                 // Arrays aktualisieren
                 matchedDeals = newDeals;
                 matchedSliderValues = newSliders;
                 
-                // Einkommen neu berechnen
-                forceOverlayIncomeUpdate();
+                console.log("DEBUG: Arrays nach Update:");
+                console.log("  matchedDeals:", JSON.stringify(matchedDeals));
+                console.log("  matchedSliderValues:", JSON.stringify(matchedSliderValues));
                 
-                console.log("Gespeicherte Konfiguration erfolgreich angewendet");
+                // WICHTIG: Backend-Faktoren mit geladenen Werten setzen
+                applyOverlayConfigurationToBackend();
+                console.log("DEBUG: Backend-Faktoren mit geladenen Werten gesetzt");
+                
+                // WICHTIG: Kurze Verzögerung, damit die Backend-Faktoren gesetzt werden können
+                Qt.callLater(function() {
+                    // Einkommen neu berechnen
+                    forceOverlayIncomeUpdate();
+                    console.log("DEBUG: Einkommen neu berechnet");
+                });
+                
+                // WICHTIG: Cache mit geladener Konfiguration aktualisieren
+                var loadedConfig = getOverlayConfig();
+                overlayConfigCache = loadedConfig;
+                console.log("DEBUG: Cache mit geladener Konfiguration aktualisiert:", JSON.stringify(overlayConfigCache));
+                
+                return; // Beende hier, da Konfiguration erfolgreich geladen wurde
+            } else {
+                console.log("DEBUG: Keine Konfiguration gefunden");
             }
         } catch (e) {
-            console.log("Keine gespeicherte Konfiguration gefunden oder Fehler beim Laden:", e);
+            console.log("DEBUG: Fehler beim Laden der Konfiguration:", e);
         }
+        
+        // Wenn Deal-Typ "C" ist, lade custom_deal_config aus der Datenbank
+        if (dealType === "C") {
+            console.log("DEBUG: Custom-Deal erkannt, lade custom_deal_config aus Datenbank...");
+            console.log("DEBUG: wizardSelection:", wizardSelection);
+            
+            if (!wizardSelection || !wizardSelection.fahrer) {
+                console.log("DEBUG: Kein wizardSelection oder fahrer verfügbar");
+                console.log("DEBUG: Verwende Cache-Konfiguration falls verfügbar...");
+                
+                // Versuche Cache-Konfiguration zu verwenden
+                if (overlayConfigCache && overlayConfigCache.length > 0) {
+                    console.log("DEBUG: Verwende Cache-Konfiguration:", JSON.stringify(overlayConfigCache));
+                    applyCustomDealConfig(overlayConfigCache);
+                    forceOverlayIncomeUpdate();
+                    return;
+                }
+                return;
+            }
+            
+            var fahrername = wizardSelection.fahrer;
+            console.log("DEBUG: Lade custom_deal_config für Fahrer:", fahrername);
+            
+            try {
+                var customConfig = abrechnungsBackend.ladeCustomDealConfig(fahrername);
+                console.log("DEBUG: Custom-Deal-Konfiguration aus Datenbank geladen:", JSON.stringify(customConfig));
+                
+                if (customConfig && customConfig.length > 0) {
+                    console.log("DEBUG: Custom-Deal-Konfiguration aus Datenbank gefunden, wende an...");
+                    applyCustomDealConfig(customConfig);
+                    // WICHTIG: Force update nach dem Anwenden der Custom-Deal-Konfiguration
+                    forceOverlayIncomeUpdate();
+                    return;
+                } else {
+                    console.log("DEBUG: Keine Custom-Deal-Konfiguration in Datenbank gefunden");
+                    console.log("DEBUG: Verwende Cache-Konfiguration falls verfügbar...");
+                    
+                    // Versuche Cache-Konfiguration zu verwenden
+                    if (overlayConfigCache && overlayConfigCache.length > 0) {
+                        console.log("DEBUG: Verwende Cache-Konfiguration:", JSON.stringify(overlayConfigCache));
+                        applyCustomDealConfig(overlayConfigCache);
+                        forceOverlayIncomeUpdate();
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.log("DEBUG: Fehler beim Laden der Custom-Deal-Konfiguration aus Datenbank:", error);
+                console.log("DEBUG: Verwende Cache-Konfiguration falls verfügbar...");
+                
+                // Versuche Cache-Konfiguration zu verwenden
+                if (overlayConfigCache && overlayConfigCache.length > 0) {
+                    console.log("DEBUG: Verwende Cache-Konfiguration:", JSON.stringify(overlayConfigCache));
+                    applyCustomDealConfig(overlayConfigCache);
+                    forceOverlayIncomeUpdate();
+                    return;
+                }
+            }
+        }
+        
+
+        console.log("=== DEBUG: loadOverlayConfiguration() beendet ===");
+        
+        // WICHTIG: overlayConfigApplied IMMER am Ende setzen
+        overlayConfigApplied = true;
+        console.log("DEBUG: overlayConfigApplied auf true gesetzt (am Ende)");
+        
+        // WICHTIG: Properties explizit aktualisieren
+        overlayIncome = calculateOverlayIncome();
+        overlayErgebnis = calculateOverlayAnteil();
+        console.log("DEBUG: Properties explizit aktualisiert (am Ende):");
+        console.log("  overlayIncome:", overlayIncome + "€");
+        console.log("  overlayErgebnis:", overlayErgebnis + "€");
     }
     
     function forceOverlayIncomeUpdate() {
-        // Force update der overlayIncome Property
-        overlayIncome = calculateOverlayIncome();
+        // Force update der overlayIncome und overlayErgebnis Properties
+        var newIncome = calculateOverlayIncome();
+        var newErgebnis = calculateOverlayAnteil();
+        
+        console.log("DEBUG: forceOverlayIncomeUpdate() - Neue Werte:");
+        console.log("  overlayIncome:", newIncome + "€");
+        console.log("  overlayErgebnis:", newErgebnis + "€");
+        
+        // WICHTIG: Properties explizit aktualisieren
+        overlayIncome = newIncome;
+        overlayErgebnis = newErgebnis;
+        
+        console.log("DEBUG: Properties aktualisiert:");
+        console.log("  overlayIncome Property:", overlayIncome + "€");
+        console.log("  overlayErgebnis Property:", overlayErgebnis + "€");
         
         // Backend-Konfiguration anwenden für Live-Updates
         applyOverlayConfigurationToBackend();
@@ -1299,13 +1732,11 @@ Rectangle {
         }
         
         if (!hasValidPlatform) {
-            console.warn("Mindestens eine Plattform muss konfiguriert sein!");
             return false;
         }
         
         // Prüfe, ob Einkommen positiv ist
         if (overlayIncome <= 0) {
-            console.warn("Einkommen muss größer als 0 sein!");
             return false;
         }
         
@@ -1327,146 +1758,480 @@ Rectangle {
         matchedDeals = newDeals;
         matchedSliderValues = newSliders;
         forceOverlayIncomeUpdate();
-        console.log("Overlay-Konfiguration aus Cache auf UI angewendet:", JSON.stringify(overlayConfigCache));
+
     }
 
-    // Beim Öffnen des Overlays Plattformen extrahieren, Deals und Slider initialisieren
-    function updateMatchedPlatforms() {
-        if (overlayAlreadyOpened && overlayConfigCache && overlayConfigCache.length > 0) {
-            restoreOverlayConfigFromCache();
+    // Funktion zum Speichern der ursprünglichen Werte
+    function saveOriginalValues() {
+        originalMatchedSliderValues = matchedSliderValues.slice();
+        originalMatchedDeals = matchedDeals.slice();
+        originalPauschale = abrechnungsBackend.pauschale || 500;
+        originalUmsatzgrenze = abrechnungsBackend.umsatzgrenze || 1200;
+        console.log("DEBUG: Ursprüngliche Werte gespeichert");
+        console.log("  Original Slider:", JSON.stringify(originalMatchedSliderValues));
+        console.log("  Original Deals:", JSON.stringify(originalMatchedDeals));
+        console.log("  Original Pauschale:", originalPauschale);
+        console.log("  Original Umsatzgrenze:", originalUmsatzgrenze);
+    }
+    
+    // Funktion zum Wiederherstellen der ursprünglichen Werte
+    function restoreOriginalValues() {
+        matchedSliderValues = originalMatchedSliderValues.slice();
+        matchedDeals = originalMatchedDeals.slice();
+        
+        // Backend-Werte wiederherstellen
+        if (abrechnungsBackend && abrechnungsBackend.setPauschale) {
+            abrechnungsBackend.setPauschale(originalPauschale);
+        }
+        if (abrechnungsBackend && abrechnungsBackend.setUmsatzgrenze) {
+            abrechnungsBackend.setUmsatzgrenze(originalUmsatzgrenze);
+        }
+        
+        // Backend-Faktoren auf ursprüngliche Werte zurücksetzen
+        applyOverlayConfigurationToBackend();
+        
+        // Ergebnis neu berechnen (wird bereits in applyOverlayConfigurationToBackend gemacht)
+        
+        console.log("DEBUG: Ursprüngliche Werte wiederhergestellt");
+        console.log("  Restored Slider:", JSON.stringify(matchedSliderValues));
+        console.log("  Restored Deals:", JSON.stringify(matchedDeals));
+        console.log("  Restored Pauschale:", originalPauschale);
+        console.log("  Restored Umsatzgrenze:", originalUmsatzgrenze);
+    }
+    
+    // Funktion zum Überschreiben der Original-Werte mit aktuellen Werten
+    function updateOriginalValues() {
+        originalMatchedSliderValues = matchedSliderValues.slice();
+        originalMatchedDeals = matchedDeals.slice();
+        originalPauschale = abrechnungsBackend.pauschale || 500;
+        originalUmsatzgrenze = abrechnungsBackend.umsatzgrenze || 1200;
+        
+        console.log("DEBUG: Original-Werte mit aktuellen Werten überschrieben");
+        console.log("  Updated Original Slider:", JSON.stringify(originalMatchedSliderValues));
+        console.log("  Updated Original Deals:", JSON.stringify(originalMatchedDeals));
+        console.log("  Updated Original Pauschale:", originalPauschale);
+        console.log("  Updated Original Umsatzgrenze:", originalUmsatzgrenze);
+    }
+    
+    // Funktion zum Speichern des letzten Speicherstands
+    function saveLastSavedValues() {
+        lastSavedMatchedSliderValues = matchedSliderValues.slice();
+        lastSavedMatchedDeals = matchedDeals.slice();
+        lastSavedPauschale = abrechnungsBackend.pauschale || 500;
+        lastSavedUmsatzgrenze = abrechnungsBackend.umsatzgrenze || 1200;
+        lastSavedValuesInitialized = true;
+        
+        console.log("DEBUG: Letzter Speicherstand gespeichert");
+        console.log("  Last Saved Slider:", JSON.stringify(lastSavedMatchedSliderValues));
+        console.log("  Last Saved Deals:", JSON.stringify(lastSavedMatchedDeals));
+        console.log("  Last Saved Pauschale:", lastSavedPauschale);
+        console.log("  Last Saved Umsatzgrenze:", lastSavedUmsatzgrenze);
+        console.log("  Last Saved Values Initialized:", lastSavedValuesInitialized);
+    }
+    
+    // Funktion zum Wiederherstellen des letzten Speicherstands
+    function restoreLastSavedValues() {
+        // WICHTIG: Prüfen, ob letzte Werte initialisiert sind
+        if (!lastSavedValuesInitialized || lastSavedMatchedSliderValues.length === 0) {
+            console.log("DEBUG: Letzte Werte nicht initialisiert, verwende Original-Werte");
+            // Verwende Original-Werte als Fallback
+            if (originalMatchedSliderValues.length > 0) {
+                matchedSliderValues = originalMatchedSliderValues.slice();
+                matchedDeals = originalMatchedDeals.slice();
+                console.log("DEBUG: Original-Werte als Fallback verwendet");
+            } else {
+                console.log("WARNUNG: Keine Original-Werte verfügbar, behalte aktuelle Werte");
+                // Behalte aktuelle Werte bei, da keine besseren verfügbar sind
+            }
         } else {
+            console.log("DEBUG: Verwende gespeicherte letzte Werte");
+            matchedSliderValues = lastSavedMatchedSliderValues.slice();
+            matchedDeals = lastSavedMatchedDeals.slice();
+        }
+        
+        // Backend-Werte wiederherstellen mit Validierung
+        if (abrechnungsBackend && abrechnungsBackend.setPauschale) {
+            try {
+                abrechnungsBackend.setPauschale(lastSavedPauschale);
+                console.log("DEBUG: Pauschale erfolgreich auf", lastSavedPauschale, "gesetzt");
+            } catch (e) {
+                console.log("WARNUNG: Pauschale konnte nicht gesetzt werden:", e);
+            }
+        }
+        if (abrechnungsBackend && abrechnungsBackend.setUmsatzgrenze) {
+            try {
+                abrechnungsBackend.setUmsatzgrenze(lastSavedUmsatzgrenze);
+                console.log("DEBUG: Umsatzgrenze erfolgreich auf", lastSavedUmsatzgrenze, "gesetzt");
+            } catch (e) {
+                console.log("WARNUNG: Umsatzgrenze konnte nicht gesetzt werden:", e);
+            }
+        }
+        
+        // Backend-Faktoren auf letzten Speicherstand zurücksetzen
+        applyOverlayConfigurationToBackend();
+        
+        // WICHTIG: overlayConfigApplied sicherstellen, damit Berechnungen funktionieren
+        overlayConfigApplied = true;
+        console.log("DEBUG: overlayConfigApplied auf true gesetzt nach Wiederherstellung");
+        
+        // WICHTIG: Einkommen nach Wiederherstellung neu berechnen
+        forceOverlayIncomeUpdate();
+        
+        console.log("DEBUG: Letzter Speicherstand wiederhergestellt");
+        console.log("  Restored Slider:", JSON.stringify(matchedSliderValues));
+        console.log("  Restored Deals:", JSON.stringify(matchedDeals));
+        console.log("  Restored Pauschale:", lastSavedPauschale);
+        console.log("  Restored Umsatzgrenze:", lastSavedUmsatzgrenze);
+    }
+    
+            // Beim Öffnen des Overlays Plattformen extrahieren, Deals und Slider initialisieren
+        function updateMatchedPlatforms() {
+            // updateMatchedPlatforms() gestartet
+            console.log("overlayAlreadyOpened:", overlayAlreadyOpened);
+            console.log("overlayConfigCache:", JSON.stringify(overlayConfigCache));
+            
+            // WICHTIG: wizardSelection beim Öffnen des Overlays aktualisieren
+            wizardSelection = abrechnungsBackend.get_current_selection();
+            console.log("DEBUG: wizardSelection in updateMatchedPlatforms gesetzt:", wizardSelection);
+        
+            // Erstelle neue Konfiguration basierend auf aktuellen Backend-Werten
+            console.log("DEBUG: Erstelle neue Konfiguration");
             var results = abrechnungsBackend.ergebnisse;
             var platforms = [];
             var deals = [];
             var sliders = [];
             var globalDeal = abrechnungsBackend.deal;
+            
+            // Debug-Info reduziert
+            
             // Pauschale und Umsatzgrenze immer ganz oben, Werte immer aus Backend-Properties
             platforms.push("Pauschale");
             deals.push(null); // keine Click-Box
-            sliders.push(globalDeal === "%" ? 0 : Number(abrechnungsBackend.pauschale));
+            var pauschaleValue = abrechnungsBackend.deal === "%" ? 0 : Number(abrechnungsBackend.pauschale);
+            sliders.push(pauschaleValue);
+            // Pauschale gesetzt
+            
             platforms.push("Umsatzgrenze");
             deals.push(null); // keine Click-Box
-            sliders.push(globalDeal === "%" ? 0 : Number(abrechnungsBackend.umsatzgrenze));
+            var umsatzgrenzeValue = abrechnungsBackend.deal === "%" ? 0 : Number(abrechnungsBackend.umsatzgrenze);
+            sliders.push(umsatzgrenzeValue);
+            // Umsatzgrenze gesetzt
+            
             // Plattformen extrahieren
             for (var i = 0; i < results.length; i++) {
                 var entry = results[i];
                 if (entry.type === "summary" && entry.details && entry.details.length > 0) {
                     var plattform = entry.label;
+                    console.log("DEBUG: Gefundene Plattform:", plattform);
                     if (["Uber", "Bolt", "40100", "31300", "Taxi"].indexOf(plattform) !== -1) {
                         if (plattform === "40100" || plattform === "31300" || plattform === "Taxi") {
                             // Prüfen, ob "Taxi" schon in der Liste ist, um Duplikate zu vermeiden
                             if (platforms.indexOf("Taxi") === -1) {
                                 platforms.push("Taxi");
-                                deals.push(globalDeal === "%" ? 1 : 0); // % oder P
-                                sliders.push(globalDeal === "%" ? 50 : 0);
+                                            // Verwende Backend-Faktoren anstatt Standard-Werte
+            var taxiFaktor = abrechnungsBackend.taxi_faktor || 0.0;
+            var taxiSlider = taxiFaktor * 100;
+            console.log("DEBUG: Taxi-Faktor aus Backend:", taxiFaktor, "Slider:", taxiSlider);
+            // Deal-Typ basiert auf Backend-Deal, nicht auf globalDeal
+            var taxiDeal = abrechnungsBackend.deal === "%" ? 1 : (abrechnungsBackend.deal === "P" ? 0 : 2);
+            deals.push(taxiDeal);
+            sliders.push(taxiSlider);
+            // Taxi hinzugefügt
                             }
                         } else {
                             platforms.push(plattform);
-                            deals.push(globalDeal === "%" ? 1 : 0); // % oder P
-                            sliders.push(globalDeal === "%" ? 50 : 0);
+                            // Verwende Backend-Faktoren anstatt Standard-Werte
+                            var platformFaktor = 0.0;
+                            if (plattform === "Uber") {
+                                platformFaktor = abrechnungsBackend.uber_faktor || 0.0;
+                            } else if (plattform === "Bolt") {
+                                platformFaktor = abrechnungsBackend.bolt_faktor || 0.0;
+                            }
+                            var platformSlider = platformFaktor * 100;
+                            console.log("DEBUG:", plattform, "-Faktor aus Backend:", platformFaktor, "Slider:", platformSlider);
+                            // Deal-Typ basiert auf Backend-Deal, nicht auf globalDeal
+                            var platformDeal = abrechnungsBackend.deal === "%" ? 1 : (abrechnungsBackend.deal === "P" ? 0 : 2);
+                            deals.push(platformDeal);
+                            sliders.push(platformSlider);
+                            // Plattform hinzugefügt
                         }
                     }
                 }
             }
             // Einsteiger-Zeile immer nach den Plattformen einfügen
             platforms.push("Einsteiger");
-            deals.push(globalDeal === "%" ? 1 : 0); // % oder P
-            sliders.push(globalDeal === "%" ? 50 : 0);
+            // Verwende Backend-Faktor anstatt Standard-Wert
+            var einsteigerFaktor = abrechnungsBackend.einsteiger_faktor || 0.0;
+            var einsteigerSlider = einsteigerFaktor * 100;
+            console.log("DEBUG: Einsteiger-Faktor aus Backend:", einsteigerFaktor, "Slider:", einsteigerSlider);
+            // Deal-Typ basiert auf Backend-Deal, nicht auf globalDeal
+            var einsteigerDeal = abrechnungsBackend.deal === "%" ? 1 : (abrechnungsBackend.deal === "P" ? 0 : 2);
+            deals.push(einsteigerDeal);
+            sliders.push(einsteigerSlider);
+            // Einsteiger hinzugefügt
+            
             // Garage-Zeile, wenn Wert vorhanden
             if (abrechnungsBackend.headcard_garage > 0) {
                 platforms.push("Garage");
                 deals.push(2); // Immer C
-                sliders.push(50);
+                // Verwende Backend-Faktor anstatt Standard-Wert
+                var garageFaktor = abrechnungsBackend.garage_faktor || 0.5;
+                var garageSlider = garageFaktor * 100;
+                console.log("DEBUG: Garage-Faktor aus Backend:", garageFaktor, "Slider:", garageSlider);
+                sliders.push(garageSlider);
+                // Garage hinzugefügt
             }
             // Tank am Ende
             platforms.push("Tank"); // Immer Tank am Ende
             deals.push(2); // Immer C
-            sliders.push(globalDeal === "%" ? 50 : 0);
+            // Verwende Backend-Faktor anstatt Standard-Wert
+            var tankFaktor = abrechnungsBackend.tank_faktor || 0.0;
+            var tankSlider = tankFaktor * 100;
+            console.log("DEBUG: Tank-Faktor aus Backend:", tankFaktor, "Slider:", tankSlider);
+            sliders.push(tankSlider);
+            // Tank hinzugefügt
+            
+            // Arrays erstellt
+            
             matchedPlatforms = platforms;
             matchedDeals = deals;
             matchedSliderValues = sliders;
             
+            // Arrays initialisiert
+            
+            // WICHTIG: Original-Werte VOR dem Laden der Konfiguration speichern
+            saveOriginalValues();
+            
             // Lade gespeicherte Konfiguration
             loadOverlayConfiguration();
+            
+            // WICHTIG: Letzten Speicherstand NACH dem Laden der Konfiguration setzen
+            saveLastSavedValues();
+            
+            // Force update nach dem Laden
+            forceOverlayIncomeUpdate();
+            
+            // WICHTIG: Flag setzen, dass Konfiguration angewendet wurde
+            overlayConfigApplied = true;
+            console.log("DEBUG: overlayConfigApplied auf true gesetzt in updateMatchedPlatforms");
+            // updateMatchedPlatforms() beendet
         }
-    }
 
-    // Neue BottomBar:
-    RowLayout {
+    // Neue, verbesserte BottomBar mit Hover-Animation:
+    Rectangle {
+        id: bottomBar
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: 24
-        spacing: 32
-        // Home-Button
+        anchors.bottomMargin: bottomBarHovered ? 80 : 24
+        width: 280
+        height: 80
+        color: Style.background
+        radius: 20
+        border.color: Style.border
+        border.width: 1
+        visible: bottomBarVisible
+        z: 99999
+        
+        // Hover-Detection für die gesamte Bar
+        property bool bottomBarHovered: false
+        
+        // Schatten-Effekt (ohne QtGraphicalEffects)
+        Rectangle {
+            anchors.fill: parent
+            anchors.topMargin: 4
+            color: "#40000000"
+            radius: 20
+            z: -1
+        }
+        
+        // Hover-Bereich für die gesamte Bar
         MouseArea {
-            id: homeArea
-            width: 56; height: 56
-            cursorShape: Qt.PointingHandCursor
+            id: bottomBarHoverArea
+            anchors.fill: parent
             hoverEnabled: true
-            onClicked: {
-                if (typeof root.goHome === "function") {
-                    root.goHome();
-                    } else {
-                    console.warn("goHome ist nicht definiert oder keine Funktion!");
+            onEntered: {
+                bottomBar.bottomBarHovered = true
+            }
+            onExited: {
+                // Verzögerung, um zu prüfen, ob Maus auf einem Button ist
+                checkButtonHoverTimer.start()
+            }
+        }
+        
+        // Timer für Button-Hover-Check
+        Timer {
+            id: checkButtonHoverTimer
+            interval: 50
+            onTriggered: {
+                // Prüfe, ob Maus auf einem der Buttons ist
+                if (!homeArea.containsMouse && !checkArea.containsMouse && !redoArea.containsMouse) {
+                    bottomBar.bottomBarHovered = false
                 }
             }
-            Image {
-                anchors.centerIn: parent
-                source: homeArea.pressed ? "assets/icons/home_gray.svg"
-                    : homeArea.containsMouse ? "assets/icons/home_orange.svg" : "assets/icons/home_white.svg"
-                width: homeArea.pressed ? 32 : homeArea.containsMouse ? 40 : 32
-                height: width
-                fillMode: Image.PreserveAspectFit
-            }
         }
-        // Check-Button
-        MouseArea {
-            id: checkArea
-            width: 56; height: 56
-            cursorShape: Qt.PointingHandCursor
-            hoverEnabled: true
-                                    onClicked: {
-                            // Speichere Overlay-Konfiguration in Datenbank, falls vorhanden
-                            if (overlayConfigCache && overlayConfigCache.length > 0) {
-                                saveOverlayConfigToDatabase();
-                            }
-                            
-                            abrechnungsBackend.speichereUmsatz();
-                            // Reset overlayAlreadyOpened beim finalen Speichern
-                            overlayAlreadyOpened = false;
-                            // Overlay nach dem Speichern schließen
-                            dealOverlay.visible = false;
+
+        RowLayout {
+            anchors.centerIn: parent
+            spacing: 40
+
+            // Home-Button
+            Rectangle {
+                id: homeButton
+                width: 56
+                height: 56
+                radius: 28
+                color: homeArea.pressed ? Style.primary : homeArea.containsMouse ? Style.accent : "transparent"
+                border.color: homeArea.containsMouse ? Style.accent : Style.border
+                border.width: homeArea.containsMouse ? 2 : 1
+
+                MouseArea {
+                    id: homeArea
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    hoverEnabled: true
+                    onEntered: {
+                        bottomBar.bottomBarHovered = true
+                    }
+                    onClicked: {
+                        // Zurück zur Startseite/Dashboard
+                        if (root.goHome && typeof root.goHome === "function") {
+                            root.goHome();
+                        } else {
+                            console.warn("goHome Funktion nicht verfügbar!");
                         }
-            Image {
-                anchors.centerIn: parent
-                source: checkArea.containsMouse ? "assets/icons/check_orange.svg" : "assets/icons/check_white.svg"
-                width: checkArea.pressed ? 32 : checkArea.containsMouse ? 40 : 32
-                height: width
-                fillMode: Image.PreserveAspectFit
+                    }
+                }
+
+                Image {
+                    anchors.centerIn: parent
+                    source: homeArea.pressed ? "assets/icons/home_gray.svg"
+                        : homeArea.containsMouse ? "assets/icons/home_orange.svg" : "assets/icons/home_white.svg"
+                    width: homeArea.pressed ? 28 : homeArea.containsMouse ? 32 : 28
+                    height: width
+                    fillMode: Image.PreserveAspectFit
+                }
+
+                Behavior on color {
+                    ColorAnimation { duration: 200 }
+                }
+                Behavior on border.color {
+                    ColorAnimation { duration: 200 }
+                }
+            }
+
+            // Check-Button (Speichern)
+            Rectangle {
+                id: checkButton
+                width: 56
+                height: 56
+                radius: 28
+                color: checkArea.pressed ? Style.primary : checkArea.containsMouse ? Style.accent : "transparent"
+                border.color: checkArea.containsMouse ? Style.accent : Style.border
+                border.width: checkArea.containsMouse ? 2 : 1
+
+                MouseArea {
+                    id: checkArea
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    hoverEnabled: true
+                    onEntered: {
+                        bottomBar.bottomBarHovered = true
+                    }
+                    onClicked: {
+                        console.log("🔵 CHECK-BUTTON GEKLICKT");
+                        
+                        // Speichere Overlay-Konfiguration in Datenbank, falls vorhanden
+                        if (overlayConfigCache && overlayConfigCache.length > 0) {
+                            console.log("💾 Speichere Overlay-Konfiguration...");
+                            saveOverlayConfigToDatabase();
+                        }
+                        
+                        console.log("🚀 Rufe abrechnungsBackend.speichereUmsatz() auf...");
+                        abrechnungsBackend.speichereUmsatz();
+                        
+                        // Reset overlayAlreadyOpened beim finalen Speichern
+                        overlayAlreadyOpened = false;
+                        // Overlay nach dem Speichern schließen
+                        dealOverlay.visible = false;
+                        
+                        console.log("✅ CHECK-BUTTON AUSFÜHRUNG BEENDET");
+                    }
+                }
+
+                Image {
+                    anchors.centerIn: parent
+                    source: checkArea.pressed ? "assets/icons/check_gray.svg"
+                        : checkArea.containsMouse ? "assets/icons/check_orange.svg" : "assets/icons/check_white.svg"
+                    width: checkArea.pressed ? 28 : checkArea.containsMouse ? 32 : 28
+                    height: width
+                    fillMode: Image.PreserveAspectFit
+                }
+
+                Behavior on color {
+                    ColorAnimation { duration: 200 }
+                }
+                Behavior on border.color {
+                    ColorAnimation { duration: 200 }
+                }
+            }
+
+            // Redo-Button (Neu starten)
+            Rectangle {
+                id: redoButton
+                width: 56
+                height: 56
+                radius: 28
+                color: redoArea.pressed ? Style.primary : redoArea.containsMouse ? Style.accent : "transparent"
+                border.color: redoArea.containsMouse ? Style.accent : Style.border
+                border.width: redoArea.containsMouse ? 2 : 1
+
+                MouseArea {
+                    id: redoArea
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    hoverEnabled: true
+                    onEntered: {
+                        bottomBar.bottomBarHovered = true
+                    }
+                    onClicked: {
+                        // Wizard öffnen und komplette Neuauswertung starten
+                        abrechnungsBackend.show_wizard_only();
+                        // Reset overlayAlreadyOpened beim Wizard-Neustart
+                        overlayAlreadyOpened = false;
+                        // Cache leeren beim Wizard-Neustart
+                        overlayConfigCache = [];
+                        // Speicher-Status zurücksetzen
+                        overlayConfigSaved = false;
+                    }
+                }
+
+                Image {
+                    anchors.centerIn: parent
+                    source: redoArea.pressed ? "assets/icons/redo_gray.svg"
+                        : redoArea.containsMouse ? "assets/icons/redo_orange.svg" : "assets/icons/redo_white.svg"
+                    width: redoArea.pressed ? 28 : redoArea.containsMouse ? 32 : 28
+                    height: width
+                    fillMode: Image.PreserveAspectFit
+                }
+
+                Behavior on color {
+                    ColorAnimation { duration: 200 }
+                }
+                Behavior on border.color {
+                    ColorAnimation { duration: 200 }
+                }
             }
         }
-        // Redo-Button
-        MouseArea {
-            id: redoArea
-            width: 56; height: 56
-            cursorShape: Qt.PointingHandCursor
-            hoverEnabled: true
-            onClicked: {
-                abrechnungsBackend.show_wizard_and_load_page();
-                // Reset overlayAlreadyOpened beim Wizard-Neustart
-                overlayAlreadyOpened = false;
-                // Cache leeren beim Wizard-Neustart
-                overlayConfigCache = [];
-            }
-            Image {
-                anchors.centerIn: parent
-                source: redoArea.pressed ? "assets/icons/redo_gray.svg"
-                    : redoArea.containsMouse ? "assets/icons/redo_orange.svg" : "assets/icons/redo_white.svg"
-                width: redoArea.pressed ? 32 : redoArea.containsMouse ? 40 : 32
-                height: width
-                fillMode: Image.PreserveAspectFit
+
+        // Animation beim Ein-/Ausblenden
+        Behavior on opacity {
+            NumberAnimation { duration: 300 }
         }
-    }
+        
+        // Smooth Animation für Hover-Effekt
+        Behavior on anchors.bottomMargin {
+            NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
+        }
     }
 
     // Entferne die Automatische Synchronisation: Wenn overlayConfigCache nach Wizard/Backend-Update neu gesetzt wird, NICHT mehr automatisch Werte ans Backend senden oder update_ergebnis aufrufen
@@ -1491,33 +2256,47 @@ Rectangle {
     // }
 
     function applyOverlayConfigurationToBackend() {
-        // Plattform-Faktoren berechnen
-        var taxiFaktor = 1.0, uberFaktor = 1.0, boltFaktor = 1.0;
+        // applyOverlayConfigurationToBackend() gestartet
+        
+        // Plattform-Faktoren berechnen - Verwende Backend-Werte als Standard
+        var taxiFaktor = abrechnungsBackend.taxi_faktor || 0.0;
+        var uberFaktor = abrechnungsBackend.uber_faktor || 0.0;
+        var boltFaktor = abrechnungsBackend.bolt_faktor || 0.0;
         var taxiIndex = matchedPlatforms.indexOf("Taxi");
         var uberIndex = matchedPlatforms.indexOf("Uber");
         var boltIndex = matchedPlatforms.indexOf("Bolt");
         
+        // Indizes gefunden
+        
         if (taxiIndex !== -1) {
-            taxiFaktor = matchedSliderValues[taxiIndex] !== undefined ? matchedSliderValues[taxiIndex] / 100.0 : 1.0;
+            taxiFaktor = matchedSliderValues[taxiIndex] !== undefined ? matchedSliderValues[taxiIndex] / 100.0 : taxiFaktor;
+            // Taxi-Faktor berechnet
         }
         if (uberIndex !== -1) {
-            uberFaktor = matchedSliderValues[uberIndex] !== undefined ? matchedSliderValues[uberIndex] / 100.0 : 1.0;
+            uberFaktor = matchedSliderValues[uberIndex] !== undefined ? matchedSliderValues[uberIndex] / 100.0 : uberFaktor;
+            // Uber-Faktor berechnet
         }
         if (boltIndex !== -1) {
-            boltFaktor = matchedSliderValues[boltIndex] !== undefined ? matchedSliderValues[boltIndex] / 100.0 : 1.0;
+            boltFaktor = matchedSliderValues[boltIndex] !== undefined ? matchedSliderValues[boltIndex] / 100.0 : boltFaktor;
+            // Bolt-Faktor berechnet
         }
         
-        // Einsteiger, Tank, Garage Faktoren berechnen
-        var einsteigerFaktor = 1.0, tankFaktor = 1.0, garageFaktor = 1.0;
+        // Einsteiger, Tank, Garage Faktoren berechnen - Verwende Backend-Werte als Standard
+        var einsteigerFaktor = abrechnungsBackend.einsteiger_faktor || 0.0;
+        var tankFaktor = abrechnungsBackend.tank_faktor || 0.0;
+        var garageFaktor = abrechnungsBackend.garage_faktor || 0.5;
         for (var i = 0; i < matchedPlatforms.length; i++) {
             if (matchedPlatforms[i] === "Einsteiger") {
-                einsteigerFaktor = matchedSliderValues[i] !== undefined ? matchedSliderValues[i] / 100.0 : 1.0;
+                einsteigerFaktor = matchedSliderValues[i] !== undefined ? matchedSliderValues[i] / 100.0 : einsteigerFaktor;
+                // Einsteiger-Faktor berechnet
             }
             if (matchedPlatforms[i] === "Tank") {
-                tankFaktor = matchedSliderValues[i] !== undefined ? matchedSliderValues[i] / 100.0 : 1.0;
+                tankFaktor = matchedSliderValues[i] !== undefined ? matchedSliderValues[i] / 100.0 : tankFaktor;
+                // Tank-Faktor berechnet
             }
             if (matchedPlatforms[i] === "Garage") {
-                garageFaktor = matchedSliderValues[i] !== undefined ? matchedSliderValues[i] / 100.0 : 1.0;
+                garageFaktor = matchedSliderValues[i] !== undefined ? matchedSliderValues[i] / 100.0 : garageFaktor;
+                // Garage-Faktor berechnet
             }
         }
         
@@ -1528,188 +2307,99 @@ Rectangle {
             var einsteigerUmsatz = getEchterUmsatzForPlattform("Einsteiger");
             var einsteigerSlider = matchedSliderValues[einsteigerIndex] !== undefined ? matchedSliderValues[einsteigerIndex] : 0;
             overlayIncomeOhneEinsteiger -= einsteigerUmsatz * (einsteigerSlider / 100.0);
+            console.log("DEBUG: OverlayIncomeOhneEinsteiger berechnet:", overlayIncomeOhneEinsteiger);
         }
+        
+        // Setze Backend-Faktoren:
+        console.log("  Taxi:", taxiFaktor);
+        console.log("  Uber:", uberFaktor);
+        console.log("  Bolt:", boltFaktor);
+        console.log("  Einsteiger:", einsteigerFaktor);
+        console.log("  Tank:", tankFaktor);
+        console.log("  Garage:", garageFaktor);
+        console.log("  OverlayIncomeOhneEinsteiger:", overlayIncomeOhneEinsteiger);
         
         // Backend-Methoden aufrufen
-        console.log("DEBUG: Rufe Backend-Methoden auf...");
-        console.log("DEBUG: setTaxiFaktor verfügbar:", typeof abrechnungsBackend.setTaxiFaktor);
-        console.log("DEBUG: setUberFaktor verfügbar:", typeof abrechnungsBackend.setUberFaktor);
-        console.log("DEBUG: setBoltFaktor verfügbar:", typeof abrechnungsBackend.setBoltFaktor);
-        console.log("DEBUG: setEinsteigerFaktor verfügbar:", typeof abrechnungsBackend.setEinsteigerFaktor);
-        console.log("DEBUG: setTankFaktor verfügbar:", typeof abrechnungsBackend.setTankFaktor);
-        console.log("DEBUG: setGarageFaktor verfügbar:", typeof abrechnungsBackend.setGarageFaktor);
-        
-        if (abrechnungsBackend.setTaxiFaktor) {
-            console.log("DEBUG: Rufe setTaxiFaktor mit Wert:", taxiFaktor);
+        if (abrechnungsBackend && abrechnungsBackend.setTaxiFaktor) {
             abrechnungsBackend.setTaxiFaktor(taxiFaktor);
         }
-        if (abrechnungsBackend.setUberFaktor) {
-            console.log("DEBUG: Rufe setUberFaktor mit Wert:", uberFaktor);
+        if (abrechnungsBackend && abrechnungsBackend.setUberFaktor) {
             abrechnungsBackend.setUberFaktor(uberFaktor);
         }
-        if (abrechnungsBackend.setBoltFaktor) {
-            console.log("DEBUG: Rufe setBoltFaktor mit Wert:", boltFaktor);
+        if (abrechnungsBackend && abrechnungsBackend.setBoltFaktor) {
             abrechnungsBackend.setBoltFaktor(boltFaktor);
         }
-        if (abrechnungsBackend.setEinsteigerFaktor) {
-            console.log("DEBUG: Rufe setEinsteigerFaktor mit Wert:", einsteigerFaktor);
+        if (abrechnungsBackend && abrechnungsBackend.setEinsteigerFaktor) {
             abrechnungsBackend.setEinsteigerFaktor(einsteigerFaktor);
         }
-        if (abrechnungsBackend.setTankFaktor) {
-            console.log("DEBUG: Rufe setTankFaktor mit Wert:", tankFaktor);
+        if (abrechnungsBackend && abrechnungsBackend.setTankFaktor) {
             abrechnungsBackend.setTankFaktor(tankFaktor);
         }
-        if (abrechnungsBackend.setGarageFaktor) {
-            console.log("DEBUG: Rufe setGarageFaktor mit Wert:", garageFaktor);
+        if (abrechnungsBackend && abrechnungsBackend.setGarageFaktor) {
             abrechnungsBackend.setGarageFaktor(garageFaktor);
         }
-        if (abrechnungsBackend.setOverlayIncomeOhneEinsteiger) {
-            console.log("DEBUG: Rufe setOverlayIncomeOhneEinsteiger mit Wert:", overlayIncomeOhneEinsteiger);
+        if (abrechnungsBackend && abrechnungsBackend.setOverlayIncomeOhneEinsteiger) {
             abrechnungsBackend.setOverlayIncomeOhneEinsteiger(overlayIncomeOhneEinsteiger);
         }
-        console.log("DEBUG: Backend-Methoden aufgerufen");
-    }
-
-    // === Temporäre Properties für alle Faktoren ===
-    property real tempTaxiFaktor: abrechnungsBackend.taxi_faktor
-    property real tempUberFaktor: abrechnungsBackend.uber_faktor
-    property real tempBoltFaktor: abrechnungsBackend.bolt_faktor
-    property real tempEinsteigerFaktor: abrechnungsBackend.einsteiger_faktor
-    property real tempTankFaktor: abrechnungsBackend.tank_faktor
-    property real tempGarageFaktor: abrechnungsBackend.garage_faktor
-
-    // Funktion zum Initialisieren der temporären Werte beim Öffnen des Overlays
-    function initOverlayFaktoren() {
-        tempTaxiFaktor = abrechnungsBackend.taxi_faktor;
-        tempUberFaktor = abrechnungsBackend.uber_faktor;
-        tempBoltFaktor = abrechnungsBackend.bolt_faktor;
-        tempEinsteigerFaktor = abrechnungsBackend.einsteiger_faktor;
-        tempTankFaktor = abrechnungsBackend.tank_faktor;
-        tempGarageFaktor = abrechnungsBackend.garage_faktor;
-    }
-
-    // Beispiel für das Overlay (nur der relevante Ausschnitt):
-    property bool customDealOverlayVisible: false
-    Rectangle {
-        id: customDealOverlay
-        visible: customDealOverlayVisible
-        width: 520
-        height: 340
-        x: parent.width - width - 200
-        y: 100
-        color: "#000"
-        radius: 8
-        z: 1000
         
-        // MouseArea für Drag & Drop
-        MouseArea {
-            anchors.fill: parent
-            anchors.bottomMargin: 280 // Platz für den Header lassen
-            drag.target: customDealOverlay
-            drag.axis: Drag.XAndYAxis
-            drag.minimumX: 0
-            drag.maximumX: parent.parent.width - customDealOverlay.width
-            drag.minimumY: 0
-            drag.maximumY: parent.parent.height - customDealOverlay.height
-            
-            // Cursor ändern beim Hover
-            hoverEnabled: true
-            cursorShape: containsMouse ? Qt.SizeAllCursor : Qt.ArrowCursor
-            
-            // Optional: Visueller Hinweis beim Hover
-            Rectangle {
-                anchors.fill: parent
-                color: "transparent"
-                border.color: dragArea.containsMouse ? "#555" : "transparent"
-                border.width: 1
-                radius: 8
-            }
+        // WICHTIG: Ergebnis sofort neu berechnen nach Backend-Update
+        if (abrechnungsBackend && abrechnungsBackend.update_ergebnis) {
+            abrechnungsBackend.update_ergebnis();
         }
-        ColumnLayout {
-            anchors.fill: parent
-            anchors.margins: 32
-            spacing: 20
-            
-            // Taxi Faktor
-            RowLayout {
-                Text { text: "Taxi-Faktor:" }
-                Slider {
-                    from: 0; to: 1; stepSize: 0.01
-                    value: tempTaxiFaktor
-                    onValueChanged: tempTaxiFaktor = value
-                }
-                Text { text: (tempTaxiFaktor * 100).toFixed(0) + "%" }
-            }
-            // Uber Faktor
-            RowLayout {
-                Text { text: "Uber-Faktor:" }
-                Slider {
-                    from: 0; to: 1; stepSize: 0.01
-                    value: tempUberFaktor
-                    onValueChanged: tempUberFaktor = value
-                }
-                Text { text: (tempUberFaktor * 100).toFixed(0) + "%" }
-            }
-            // Bolt Faktor
-            RowLayout {
-                Text { text: "Bolt-Faktor:" }
-                Slider {
-                    from: 0; to: 1; stepSize: 0.01
-                    value: tempBoltFaktor
-                    onValueChanged: tempBoltFaktor = value
-                }
-                Text { text: (tempBoltFaktor * 100).toFixed(0) + "%" }
-            }
-            // Einsteiger Faktor
-            RowLayout {
-                Text { text: "Einsteiger-Faktor:" }
-                Slider {
-                    from: 0; to: 1; stepSize: 0.01
-                    value: tempEinsteigerFaktor
-                    onValueChanged: tempEinsteigerFaktor = value
-                }
-                Text { text: (tempEinsteigerFaktor * 100).toFixed(0) + "%" }
-            }
-            // Tank Faktor
-            RowLayout {
-                Text { text: "Tank-Faktor:" }
-                Slider {
-                    from: 0; to: 1; stepSize: 0.01
-                    value: tempTankFaktor
-                    onValueChanged: tempTankFaktor = value
-                }
-                Text { text: (tempTankFaktor * 100).toFixed(0) + "%" }
-            }
-            // Garage Faktor
-            RowLayout {
-                Text { text: "Garage-Faktor:" }
-                Slider {
-                    from: 0; to: 1; stepSize: 0.01
-                    value: tempGarageFaktor
-                    onValueChanged: tempGarageFaktor = value
-                }
-                Text { text: (tempGarageFaktor * 100).toFixed(0) + "%" }
-            }
-            // Buttons
-            RowLayout {
-                Button {
-                    text: "Speichern"
-                    onClicked: {
-                        abrechnungsBackend.setTaxiFaktor(tempTaxiFaktor);
-                        abrechnungsBackend.setUberFaktor(tempUberFaktor);
-                        abrechnungsBackend.setBoltFaktor(tempBoltFaktor);
-                        abrechnungsBackend.setEinsteigerFaktor(tempEinsteigerFaktor);
-                        abrechnungsBackend.setTankFaktor(tempTankFaktor);
-                        abrechnungsBackend.setGarageFaktor(tempGarageFaktor);
-                        customDealOverlayVisible = false;
-                    }
-                }
-                Button {
-                    text: "Abbrechen"
-                    onClicked: customDealOverlayVisible = false;
-                }
-            }
-        }
+        
+        // applyOverlayConfigurationToBackend() beendet
     }
+    
+    function applyCustomDealConfig(customConfig) {
+        // applyCustomDealConfig() gestartet
+        console.log("DEBUG: Wende Custom-Deal-Konfiguration aus Datenbank an:", JSON.stringify(customConfig));
+        
+        // Konfiguration auf matchedDeals und matchedSliderValues anwenden
+        var newDeals = matchedDeals.slice();
+        var newSliders = matchedSliderValues.slice();
+        
+        // Custom-Deal-Konfiguration ist ein Array von Objekten mit platform, deal, slider
+        for (var i = 0; i < customConfig.length; i++) {
+            var item = customConfig[i];
+            var platform = item.platform;
+            var deal = item.deal || "C"; // Standard: C für Custom-Deal
+            var slider = item.slider;
+            
+            console.log("DEBUG: Verarbeite Item:", platform, deal, slider);
+            
+            // Finde den Index für diese Plattform
+            var platformIndex = matchedPlatforms.indexOf(platform);
+            
+            if (platformIndex !== -1) {
+                // Deal-Typ für alle Plattformen setzen
+                var dealValue = 2; // Standard: C für Custom-Deal
+                if (deal === "%") dealValue = 1;
+                else if (deal === "P") dealValue = 0;
+                
+                newDeals[platformIndex] = dealValue;
+                newSliders[platformIndex] = slider;
+                
+                console.log("DEBUG: Angewendet für", platform, "Deal:", dealValue, "Slider:", slider);
+            } else {
+                console.log("DEBUG: Plattform", platform, "nicht gefunden in matchedPlatforms");
+            }
+        }
+        
+        // Arrays aktualisieren
+        matchedDeals = newDeals;
+        matchedSliderValues = newSliders;
+        
+        console.log("DEBUG: Custom-Deal-Konfiguration aus Datenbank angewendet");
+        console.log("  Neue matchedDeals:", JSON.stringify(matchedDeals));
+        console.log("  Neue matchedSliderValues:", JSON.stringify(matchedSliderValues));
+        
+        // WICHTIG: Backend-Faktoren aus den neuen Werten setzen
+        applyOverlayConfigurationToBackend();
+        
+        // WICHTIG: Flag setzen, dass Konfiguration angewendet wurde
+        overlayConfigApplied = true;
+    }
+
+
 }
 

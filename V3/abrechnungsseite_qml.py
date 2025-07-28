@@ -13,213 +13,17 @@ from datetime import datetime, timedelta
 import calendar
 import json
 
-class AbrechnungsWizard(QDialog):
-    def __init__(self, fahrer_list, fahrzeug_list, kw_list, parent=None):
-        super().__init__(parent)
-        self.setWindowTitle("Abrechnungs-Auswertung")
-        self.setFixedSize(400, 300)
-        self.setModal(True)
-        
-        # Daten
-        self.fahrer_list = fahrer_list
-        self.fahrzeug_list = fahrzeug_list
-        self.kw_list = kw_list
-        self.result_data = {}
-        
-        # UI erstellen
-        self.setup_ui()
-        
-    def setup_ui(self):
-        layout = QVBoxLayout(self)
-        layout.setSpacing(20)
-        
-        # Titel
-        title = QLabel("Abrechnungs-Auswertung")
-        title.setStyleSheet("font-size: 18pt; font-weight: bold; color: #ffffff; margin-bottom: 10px;")
-        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(title)
-        
-        # Fahrer Auswahl
-        fahrer_layout = QHBoxLayout()
-        fahrer_label = QLabel("Fahrer:")
-        fahrer_label.setStyleSheet("color: #ffffff; font-size: 12pt;")
-        fahrer_label.setFixedWidth(120)
-        self.fahrer_combo = QComboBox()
-        self.fahrer_combo.addItems(self.fahrer_list)
-        self.fahrer_combo.setStyleSheet("""
-            QComboBox {
-                background: #2a2a2a;
-                border: 1px solid #444444;
-                border-radius: 4px;
-                padding: 8px;
-                color: #ffffff;
-                font-size: 12pt;
-            }
-            QComboBox:hover {
-                border-color: #f79009;
-            }
-            QComboBox::drop-down {
-                border: none;
-            }
-            QComboBox::down-arrow {
-                image: none;
-                border-left: 5px solid transparent;
-                border-right: 5px solid transparent;
-                border-top: 5px solid #ffffff;
-            }
-        """)
-        fahrer_layout.addWidget(fahrer_label)
-        fahrer_layout.addWidget(self.fahrer_combo)
-        layout.addLayout(fahrer_layout)
-        
-        # Fahrzeug Auswahl
-        fahrzeug_layout = QHBoxLayout()
-        fahrzeug_label = QLabel("Fahrzeug:")
-        fahrzeug_label.setStyleSheet("color: #ffffff; font-size: 12pt;")
-        fahrzeug_label.setFixedWidth(120)
-        self.fahrzeug_combo = QComboBox()
-        self.fahrzeug_combo.addItems(self.fahrzeug_list)
-        self.fahrzeug_combo.setStyleSheet("""
-            QComboBox {
-                background: #2a2a2a;
-                border: 1px solid #444444;
-                border-radius: 4px;
-                padding: 8px;
-                color: #ffffff;
-                font-size: 12pt;
-            }
-            QComboBox:hover {
-                border-color: #f79009;
-            }
-            QComboBox::drop-down {
-                border: none;
-            }
-            QComboBox::down-arrow {
-                image: none;
-                border-left: 5px solid transparent;
-                border-right: 5px solid transparent;
-                border-top: 5px solid #ffffff;
-            }
-        """)
-        fahrzeug_layout.addWidget(fahrzeug_label)
-        fahrzeug_layout.addWidget(self.fahrzeug_combo)
-        layout.addLayout(fahrzeug_layout)
-        
-        # Kalenderwoche Auswahl
-        kw_layout = QHBoxLayout()
-        kw_label = QLabel("Kalenderwoche:")
-        kw_label.setStyleSheet("color: #ffffff; font-size: 12pt;")
-        kw_label.setFixedWidth(120)
-        self.kw_combo = QComboBox()
-        self.kw_combo.addItems(self.kw_list)
-        self.kw_combo.setStyleSheet("""
-            QComboBox {
-                background: #2a2a2a;
-                border: 1px solid #444444;
-                border-radius: 4px;
-                padding: 8px;
-                color: #ffffff;
-                font-size: 12pt;
-            }
-            QComboBox:hover {
-                border-color: #f79009;
-            }
-            QComboBox::drop-down {
-                border: none;
-            }
-            QComboBox::down-arrow {
-                image: none;
-                border-left: 5px solid transparent;
-                border-right: 5px solid transparent;
-                border-top: 5px solid #ffffff;
-            }
-        """)
-        kw_layout.addWidget(kw_label)
-        kw_layout.addWidget(self.kw_combo)
-        layout.addLayout(kw_layout)
-        
-        # Buttons
-        button_layout = QHBoxLayout()
-        button_layout.addStretch()
-        
-        self.cancel_button = QPushButton("Abbrechen")
-        self.cancel_button.setStyleSheet("""
-            QPushButton {
-                background: transparent;
-                border: 1px solid #444444;
-                border-radius: 4px;
-                padding: 10px 20px;
-                color: #ffffff;
-                font-size: 12pt;
-            }
-            QPushButton:hover {
-                border-color: #f79009;
-                background: rgba(247, 144, 9, 0.1);
-            }
-        """)
-        self.cancel_button.clicked.connect(self.reject)
-        
-        self.ok_button = QPushButton("Auswerten")
-        self.ok_button.setStyleSheet("""
-            QPushButton {
-                background: transparent;
-                border: 1px solid #f79009;
-                border-radius: 4px;
-                padding: 10px 20px;
-                color: #f79009;
-                font-size: 12pt;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background: rgba(247, 144, 9, 0.1);
-            }
-        """)
-        self.ok_button.clicked.connect(self.accept)
-        
-        button_layout.addWidget(self.cancel_button)
-        button_layout.addWidget(self.ok_button)
-        layout.addLayout(button_layout)
-        
-        # Dialog-Styling
-        self.setStyleSheet("""
-            QDialog {
-                background: #000000;
-            }
-        """)
-        
-    def get_data(self):
-        return {
-            "fahrer": self.fahrer_combo.currentText(),
-            "fahrzeug": self.fahrzeug_combo.currentText(),
-            "kw": self.kw_combo.currentText()
-        }
+def safe_float(val):
+    """Globale Hilfsfunktion für sichere Float-Konvertierung"""
+    if val is None or str(val).strip() == '' or str(val).lower() == 'nan' or (isinstance(val, float) and math.isnan(val)):
+        return 0.0
+    try:
+        return float(val)
+    except (ValueError, TypeError):
+        return 0.0
 
-class AbrechnungsModel(QAbstractListModel):
-    def __init__(self):
-        super().__init__()
-        self._data = []
-        self._current_page = 0
-        
-    def rowCount(self, parent=None):
-        return len(self._data)
-        
-    def data(self, index, role):
-        if not index.isValid():
-            return None
-        if role == Qt.ItemDataRole.DisplayRole:
-            return self._data[index.row()]
-        return None
-        
-    def update_data(self, data):
-        self.beginResetModel()
-        self._data = data
-        self.endResetModel()
-        
-    def set_current_page(self, page):
-        self._current_page = page
-
-class AbrechnungsSeiteQML(QObject):
-    # Signals für QML
+class AbrechnungsSeiteQML(QObject): # AbrechnungsSeiteQML-Klasse
+    # Signals für QML       
     fahrerChanged = Signal()
     fahrzeugChanged = Signal()
     kwChanged = Signal()
@@ -264,11 +68,11 @@ class AbrechnungsSeiteQML(QObject):
         self._headcard_trinkgeld = 0.0
         self._headcard_bargeld = 0.0
         self._ergebnis = 0.0
-        self._inputGas = 0.0
-        self._inputGasText = ""
-        self._inputEinsteiger = 0.0
-        self._inputEinsteigerText = ""
-        self._inputExpenseText = ""
+        self._input_gas = 0.0
+        self._input_gas_text = ""
+        self._input_einsteiger = 0.0
+        self._input_einsteiger_text = ""
+        self._input_expense = 0.0
         self._expense_cache = []  # Zwischenspeicher für neue Ausgaben
         # Daten laden
         self.load_fahrer()
@@ -336,7 +140,7 @@ class AbrechnungsSeiteQML(QObject):
     @Property(float, notify=headcardGarageChanged)
     def headcard_garage(self):
         try:
-            kw = self._wizard_data.get("kw", "") if hasattr(self, '_wizard_data') else ""
+            kw = getattr(self, '_kw_label', "") if hasattr(self, '_kw_label') else ""
             jahr = datetime.now().year
             kw_int = int(kw) if kw else None
             if kw_int is not None:
@@ -351,6 +155,13 @@ class AbrechnungsSeiteQML(QObject):
         except Exception as e:
             print(f"Fehler bei Garage-Berechnung: {e}")
             return getattr(self, '_garage', 0.0)
+            
+    @headcard_garage.setter
+    def headcard_garage(self, value):
+        if getattr(self, '_garage', 0.0) != value:
+            self._garage = value
+            print(f"DEBUG: headcard_garage auf '{value}' gesetzt")
+        self.headcardGarageChanged.emit()
             
     @Property(float, notify=headcardCashChanged)
     def headcard_cash(self):
@@ -368,44 +179,35 @@ class AbrechnungsSeiteQML(QObject):
         
     @Property(str, notify=inputGasChanged)
     def inputGas(self):
-        return self._inputGasText
+        return self._input_gas
+
     @inputGas.setter
     def inputGas(self, value):
-        self._inputGasText = value
-        try:
-            self._inputGas = float(value.replace(",", ".")) if value else 0.0
-        except Exception:
-            self._inputGas = 0.0
+        if self._input_gas != value:
+            self._input_gas = value
+            print(f"DEBUG: inputGas auf '{value}' gesetzt")
         self.inputGasChanged.emit()
-        # update_ergebnis nur aufrufen, wenn Deal gesetzt ist und nicht im Initialzustand
-        if hasattr(self, '_deal') and self._deal not in (None, "__INIT__"):
-            self.update_ergebnis()
 
     @Property(str, notify=inputEinsteigerChanged)
     def inputEinsteiger(self):
-        return self._inputEinsteigerText
+        return self._input_einsteiger
+
     @inputEinsteiger.setter
     def inputEinsteiger(self, value):
-        self._inputEinsteigerText = value
-        try:
-            self._inputEinsteiger = float(value.replace(",", ".")) if value else 0.0
-        except Exception:
-            self._inputEinsteiger = 0.0
+        if self._input_einsteiger != value:
+            self._input_einsteiger = value
+            print(f"DEBUG: inputEinsteiger auf '{value}' gesetzt")
         self.inputEinsteigerChanged.emit()
-        # update_ergebnis nur aufrufen, wenn Deal gesetzt ist und nicht im Initialzustand
-        if hasattr(self, '_deal') and self._deal not in (None, "__INIT__"):
-            self.update_ergebnis()
 
     @Property(str, notify=inputExpenseChanged)
     def inputExpense(self):
-        return self._inputExpenseText
+        return self._input_expense
 
     @inputExpense.setter
     def inputExpense(self, value):
-        # Komma durch Punkt ersetzen
-        if isinstance(value, str):
-            value = value.replace(",", ".")
-        self._inputExpenseText = value
+        if self._input_expense != value:
+            self._input_expense = value
+            print(f"DEBUG: inputExpense auf '{value}' gesetzt")
         self.inputExpenseChanged.emit()
 
     @Property(str, notify=dealChanged)
@@ -419,6 +221,41 @@ class AbrechnungsSeiteQML(QObject):
     @Property(float, notify=umsatzgrenzeChanged)
     def umsatzgrenze(self):
         return getattr(self, '_umsatzgrenze', 0.0)
+        
+    # Properties für QML-Zugriff auf Faktoren
+    @Property(float, notify=ergebnisChanged)
+    def taxi_faktor(self):
+        return getattr(self, '_taxi_faktor', 0.0)
+        
+    @Property(float, notify=ergebnisChanged)
+    def uber_faktor(self):
+        return getattr(self, '_uber_faktor', 0.0)
+        
+    @Property(float, notify=ergebnisChanged)
+    def bolt_faktor(self):
+        return getattr(self, '_bolt_faktor', 0.0)
+        
+    @Property(float, notify=ergebnisChanged)
+    def einsteiger_faktor(self):
+        return getattr(self, '_einsteiger_faktor', 0.0)
+        
+    @Property(float, notify=ergebnisChanged)
+    def tank_faktor(self):
+        return getattr(self, '_tank_faktor', 0.0)
+        
+    @Property(float, notify=ergebnisChanged)
+    def garage_faktor(self):
+        return getattr(self, '_garage_faktor', 0.5)
+        
+    @Property(float, notify=ergebnisChanged)
+    def expenses(self):
+        """Summe aller Expenses für QML-Zugriff"""
+        try:
+            if hasattr(self, '_expense_cache') and self._expense_cache:
+                return sum(float(e.get('amount', 0)) for e in self._expense_cache)
+            return 0.0
+        except Exception:
+            return 0.0
 
     def load_fahrer(self):
         try:
@@ -498,133 +335,226 @@ class AbrechnungsSeiteQML(QObject):
             ("Kalenderwoche", "kw", "combo", self._kw_list)
         ]
         def wizard_callback(data):
+            print("=" * 60)
+            print("🚀 WIZARD-CALLBACK GESTARTET")
+            print("=" * 60)
+            print(f"📋 Eingabedaten:")
+            print(f"   👤 Fahrer: {data['fahrer']}")
+            print(f"   🚗 Fahrzeug: {data['fahrzeug']}")
+            print(f"   📅 KW: {data['kw']}")
+            
+            # WICHTIG: _wizard_data setzen für Speicherung
             self._wizard_data = data
-            self.wizardDataChanged.emit()
-            print(f"Wizard-Daten: {data}")
+            
             fahrer = data["fahrer"]
-
-            # --- Direkt nach dem Wizard den Deal-Typ und weitere Werte abfragen ---
-            fahrer = data["fahrer"]
+            fahrzeug = data["fahrzeug"]
+            kw = data["kw"]
+            
+            self._fahrer_label = fahrer
+            self._fahrzeug_label = fahrzeug
+            self._kw_label = kw
+            
+            # Fahrer-ID aus der Datenbank holen
+            print(f"🔍 Suche Fahrer-ID in Datenbank...")
             try:
                 conn = sqlite3.connect("SQL/database.db")
                 cursor = conn.cursor()
-                cursor.execute("SELECT deal, pauschale, umsatzgrenze, garage FROM deals WHERE name = ?", (fahrer,))
-                row = cursor.fetchone()
-                if row:
-                    self._deal = row[0]
-                    self._pauschale = float(row[1]) if row[1] is not None else 0.0
-                    self._umsatzgrenze = float(row[2]) if row[2] is not None else 0.0
-                    self._garage = float(row[3]) if row[3] is not None else 0.0
-                    self.pauschaleChanged.emit()
-                    self.umsatzgrenzeChanged.emit()
+                cursor.execute("SELECT driver_id FROM drivers WHERE first_name || ' ' || last_name = ?", (fahrer,))
+                result = cursor.fetchone()
+                conn.close()
+                
+                if result:
+                    self._fahrer_id = result[0]
+                    print(f"   ✅ Fahrer-ID gefunden: {self._fahrer_id}")
                 else:
-                    self._deal = "%"
-                    self._pauschale = 0.0
-                    self._umsatzgrenze = 0.0
-                    self._garage = 0.0
-                    self.pauschaleChanged.emit()
-                    self.umsatzgrenzeChanged.emit()
+                    print(f"   ⚠️  Keine Fahrer-ID gefunden für: {fahrer}")
+                    self._fahrer_id = hash(fahrer) % 10000
+                    print(f"   🔧 Verwende Hash-ID: {self._fahrer_id}")
             except Exception as e:
-                self._deal = "%"
-                self._pauschale = 0.0
-                self._umsatzgrenze = 0.0
-                self._garage = 0.0
-                self.pauschaleChanged.emit()
-                self.umsatzgrenzeChanged.emit()
-            finally:
-                try:
-                    conn.close()
-                except:
-                    pass
-            # Nach dem Setzen des Deals und aller Werte: Ergebnis berechnen
-            self.update_ergebnis()
-
-            if self._deal == "C":
-                # Custom-Deal: Lade gespeicherte Konfiguration über Namen
-                config = self.ladeOverlayKonfigurationByName(fahrer)
-                if config and len(config) == 10:
-                    # Alle Plattform-Faktoren aus der Config laden
-                    self._taxi_deal = config[0]
-                    self._taxi_slider = config[1]
-                    self._uber_deal = config[2]
-                    self._uber_slider = config[3]
-                    self._bolt_deal = config[4]
-                    self._bolt_slider = config[5]
-                    self._einsteiger_deal = config[6]
-                    self._einsteiger_slider = config[7]
-                    self._garage_slider = config[8]
-                    self._tank_slider = config[9]
-                    
-                    # Faktoren berechnen (Slider / 100)
-                    self._taxi_faktor = self._taxi_slider / 100.0
-                    self._uber_faktor = self._uber_slider / 100.0
-                    self._bolt_faktor = self._bolt_slider / 100.0
-                    self._einsteiger_faktor = self._einsteiger_slider / 100.0
-                    self._tank_faktor = self._tank_slider / 100.0
-                    self._garage_faktor = self._garage_slider / 100.0
-                    
-                    # Debug-Ausgabe aller Faktoren
-                    print(f"DEBUG: Alle Faktoren geladen:")
-                    print(f"  Taxi: Deal={self._taxi_deal}, Slider={self._taxi_slider}, Faktor={self._taxi_faktor}")
-                    print(f"  Uber: Deal={self._uber_deal}, Slider={self._uber_slider}, Faktor={self._uber_faktor}")
-                    print(f"  Bolt: Deal={self._bolt_deal}, Slider={self._bolt_slider}, Faktor={self._bolt_faktor}")
-                    print(f"  Einsteiger: Deal={self._einsteiger_deal}, Slider={self._einsteiger_slider}, Faktor={self._einsteiger_faktor}")
-                    print(f"  Tank: Slider={self._tank_slider}, Faktor={self._tank_faktor}")
-                    print(f"  Garage: Slider={self._garage_slider}, Faktor={self._garage_faktor}")
-                    
-                    # overlayIncomeOhneEinsteiger aus Umsätzen berechnen
-                    # (wird nach der Auswertung korrekt berechnet, da Umsätze erst dann verfügbar sind)
-                    self._overlay_income_ohne_einsteiger = 0.0  # Wird in update_ergebnis berechnet
-                    
-                    print(f"DEBUG: Faktoren für Ergebnisberechnung gesetzt")
-                else:
-                    print(f"DEBUG: Keine Config gefunden für Fahrer '{fahrer}'")
-                    # Default-Faktoren setzen
-                    self._taxi_faktor = 1.0
-                    self._uber_faktor = 1.0
-                    self._bolt_faktor = 1.0
-                    self._einsteiger_faktor = 1.0
-                    self._tank_faktor = 1.0
-                    self._garage_faktor = 1.0
-                    self._overlay_income_ohne_einsteiger = 0.0
-            elif self._deal == "P":
-                self._overlay_config_cache = [
-                    {"platform": "Taxi", "deal": "P", "slider": 100.0},
-                    {"platform": "Uber", "deal": "P", "slider": 100.0},
-                    {"platform": "Bolt", "deal": "P", "slider": 100.0},
-                    {"platform": "Einsteiger", "deal": "P", "slider": 100.0},
-                    {"platform": "Tank", "slider": 100.0},
-                    {"platform": "Garage", "slider": 100.0}
-                ]
-                self._overlay_income_ohne_einsteiger = 0.0
-                print(f"P-Deal: Standard-Overlay-Konfiguration gesetzt")
-            elif self._deal == "%":
-                self._overlay_config_cache = [
-                    {"platform": "Taxi", "deal": "%", "slider": 50.0},
-                    {"platform": "Uber", "deal": "%", "slider": 50.0},
-                    {"platform": "Bolt", "deal": "%", "slider": 50.0},
-                    {"platform": "Einsteiger", "deal": "%", "slider": 50.0},
-                    {"platform": "Tank", "slider": 50.0},
-                    {"platform": "Garage", "slider": 50.0}
-                ]
-                self._overlay_income_ohne_einsteiger = 0.0
-                print(f"%-Deal: Standard-Overlay-Konfiguration gesetzt")
+                print(f"   ❌ Fehler beim Laden der Fahrer-ID: {e}")
+                self._fahrer_id = hash(fahrer) % 10000
+                print(f"   🔧 Verwende Hash-ID nach Fehler: {self._fahrer_id}")
             
-            # Jetzt erst die Auswertung starten (mit den gesetzten Faktoren)
-            self.auswerten(data["fahrer"], data["fahrzeug"], data["kw"])
-            # QML informieren, dass Overlay-Konfiguration neu ist
+            print(f"⚙️  Konfiguration:")
+            print(f"   📊 Deal-Typ: wird in _lade_deal_aus_datenbank() geladen")
+            print(f"   💰 Pauschale/Umsatzgrenze: wird in _lade_deal_aus_datenbank() geladen")
+            print(f"   🔧 Deal-Konfiguration: wird in _lade_deal_aus_datenbank() gesetzt")
+            
+            # Deal-Konfiguration laden (wie bei Redo)
+            print(f"🔍 Lade Deal-Konfiguration aus Datenbank für Fahrer '{data['fahrer']}'...")
+            self._lade_deal_aus_datenbank(data["fahrer"])
+            
+            print(f"🚀 Starte Auswertung...")
+            self.auswerten(data["fahrer"], data["fahrzeug"], data.get("kw", ""))
+            
             if hasattr(self, 'overlayConfigCacheChanged'):
                 self.overlayConfigCacheChanged.emit()
             self.wizardFertig.emit()
+            
+            print("=" * 60)
+            print("✅ WIZARD-CALLBACK BEENDET")
+            print("=" * 60)
+        parent = None
+        wizard = GenericWizard(fields, callback=wizard_callback, parent=parent, title="Abrechnungs-Auswertung")
+        wizard.show()
+
+    @Slot()
+    def show_wizard_only(self):
+        """Zeigt den Wizard an und startet danach eine komplette Neuauswertung"""
+        fields = [
+            ("Fahrer", "fahrer", "combo", self._fahrer_list),
+            ("Fahrzeug", "fahrzeug", "combo", self._fahrzeug_list),
+            ("Kalenderwoche", "kw", "combo", self._kw_list)
+        ]
+        def wizard_callback(data):
+            # 1. ALLE WERTE BEREINIGEN
+            
+            # Cache und Zwischenspeicher leeren
+            self._expense_cache = []
+            self._overlay_config_cache = []
+            self._overlay_income_ohne_einsteiger = 0.0
+            
+            # Input-Felder zurücksetzen
+            self.inputGas = ""
+            self.inputEinsteiger = ""
+            self.inputExpense = ""
+            
+            # Ergebnisse und Seiten zurücksetzen
+            self._ergebnisse = []
+            self._found_pages = []
+            self._current_page = 0
+            
+            # WICHTIG: Auch die Input-Werte zurücksetzen, die von _get_platform_umsatz verwendet werden
+            self._input_einsteiger = ""
+            self._input_gas = ""
+            
+            # HeadCard-Werte zurücksetzen
+            self._headcard_umsatz = 0.0
+            self._headcard_trinkgeld = 0.0
+            self._headcard_bargeld = 0.0
+            self._headcard_cash = 0.0
+            self._headcard_credit_card = 0.0
+            self._headcard_garage = 0.0
+            self._headcard_trinkgeld_gesamt = 0.0
+            self._headcard_deal_value = 0.0
+            self._headcard_deal_icon = ""
+            self._headcard_deal_label = ""
+            self._ergebnis = 0.0
+            
+            # WICHTIG: Auch die Input-Werte zurücksetzen, die von _get_platform_umsatz verwendet werden
+            self._input_einsteiger = ""
+            self._input_gas = ""
+            
+            # Deal-Werte zurücksetzen
+            self._deal = ""
+            self._pauschale = 500.0
+            self._umsatzgrenze = 1200.0
+            self._garage = 0.0
+            
+            # Deal-spezifische Faktoren zurücksetzen (werden in _lade_deal_aus_datenbank() neu gesetzt)
+            self._taxi_faktor = 0.0
+            self._uber_faktor = 0.0
+            self._bolt_faktor = 0.0
+            self._einsteiger_faktor = 0.0
+            self._tank_faktor = 0.0
+            self._garage_faktor = 0.5
+            
+            # Deal-spezifische Slider zurücksetzen
+            self._taxi_deal = ""
+            self._taxi_slider = 0.0
+            self._uber_deal = ""
+            self._uber_slider = 0.0
+            self._bolt_deal = ""
+            self._bolt_slider = 0.0
+            self._einsteiger_deal = ""
+            self._einsteiger_slider = 0.0
+            self._garage_slider = 0.0
+            self._tank_slider = 0.0
+            
+            # Wizard-Daten zurücksetzen
+            self._wizard_data = data  # WICHTIG: data setzen für Speicherung
+            self._fahrer_label = ""
+            self._fahrzeug_label = ""
+            self._kw_label = ""
+            self._fahrer_id = None
+            
+            # WerteGeladen zurücksetzen (wichtig für QML-Sichtbarkeit)
+            self._werte_geladen = False
+            
+            # Signals emittieren um QML zu aktualisieren
+            self.headcardUmsatzChanged.emit()
+            self.headcardTrinkgeldChanged.emit()
+            self.headcardBargeldChanged.emit()
+            self.headcardCashChanged.emit()
+            self.headcardCreditCardChanged.emit()
+            self.headcardGarageChanged.emit()
+            self.headcardDealValueChanged.emit()
+            self.headcardDealIconChanged.emit()
+            self.headcardDealLabelChanged.emit()
+            self.ergebnisChanged.emit()
+            self.dealChanged.emit()
+            self.pauschaleChanged.emit()
+            self.umsatzgrenzeChanged.emit()
+            self.ergebnisseChanged.emit()
+            self.foundPagesChanged.emit()
+            self.currentPageChanged.emit()
+            self.inputGasChanged.emit()
+            self.inputEinsteigerChanged.emit()
+            self.inputExpenseChanged.emit()
+            self.wizardDataChanged.emit()
+            
+            # 2. DEAL-KONFIGURATION SOFORT NACH WIZARD LADEN (VOR ALLEM ANDEREN)
+            print(f"🔍 Lade Deal-Konfiguration aus Datenbank für Fahrer '{data['fahrer']}'...")
+            self._lade_deal_aus_datenbank(data["fahrer"])
+            
+            print(f"   📊 Geladener Deal: {self._deal}")
+            print(f"   🔧 Gesetzte Faktoren:")
+            print(f"      🚕 Taxi: {getattr(self, '_taxi_faktor', 'N/A')}")
+            print(f"      🚗 Uber: {getattr(self, '_uber_faktor', 'N/A')}")
+            print(f"      ⚡ Bolt: {getattr(self, '_bolt_faktor', 'N/A')}")
+            print(f"      🆕 Einsteiger: {getattr(self, '_einsteiger_faktor', 'N/A')}")
+            print(f"      ⛽ Tank: {getattr(self, '_tank_faktor', 'N/A')}")
+            print(f"      🏢 Garage: {getattr(self, '_garage_faktor', 'N/A')}")
+            
+            # 3. LABELS AKTUALISIEREN
+            print(f"🏷️  Aktualisiere Labels...")
+            self._fahrer_label = data["fahrer"]
+            self._fahrzeug_label = data["fahrzeug"]
+            self._kw_label = data["kw"]
+            
+            # 4. QML-WERTE ZURÜCKSETZEN
+            # Diese Werte werden über QML geleert, aber wir können sie hier auch zurücksetzen
+            # overlayConfigCache = [] wird in QML gemacht
+            
+            # 5. KOMPLETTE NEUAUSWERTUNG MIT GLEICHEM WORKFLOW WIE ERSTE SUCHE
+            self.auswerten(data["fahrer"], data["fahrzeug"], data.get("kw", ""))
+            
+            # 6. QML-STATUS AKTUALISIEREN
+            if hasattr(self, 'overlayConfigCacheChanged'):
+                self.overlayConfigCacheChanged.emit()
+            self.wizardFertig.emit()
+            
+            # Zusätzliche Sicherheit: Alle relevanten Signals emittieren
+            self.ergebnisseChanged.emit()
+            self.headcardUmsatzChanged.emit()
+            self.headcardTrinkgeldChanged.emit()
+            self.headcardBargeldChanged.emit()
+            self.headcardCashChanged.emit()
+            self.headcardCreditCardChanged.emit()
+            self.headcardGarageChanged.emit()
+            self.ergebnisChanged.emit()
+            self.dealChanged.emit()
+            
         parent = None
         wizard = GenericWizard(fields, callback=wizard_callback, parent=parent, title="Abrechnungs-Auswertung")
         wizard.show()
 
     @Slot(str, str, str)
     def auswerten(self, fahrer, fahrzeug, kw):
-        print(f"Auswertung für Fahrer: {fahrer}, Fahrzeug: {fahrzeug}, KW: {kw}")
+        # Auswertung gestartet
         
         if not kw or not fahrer:
+            print("   ❌ Fehlende Parameter - Auswertung abgebrochen")
             return
             
         self._fahrer_label = fahrer
@@ -632,21 +562,43 @@ class AbrechnungsSeiteQML(QObject):
         
         # 1. Fahrer-Deal aus database.db holen
         deal = None
+        garage = 0.0
+        pauschale = 500.0  # Standard-Wert
+        umsatzgrenze = 1200.0  # Standard-Wert
         try:
             conn_deal = sqlite3.connect("SQL/database.db")
             cursor_deal = conn_deal.cursor()
-            cursor_deal.execute("SELECT deal FROM deals WHERE name = ?", (fahrer,))
+            cursor_deal.execute("SELECT deal, garage, pauschale, umsatzgrenze FROM deals WHERE name = ?", (fahrer,))
             row = cursor_deal.fetchone()
             if row:
                 deal = row[0]
+                garage = row[1] if row[1] is not None else 0.0
+                pauschale = row[2] if row[2] is not None else 500.0
+                umsatzgrenze = row[3] if row[3] is not None else 1200.0
+                # Deal-Daten geladen
+            else:
+                # Kein Deal-Eintrag gefunden
+                pass
         except Exception as e:
             deal = None
+            garage = 0.0
+            pauschale = 500.0
+            umsatzgrenze = 1200.0
+            # Fehler beim Laden der Deal-Daten
         finally:
             try:
                 conn_deal.close()
             except:
                 pass
                 
+        # Setze die Backend-Variablen
+        self._garage = garage
+        self._pauschale = pauschale
+        self._umsatzgrenze = umsatzgrenze
+        self._deal = deal  # Deal aus Datenbank setzen
+        
+        # Deal-spezifische Konfiguration wird bereits in _lade_deal_aus_datenbank() gesetzt
+        
         # 2. Fahrzeug-Daten aus 40100 und 31300 laden
         if fahrzeug and kw:
             kennzeichen_nummer = "".join(filter(str.isdigit, fahrzeug))
@@ -690,7 +642,13 @@ class AbrechnungsSeiteQML(QObject):
         # 3. Fahrer in Uber und Bolt suchen (angepasstes Matching mit Bereinigung)
         def clean_name(name):
             # Entfernt doppelte Leerzeichen, trimmt und wandelt in Kleinbuchstaben um
-            return re.sub(r"\s+", " ", str(name)).strip().lower()
+            cleaned = re.sub(r"\s+", " ", str(name)).strip().lower()
+            
+            # Spezielle Behandlung für arabische Namen mit "el" Präfix
+            # Normalisiert "al" zu "el" (häufige Variante)
+            cleaned = re.sub(r'\bal\s+', 'el ', cleaned)
+            
+            return cleaned
 
         def levenshtein_distance(s1, s2):
             """Berechnet die Levenshtein-Distanz zwischen zwei Strings"""
@@ -724,7 +682,32 @@ class AbrechnungsSeiteQML(QObject):
             # Token-basierte Übereinstimmung (bestehende Logik)
             search_tokens = search_name.split()
             target_tokens = target_name.split()
-            token_matches = sum(1 for t in search_tokens if t in target_tokens)
+            
+            # Spezielle Behandlung für arabische Namen mit "el" Präfix
+            # Erstellt alternative Token-Varianten für besseres Matching
+            search_tokens_extended = search_tokens.copy()
+            target_tokens_extended = target_tokens.copy()
+            
+            # Fügt "el" + folgendes Token als kombiniertes Token hinzu
+            for i, token in enumerate(search_tokens):
+                if token == "el" and i + 1 < len(search_tokens):
+                    search_tokens_extended.append("el" + search_tokens[i + 1])
+            
+            for i, token in enumerate(target_tokens):
+                if token == "el" and i + 1 < len(target_tokens):
+                    target_tokens_extended.append("el" + target_tokens[i + 1])
+            
+            # Berechnet Token-Matches mit erweiterten Tokens
+            token_matches = sum(1 for t in search_tokens_extended if t in target_tokens_extended)
+            
+            # Zusätzlicher Bonus für arabische Namen
+            arabic_bonus = 0
+            if any('el' in token for token in search_tokens) and any('el' in token for token in target_tokens):
+                # Prüft auf ähnliche Struktur bei arabischen Namen
+                search_el_count = sum(1 for token in search_tokens if token == 'el')
+                target_el_count = sum(1 for token in target_tokens if token == 'el')
+                if search_el_count == target_el_count:
+                    arabic_bonus = 20
             
             # Levenshtein-Distanz für ähnliche Namen
             distance = levenshtein_distance(search_name, target_name)
@@ -739,8 +722,8 @@ class AbrechnungsSeiteQML(QObject):
             # Score basierend auf Distanz (höher = besser)
             distance_score = max(0, 100 - (normalized_distance * 100))
             
-            # Kombinierter Score: Token-Matches + Distanz-Score
-            combined_score = (token_matches * 30) + (distance_score * 0.7)
+            # Kombinierter Score: Token-Matches + Distanz-Score + Arabischer Bonus
+            combined_score = (token_matches * 30) + (distance_score * 0.7) + arabic_bonus
             
             return combined_score
 
@@ -752,9 +735,15 @@ class AbrechnungsSeiteQML(QObject):
             if db_name == "Uber" and "_combo_name" in df.columns and "_match" in df.columns:
                 for idx_row, row in df.iterrows():
                     print(f"Name in DB: '{row['_combo_name']}' | Match-Score: {row['_match']}")
+                    # Zusätzliche Debug-Info für arabische Namen
+                    if 'el' in row['_combo_name'] or 'el' in label:
+                        print(f"  -> Arabischer Name erkannt: '{row['_combo_name']}' vs '{label}'")
             elif db_name == "Bolt" and "_driver_name_clean" in df.columns and "_match" in df.columns:
                 for idx_row, row in df.iterrows():
                     print(f"Name in DB: '{row['_driver_name_clean']}' | Match-Score: {row['_match']}")
+                    # Zusätzliche Debug-Info für arabische Namen
+                    if 'el' in row['_driver_name_clean'] or 'el' in label:
+                        print(f"  -> Arabischer Name erkannt: '{row['_driver_name_clean']}' vs '{label}'")
 
         for db_name, db_file in [("Uber", "uber.sqlite"), ("Bolt", "bolt.sqlite")]:
             db_path = os.path.abspath(os.path.join("SQL", db_file))
@@ -808,8 +797,7 @@ class AbrechnungsSeiteQML(QObject):
             self._ergebnisse = [{"type": "error", "message": "Keine Einträge gefunden."}]
             self.ergebnisseChanged.emit()
             return
-        # Setze den aktuellen Deal-Typ für spätere Speicherung
-        self._deal = deal
+        # Deal ist bereits in auswerten() aus der Datenbank gesetzt
         # Übersichtsseite anzeigen
         self.show_overview_page()
         
@@ -821,7 +809,7 @@ class AbrechnungsSeiteQML(QObject):
     @Slot()
     def show_overview_page(self):
         """Zeigt die Übersichtsseite mit allen Plattformen"""
-        print("show_overview_page() aufgerufen")
+        print("📋 ÜBERSICHTS-SEITE WIRD ANGEZEIGT")
         self._current_page = -1  # Übersichtsseite
         self.currentPageChanged.emit()
         # Summen für HeadCard
@@ -831,6 +819,7 @@ class AbrechnungsSeiteQML(QObject):
         bolt_cash_collected = 0.0
         _40100_real = 0.0
         _40100_trinkgeld = 0.0
+        _40100_trinkgeld_gesamt = 0.0  # Gesamttrinkgeld für Berechnungen
         _40100_bargeld = 0.0
         uber_cash_collected = 0.0
         sum_40100 = 0
@@ -843,13 +832,14 @@ class AbrechnungsSeiteQML(QObject):
         details_bolt = []
         sum_31300 = 0
         _31300_trinkgeld = 0
+        _31300_trinkgeld_gesamt = 0  # Gesamttrinkgeld für Berechnungen
         _31300_bargeld = 0
         _31300_real = 0
         # Detaillierte Ergebnisse für 31300
         details_31300 = []
-        print(f"Gefundene Seiten: {len(self._found_pages)}")
+        print(f"📊 Gefundene Datenquellen: {len(self._found_pages)}")
         for db_name, df, deal in self._found_pages:
-            print(f"Verarbeite {db_name} mit {len(df) if df is not None else 0} Zeilen")
+            print(f"   🔍 Verarbeite {db_name}: {len(df) if df is not None else 0} Datensätze")
             if db_name == "40100" and df is not None:
                 # 40100-Logik: Verwende Umsatz-Spalte statt Fahrtkosten
                 # Filter: Nur Werte zwischen -250 und 250 berücksichtigen
@@ -863,11 +853,19 @@ class AbrechnungsSeiteQML(QObject):
                 sum_40100 += umsatz_40100.sum()
                 # Bargeld und Trinkgeld auch nur für gefilterte Werte berechnen
                 bargeld_40100 = df.loc[umsatz_mask, "Bargeld"].sum() if "Bargeld" in df.columns else 0
-                trinkgeld_40100 = df.loc[umsatz_mask, "Trinkgeld"].sum() if "Trinkgeld" in df.columns else 0
+                # Trinkgeld für echten Umsatz: Gesamtsumme (ohne Filter)
+                trinkgeld_fuer_umsatz_40100 = df["Trinkgeld"].sum() if "Trinkgeld" in df.columns else 0
+                
+                # Trinkgeld für Anzeige: Summe nur wenn Buchungsart nicht 'Bar' enthält und Umsatz zwischen -250 und 250
+                trinkgeld_mask = umsatz_mask
+                if "Buchungsart" in df.columns:
+                    trinkgeld_mask = trinkgeld_mask & ~df["Buchungsart"].str.contains("Bar", na=False)
+                trinkgeld_40100 = df.loc[trinkgeld_mask, "Trinkgeld"].sum() if "Trinkgeld" in df.columns else 0
                 sum_bargeld += bargeld_40100
                 _40100_trinkgeld += trinkgeld_40100
+                _40100_trinkgeld_gesamt += trinkgeld_fuer_umsatz_40100  # Gesamttrinkgeld für Berechnungen
                 _40100_bargeld += bargeld_40100
-                _40100_real += umsatz_40100.sum() - trinkgeld_40100
+                _40100_real += umsatz_40100.sum() - trinkgeld_fuer_umsatz_40100
                 details_40100 = self.calculate_40100_details(df, deal)
             elif db_name == "31300" and df is not None:
                 # Umsatz = Summe Gesamt (vorher Typumwandlung!)
@@ -884,14 +882,21 @@ class AbrechnungsSeiteQML(QObject):
                     bargeld_31300 = df.loc[df["Buchungsart"].str.contains("Bar", na=False), "Gesamt"].sum()
                 else:
                     bargeld_31300 = 0
-                # Trinkgeld wie gehabt, falls vorhanden
-                trinkgeld_31300 = df["Trinkgeld"].sum() if "Trinkgeld" in df.columns else 0
-                echter_umsatz_31300 = umsatz_31300 - trinkgeld_31300
+                # Trinkgeld für echten Umsatz: Gesamtsumme (ohne Filter)
+                trinkgeld_fuer_umsatz_31300 = df["Trinkgeld"].sum() if "Trinkgeld" in df.columns else 0
+                
+                # Trinkgeld für Anzeige: Summe nur wenn Buchungsart nicht 'Bar' enthält und Umsatz zwischen -250 und 250
+                trinkgeld_mask = gesamt_mask
+                if "Buchungsart" in df.columns:
+                    trinkgeld_mask = trinkgeld_mask & ~df["Buchungsart"].str.contains("Bar", na=False)
+                trinkgeld_31300 = df.loc[trinkgeld_mask, "Trinkgeld"].sum() if "Trinkgeld" in df.columns else 0
+                echter_umsatz_31300 = umsatz_31300 - trinkgeld_fuer_umsatz_31300
                 anteil_31300 = echter_umsatz_31300 / 2
                 restbetrag_31300 = anteil_31300 - bargeld_31300 + trinkgeld_31300
                 sum_31300 += umsatz_31300
                 sum_bargeld += bargeld_31300
                 _31300_trinkgeld += trinkgeld_31300
+                _31300_trinkgeld_gesamt += trinkgeld_fuer_umsatz_31300  # Gesamttrinkgeld für Berechnungen
                 _31300_bargeld += bargeld_31300
                 _31300_real += echter_umsatz_31300
                 details_31300 = [
@@ -923,6 +928,8 @@ class AbrechnungsSeiteQML(QObject):
         # HeadCard Summen berechnen
         self._headcard_umsatz = float(sum_uber) + float(sum_bolt) + float(taxi_total)
         self._headcard_trinkgeld = bolt_rider_tips + _40100_trinkgeld + _31300_trinkgeld
+        # Gesamttrinkgeld für Berechnungen (ohne Filter)
+        self._headcard_trinkgeld_gesamt = bolt_rider_tips + _40100_trinkgeld_gesamt + _31300_trinkgeld_gesamt
         self._headcard_bargeld = uber_cash_collected + bolt_cash_collected + _40100_bargeld + _31300_bargeld
         self.headcardUmsatzChanged.emit()
         self.headcardTrinkgeldChanged.emit()
@@ -934,7 +941,7 @@ class AbrechnungsSeiteQML(QObject):
         
         # HeadCard Garage setzen (analog zur Property)
         try:
-            kw = self._wizard_data.get("kw", "") if hasattr(self, '_wizard_data') else ""
+            kw = getattr(self, '_kw_label', "") if hasattr(self, '_kw_label') else ""
             jahr = datetime.now().year
             kw_int = int(kw) if kw else None
             if kw_int is not None:
@@ -943,15 +950,20 @@ class AbrechnungsSeiteQML(QObject):
                 cal = calendar.Calendar(firstweekday=0)
                 montage = [d for d in cal.itermonthdates(jahr, monat) if d.weekday() == 0 and d.month == monat]
                 anzahl_montage = len(montage)
+                print(f"DEBUG: Garage-Berechnung - KW: {kw_int}, Jahr: {jahr}, Monat: {monat}, Montage: {montage}, Anzahl: {anzahl_montage}")
                 if anzahl_montage > 0:
                     self._headcard_garage = getattr(self, '_garage', 0.0) / anzahl_montage
+                    print(f"DEBUG: Garage pro Montag berechnet: {getattr(self, '_garage', 0.0)} / {anzahl_montage} = {self._headcard_garage}")
                 else:
                     self._headcard_garage = getattr(self, '_garage', 0.0)
+                    print(f"DEBUG: Keine Montage gefunden, verwende Gesamt-Garage: {self._headcard_garage}")
             else:
                 self._headcard_garage = getattr(self, '_garage', 0.0)
+                print(f"DEBUG: Keine KW verfügbar, verwende Gesamt-Garage: {self._headcard_garage}")
         except Exception as e:
             print(f"Fehler bei Headcard-Garage-Berechnung: {e}")
             self._headcard_garage = getattr(self, '_garage', 0.0)
+        print(f"DEBUG: Finale HeadCard Garage: {self._headcard_garage}")
         self.headcardGarageChanged.emit()
         
         # HeadCard je nach Deal-Typ aktualisieren
@@ -961,9 +973,21 @@ class AbrechnungsSeiteQML(QObject):
         headcard_cash = self._headcard_bargeld
         headcard_credit_card = (self._headcard_umsatz + self._headcard_trinkgeld) - self._headcard_bargeld
         
-        print(f"Summen: 40100={sum_40100}, 31300={sum_31300}, Uber={sum_uber}, Bolt={sum_bolt}, Bargeld={sum_bargeld}, Total={total_summe}")
-        print(f"HeadCard: Umsatz={self._headcard_umsatz}, Trinkgeld={self._headcard_trinkgeld}, Bargeld={self._headcard_bargeld}")
-        print(f"Neue Summenzeile: Bargeld={headcard_cash:.2f} €, Kreditkarte={headcard_credit_card:.2f} €")
+        print(f"💰 ERGEBNIS-ZUSAMMENFASSUNG:")
+        print(f"   📊 Plattformen:")
+        print(f"      🚕 Taxi (40100): {sum_40100:.2f} €")
+        print(f"      🚕 Taxi (31300): {sum_31300:.2f} €")
+        print(f"      🚗 Uber: {sum_uber:.2f} €")
+        print(f"      ⚡ Bolt: {sum_bolt:.2f} €")
+        print(f"      💵 Bargeld: {sum_bargeld:.2f} €")
+        print(f"      📈 Gesamt: {total_summe:.2f} €")
+        print(f"   📋 HeadCard:")
+        print(f"      💰 Umsatz: {self._headcard_umsatz:.2f} €")
+        print(f"      💸 Trinkgeld: {self._headcard_trinkgeld:.2f} €")
+        print(f"      💵 Bargeld: {self._headcard_bargeld:.2f} €")
+        print(f"   💳 Zahlungsarten:")
+        print(f"      💵 Bargeld: {headcard_cash:.2f} €")
+        print(f"      💳 Kreditkarte: {headcard_credit_card:.2f} €")
         
         # Übersicht mit detaillierten Ergebnissen
         # Kombiniere 40100 und 31300 zu einem einzigen Taxi-Eintrag
@@ -988,43 +1012,11 @@ class AbrechnungsSeiteQML(QObject):
             {"type": "summary", "label": "Kreditkarte", "value": f"{headcard_credit_card:.2f} €", "icon": "assets/icons/credit_card_gray.svg"},
             {"type": "summary", "label": "Gesamt", "value": f"{total_summe:.2f} €"}
         ]
-        print(f"Ergebnisse gesetzt: {len(self._ergebnisse)} Einträge")
-        print(f"Ergebnisse: {self._ergebnisse}")
+        print(f"✅ Ergebnisse erstellt: {len(self._ergebnisse)} Einträge")
         self.ergebnisseChanged.emit()
         self.update_ergebnis(taxi_total=float(taxi_total))
         
-    def calculate_40100_details(self, df, deal):
-        """Berechnet detaillierte 40100-Ergebnisse für die Card"""
-        def safe_float(val):
-            if val is None or str(val).strip() == '' or str(val).lower() == 'nan' or (isinstance(val, float) and math.isnan(val)):
-                return 0.0
-            try:
-                return float(val)
-            except (ValueError, TypeError):
-                return 0.0
-        
-        # Filter: Nur Werte zwischen -250 und 250 berücksichtigen
-        if "Umsatz" in df.columns:
-            df["Umsatz"] = pd.to_numeric(df["Umsatz"].astype(str).str.replace(",", "."), errors="coerce")
-            umsatz_mask = (df["Umsatz"] <= 250) & (df["Umsatz"] >= -250)
-            umsatz_40100 = df.loc[umsatz_mask, "Umsatz"]
-        else:
-            umsatz_40100 = pd.Series(dtype=float)
-            
-        gesamt_umsatz = umsatz_40100.sum()
-        # Trinkgeld und Bargeld auch nur für gefilterte Werte berechnen
-        trinkgeld = df.loc[umsatz_mask, "Trinkgeld"].sum() if "Trinkgeld" in df.columns else 0
-        bargeld = df.loc[umsatz_mask, "Bargeld"].sum() if "Bargeld" in df.columns else 0
-        echter_umsatz = gesamt_umsatz - trinkgeld
-        anteil = echter_umsatz / 2
-        restbetrag = anteil - bargeld + trinkgeld
-        return [
-            {"label": "Total", "value": gesamt_umsatz},
-            {"label": "Real", "value": echter_umsatz},
-            {"label": "Anteil", "value": f"{anteil:.2f} €"},
-            {"label": "Bargeld", "value": f"{bargeld:.2f} €"},  # NEU
-            {"label": "Rest", "value": f"{restbetrag:.2f} €"}
-        ]
+
         
     def calculate_uber_details(self, df):
         werte = self._berechne_platform_werte(df, "Uber")
@@ -1035,30 +1027,7 @@ class AbrechnungsSeiteQML(QObject):
             {"label": "Restbetrag", "value": f"{werte['restbetrag']:.2f} €"}
         ]
         
-    def calculate_bolt_details(self, df):
-        """Berechnet detaillierte Bolt-Ergebnisse für die Card"""
-        def safe_float(val):
-            if val is None or str(val).strip() == '' or str(val).lower() == 'nan' or (isinstance(val, float) and math.isnan(val)):
-                return 0.0
-            try:
-                return float(val)
-            except (ValueError, TypeError):
-                return 0.0
-        if df.empty:
-            return [{"label": "Keine Daten", "value": "0.00 €"}]
-        row_data = df.iloc[0]
-        net_earnings = safe_float(row_data.get("net_earnings", 0))
-        rider_tips = safe_float(row_data.get("rider_tips", 0))
-        cash_collected = safe_float(row_data.get("cash_collected", 0))
-        echter_umsatz = net_earnings - rider_tips
-        anteil = echter_umsatz / 2
-        restbetrag = anteil - cash_collected
-        return [
-            {"label": "Echter Umsatz", "value": f"{echter_umsatz:.2f} €"},
-            {"label": "Anteil", "value": f"{anteil:.2f} €"},
-            {"label": "Bargeld", "value": f"{cash_collected:.2f} €"},  # NEU
-            {"label": "Rest", "value": f"{restbetrag:.2f} €"}
-        ]
+
         
     def show_page(self, idx):
         if idx >= len(self._found_pages):
@@ -1081,68 +1050,7 @@ class AbrechnungsSeiteQML(QObject):
         self._ergebnisse = ergebnisse
         self.ergebnisseChanged.emit()
         
-    def calculate_40100_results(self, df, deal):
-        def safe_float(val):
-            if val is None or str(val).strip() == '' or str(val).lower() == 'nan' or (isinstance(val, float) and math.isnan(val)):
-                return 0.0
-            try:
-                return float(val)
-            except (ValueError, TypeError):
-                return 0.0
-        
-        # Filter: Nur Werte zwischen -250 und 250 berücksichtigen
-        if "Umsatz" in df.columns:
-            df["Umsatz"] = pd.to_numeric(df["Umsatz"].astype(str).str.replace(",", "."), errors="coerce")
-            umsatz_mask = (df["Umsatz"] <= 250) & (df["Umsatz"] >= -250)
-            umsatz_40100 = df.loc[umsatz_mask, "Umsatz"]
-        else:
-            umsatz_40100 = pd.Series(dtype=float)
-            
-        gesamt_umsatz = umsatz_40100.sum()
-        trinkgeld = df["Trinkgeld"].sum() if "Trinkgeld" in df.columns else 0
-        bargeld = df["Bargeld"].sum() if "Bargeld" in df.columns else 0
-        echter_umsatz = gesamt_umsatz - trinkgeld
-        anteil = echter_umsatz / 2
-        
-        # Umsatzgrenze prüfen
-        umsatzgrenze = None
-        try:
-            conn = sqlite3.connect("SQL/database.db")
-            cursor = conn.cursor()
-            cursor.execute("SELECT umsatzgrenze FROM deals WHERE name = ?", (self._fahrer_label,))
-            row_deal = cursor.fetchone()
-            if row_deal and row_deal[0] is not None:
-                umsatzgrenze = float(row_deal[0])
-        except Exception as e:
-            umsatzgrenze = None
-        finally:
-            try:
-                conn.close()
-            except:
-                pass
-                
-        anteil_firma = 0
-        if umsatzgrenze is not None and float(gesamt_umsatz) > float(umsatzgrenze):
-            anteil_firma = (gesamt_umsatz - umsatzgrenze) * 0.1
-            
-        restbetrag = anteil - bargeld + trinkgeld
-        
-        ergebnisse = [
-            {"type": "title", "text": "40100"}
-        ]
-        
-        # Anteil Firma hinzufügen wenn vorhanden
-        if anteil_firma > 0:
-            ergebnisse.append({"type": "value", "label": "Anteil Firma", "value": f"{anteil_firma:.2f} €", "hint": ""})
-            
-        ergebnisse.extend([
-            {"type": "value", "label": "Total", "value": f"{gesamt_umsatz:.2f} €", "hint": "- Trinkgeld"},
-            {"type": "value", "label": "Real", "value": f"{echter_umsatz:.2f} €", "hint": "/ 2"},
-            {"type": "value", "label": "Anteil", "value": f"{anteil:.2f} €", "hint": "- Auszahlung"},
-            {"type": "value", "label": "Rest", "value": f"{restbetrag:.2f} €", "hint": ""}
-        ])
-        
-        return ergebnisse
+
         
     def calculate_uber_results(self, df):
         werte = self._berechne_platform_werte(df, "Uber")
@@ -1153,33 +1061,7 @@ class AbrechnungsSeiteQML(QObject):
             {"type": "value", "label": "Restbetrag", "value": f"{werte['restbetrag']:.2f} €", "hint": ""}
         ]
         
-    def calculate_bolt_results(self, df):
-        def safe_float(val):
-            if val is None or str(val).strip() == '' or str(val).lower() == 'nan' or (isinstance(val, float) and math.isnan(val)):
-                return 0.0
-            try:
-                return float(val)
-            except (ValueError, TypeError):
-                return 0.0
-                
-        if df.empty:
-            return [{"type": "error", "message": "Keine Bolt-Daten gefunden."}]
-            
-        row_data = df.iloc[0]
-        net_earnings = safe_float(row_data.get("net_earnings", 0))
-        rider_tips = safe_float(row_data.get("rider_tips", 0))
-        cash_collected = safe_float(row_data.get("cash_collected", 0))
-        echter_umsatz = net_earnings - rider_tips
-        anteil = echter_umsatz / 2
-        restbetrag = anteil - cash_collected
-        
-        return [
-            {"type": "title", "text": "Bolt"},
-            {"type": "value", "label": "Total", "value": f"{net_earnings:.2f} €", "hint": ""},
-            {"type": "value", "label": "Echter Umsatz", "value": f"{echter_umsatz:.2f} €", "hint": "/ 2"},
-            {"type": "value", "label": "Anteil", "value": f"{anteil:.2f} €", "hint": "- Bargeld"},
-            {"type": "value", "label": "Rest", "value": f"{restbetrag:.2f} €", "hint": ""}
-        ]
+
         
     @Slot(int)
     def change_page(self, page_idx):
@@ -1210,128 +1092,164 @@ class AbrechnungsSeiteQML(QObject):
     def set_root_window(self, root_window):
         self._root_window = root_window
 
-    def berechne_ergebnis(self, umsatz, bargeld, trinkgeld, fahrer, kw, deal, pauschale=0.0, umsatzgrenze=0.0, garage=0.0):
-        if deal == "%":
-            # Bisherige Berechnung
-            try:
-                jahr = datetime.now().year
-                kw_int = int(kw)
-                erster_tag_kw = datetime.strptime(f'{jahr}-W{kw_int}-1', "%Y-W%W-%w")
-                monat = erster_tag_kw.month
-                cal = calendar.Calendar(firstweekday=0)
-                montage = [d for d in cal.itermonthdates(jahr, monat) if d.weekday() == 0 and d.month == monat]
-                anzahl_montage = len(montage)
-            except Exception as e:
-                anzahl_montage = 4  # Fallback
-            zuschlag = (garage / anzahl_montage) / 2 if anzahl_montage > 0 else 0.0
-            ergebnis = (umsatz / 2) - bargeld + trinkgeld + zuschlag
-            ergebnis += self._inputGas / 2
-            ergebnis -= self._inputEinsteiger / 2
-        elif deal == "P":
-            # Neue Berechnung für P-Deal: Ergebnis = Bankomat - Pauschale + Trinkgeld + Expenses
-            bankomat = umsatz - bargeld
-            ergebnis = bankomat - pauschale + trinkgeld
-        else:
-            # Standardfall
-            ergebnis = 0.0
-        # Expenses bei allen Deals addieren
-        expense_sum = 0.0
-        for e in getattr(self, '_expense_cache', []):
-            try:
-                expense_sum += float(str(e.get("amount", "0")).replace(",", "."))
-            except Exception:
-                pass
-        ergebnis += expense_sum
-        return ergebnis
-
+    @Slot()
     def update_ergebnis(self, taxi_total=None):
-        deal = getattr(self, '_deal', '%')
-        # Berechnung der Anzahl Montage (für Garagenbonus) - immer berechnen
+        """Aktualisiert das Ergebnis basierend auf aktuellen Werten und Overlay-Konfiguration"""
         try:
-            kw = self._wizard_data.get("kw", "") if hasattr(self, '_wizard_data') else ""
-            jahr = datetime.now().year
-            kw_int = int(kw) if kw else None
-            if kw_int is not None:
-                erster_tag_kw = datetime.strptime(f'{jahr}-W{kw_int}-1', "%Y-W%W-%w")
-                monat = erster_tag_kw.month
-                cal = calendar.Calendar(firstweekday=0)
-                montage = [d for d in cal.itermonthdates(jahr, monat) if d.weekday() == 0 and d.month == monat]
-                anzahl_montage = len(montage)
-            else:
-                anzahl_montage = 4
-        except Exception:
-            anzahl_montage = 4  # Fallback
-        garage = self._garage if hasattr(self, '_garage') else 0.0
-        garage_bonus = garage / (anzahl_montage * 2) if anzahl_montage > 0 else 0.0
-
-        if deal == 'C':
-            credit_card = getattr(self, '_headcard_credit_card', 0.0)
-            taxi_umsatz = getattr(self, '_headcard_umsatz', 0.0)
-            uber_umsatz = getattr(self, '_uber_umsatz', 0.0)
-            bolt_umsatz = getattr(self, '_bolt_umsatz', 0.0)
-            taxi_faktor = getattr(self, '_taxi_faktor', 1.0)
-            uber_faktor = getattr(self, '_uber_faktor', 1.0)
-            bolt_faktor = getattr(self, '_bolt_faktor', 1.0)
-            overlay_income_ohne_einsteiger = (taxi_umsatz * taxi_faktor) + (uber_umsatz * uber_faktor) + (bolt_umsatz * bolt_faktor)
-            einsteiger = getattr(self, '_inputEinsteiger', 0.0)
-            einsteiger_faktor = getattr(self, '_einsteiger_faktor', 1.0)
-            tank = getattr(self, '_inputGas', 0.0)
-            tank_faktor = getattr(self, '_tank_faktor', 1.0)
-            garage_faktor = getattr(self, '_garage_faktor', 1.0)
-            trinkgeld = getattr(self, '_headcard_trinkgeld', 0.0)
+            # Overlay-Logik aus QML integrieren
+            overlay_income = self._calculate_overlay_income()
+            print(f"💰 Overlay Income berechnet: {overlay_income:.2f} €")
+            
+            # Basis-Werte
+            credit_card = self._headcard_credit_card if hasattr(self, '_headcard_credit_card') else 0.0
+            trinkgeld = self._headcard_trinkgeld if hasattr(self, '_headcard_trinkgeld') else 0.0
+            
+            # Expenses
             expenses_sum = 0.0
             if hasattr(self, '_expense_cache') and self._expense_cache:
                 try:
                     expenses_sum = sum(float(e.get('amount', 0)) for e in self._expense_cache)
                 except Exception:
                     expenses_sum = 0.0
-            print(f"DEBUG: Expense-Cache: {self._expense_cache}")
-            print(f"DEBUG: ExpensesSum (Summe aller Einträge im Cache): {expenses_sum}")
-            self._ergebnis = credit_card - overlay_income_ohne_einsteiger + (tank * tank_faktor) - (einsteiger * einsteiger_faktor) + (garage_bonus * garage_faktor) + trinkgeld + expenses_sum
-            print(f"Custom-Deal NEU: CreditCard={credit_card}, TaxiUmsatz={taxi_umsatz}, TaxiFaktor={taxi_faktor}, UberUmsatz={uber_umsatz}, UberFaktor={uber_faktor}, BoltUmsatz={bolt_umsatz}, BoltFaktor={bolt_faktor}, overlayIncomeOhneEinsteiger={overlay_income_ohne_einsteiger}, Tank={tank}, TankFaktor={tank_faktor}, Einsteiger={einsteiger}, EinsteigerFaktor={einsteiger_faktor}, GarageBonus={garage_bonus}, GarageFaktor={garage_faktor}, Trinkgeld={trinkgeld}, ExpensesSum={expenses_sum}, Ergebnis={self._ergebnis}")
+            print(f"💸 Expenses: {expenses_sum:.2f} €")
+            
+            # Ergebnis mit Overlay-Logik
+            self._ergebnis = credit_card - overlay_income + trinkgeld + expenses_sum
+            print(f"📊 ERGEBNIS-BERECHNUNG:")
+            print(f"   💳 Kreditkarte: {credit_card:.2f} €")
+            print(f"   💰 Overlay Income: -{overlay_income:.2f} €")
+            print(f"   💸 Trinkgeld: +{trinkgeld:.2f} €")
+            print(f"   💸 Expenses: +{expenses_sum:.2f} €")
+            print(f"   📈 Finales Ergebnis: {self._ergebnis:.2f} €")
             self.ergebnisChanged.emit()
-            return
-        # Werte aus aktueller Auswertung holen
-        umsatz = taxi_total if taxi_total is not None else (self._headcard_umsatz if hasattr(self, '_headcard_umsatz') else 0.0)
-        bargeld = self._headcard_bargeld if hasattr(self, '_headcard_bargeld') else 0.0
-        trinkgeld = self._headcard_trinkgeld if hasattr(self, '_headcard_trinkgeld') else 0.0
-        fahrer = self._fahrer_label if hasattr(self, '_fahrer_label') else ""
-        kw = self._wizard_data.get("kw", "") if hasattr(self, '_wizard_data') else ""
-        deal = getattr(self, '_deal', '%')
-        pauschale = getattr(self, '_pauschale', 0.0)
-        umsatzgrenze = getattr(self, '_umsatzgrenze', 0.0)
-        # P-Deal Berechnung
-        if deal == "P":
-            bankomat = self._headcard_deal_value if hasattr(self, '_headcard_deal_value') else (umsatz - bargeld)
-            umsatzbeteiligung = (umsatz - umsatzgrenze) * 0.1 if umsatz > umsatzgrenze else 0.0
-            self._ergebnis = bankomat - pauschale - umsatzbeteiligung + garage_bonus + trinkgeld
-            # Expenses addieren
-            expense_sum = 0.0
-            for e in getattr(self, '_expense_cache', []):
-                try:
-                    expense_sum += float(str(e.get("amount", "0")).replace(",", "."))
-                except Exception:
-                    pass
-            self._ergebnis += expense_sum
-        # Prozent-Deal Berechnung
-        elif deal == "%":
-            einsteiger_value = float(self._inputEinsteiger) if hasattr(self, '_inputEinsteiger') and self._inputEinsteiger else 0.0
-            tank_value = float(self._inputGas) if hasattr(self, '_inputGas') and self._inputGas else 0.0
-            taxi_value = umsatz
-            income = 0.5 * (taxi_value + einsteiger_value)
-            bankomat = self._headcard_credit_card if hasattr(self, '_headcard_credit_card') else 0.0
-            self._ergebnis = bankomat - income + (tank_value / 2) + garage_bonus + trinkgeld
-            expense_sum = 0.0
-            for e in getattr(self, '_expense_cache', []):
-                try:
-                    expense_sum += float(str(e.get("amount", "0")).replace(",", "."))
-                except Exception:
-                    pass
-            self._ergebnis += expense_sum
-            print(f"Prozent-Deal Berechnung: Bankomat={bankomat}, Taxi={taxi_value}, Einsteiger={einsteiger_value}, Tank={tank_value}, Income={income}, Garage={garage_bonus}, Expenses={expense_sum}, Ergebnis={self._ergebnis}")
-        else:
-            self._ergebnis = self.berechne_ergebnis(umsatz, bargeld, trinkgeld, fahrer, kw, deal, pauschale, umsatzgrenze, garage)
-        self.ergebnisChanged.emit()
+            
+        except Exception as e:
+            print(f"❌ Fehler bei Overlay-Berechnung: {e}")
+            # Fallback: Setze Ergebnis auf 0
+            self._ergebnis = 0.0
+            self.ergebnisChanged.emit()
+
+    def _calculate_overlay_income(self):
+        """Berechnet das Overlay-Income basierend auf den aktuellen Faktoren (P-Deal und C-Deal Logik)"""
+        try:
+            income = 0.0
+            
+            # Pauschale und Umsatzgrenze aus den aktuellen Werten
+            pauschale = getattr(self, '_pauschale', 500.0)
+            umsatzgrenze = getattr(self, '_umsatzgrenze', 1200.0)
+            
+            # Aktuelle Faktoren aus dem Backend holen
+            taxi_faktor = getattr(self, '_taxi_faktor', 0.0)
+            uber_faktor = getattr(self, '_uber_faktor', 0.0)
+            bolt_faktor = getattr(self, '_bolt_faktor', 0.0)
+            einsteiger_faktor = getattr(self, '_einsteiger_faktor', 0.0)
+            tank_faktor = getattr(self, '_tank_faktor', 0.0)
+            garage_faktor = getattr(self, '_garage_faktor', 0.5)
+            
+            # Prüfen, ob mindestens eine relevante Plattform auf P steht (Faktor = 0.0)
+            has_any_p_deal = (taxi_faktor == 0.0 or uber_faktor == 0.0 or 
+                             bolt_faktor == 0.0 or einsteiger_faktor == 0.0)
+            
+            # 1. Pauschale und Grenzzuschlag (nur wenn mindestens eine Plattform auf P steht)
+            if has_any_p_deal:
+                # Pauschale hinzufügen
+                income += pauschale
+                
+                # Grenzzuschlag prüfen
+                summe_umsatz = 0.0
+                taxi_umsatz = self._get_platform_umsatz('Taxi')
+                uber_umsatz = self._get_platform_umsatz('Uber')
+                bolt_umsatz = self._get_platform_umsatz('Bolt')
+                summe_umsatz = taxi_umsatz + uber_umsatz + bolt_umsatz
+                
+                if summe_umsatz > umsatzgrenze:
+                    bonus = (summe_umsatz - umsatzgrenze) * 0.1
+                    income += bonus
+            
+            # 2. Faktor-basierte Berechnung für alle Plattformen
+            platform_income = 0.0
+            
+            # Taxi
+            if taxi_faktor > 0:
+                taxi_umsatz = self._get_platform_umsatz('Taxi')
+                taxi_income = taxi_umsatz * taxi_faktor
+                platform_income += taxi_income
+            
+            # Uber
+            if uber_faktor > 0:
+                uber_umsatz = self._get_platform_umsatz('Uber')
+                uber_income = uber_umsatz * uber_faktor
+                platform_income += uber_income
+            
+            # Bolt
+            if bolt_faktor > 0:
+                bolt_umsatz = self._get_platform_umsatz('Bolt')
+                bolt_income = bolt_umsatz * bolt_faktor
+                platform_income += bolt_income
+            
+            # Einsteiger
+            if einsteiger_faktor > 0:
+                einsteiger_umsatz = self._get_platform_umsatz('Einsteiger')
+                einsteiger_income = einsteiger_umsatz * einsteiger_faktor
+                platform_income += einsteiger_income
+            
+            income += platform_income
+            
+            # 3. Abzüge für Tank und Garage
+            abzuege = 0.0
+            
+            if tank_faktor > 0:
+                tank_umsatz = float(self._input_gas) if hasattr(self, '_input_gas') and self._input_gas else 0.0
+                tank_abzug = tank_umsatz * tank_faktor
+                abzuege += tank_abzug
+            
+            if garage_faktor > 0:
+                garage_umsatz = self.headcard_garage
+                garage_abzug = garage_umsatz * garage_faktor
+                abzuege += garage_abzug
+            
+            # Finales Ergebnis = Overlay Income - Abzüge
+            final_income = income - abzuege
+            return final_income
+            
+        except Exception as e:
+            print(f"      ❌ Fehler bei _calculate_overlay_income: {e}")
+            return 0.0
+    
+    def _get_platform_umsatz(self, platform):
+        """Holt den Umsatz für eine bestimmte Plattform"""
+        try:
+            if platform == 'Einsteiger':
+                return float(self._input_einsteiger) if hasattr(self, '_input_einsteiger') and self._input_einsteiger else 0.0
+            
+            # Aus den Ergebnissen holen
+            if hasattr(self, '_ergebnisse') and self._ergebnisse:
+                for ergebnis in self._ergebnisse:
+                    if ergebnis.get('label') == platform:
+                        details = ergebnis.get('details', [])
+                        for detail in details:
+                            if platform == 'Taxi' and detail.get('label') == 'Real':
+                                value_str = detail.get('value', '0').replace('€', '').replace(' ', '').strip()
+                                return float(value_str) if value_str else 0.0
+                            elif platform in ['Uber', 'Bolt'] and detail.get('label') == 'Total':
+                                value_str = detail.get('value', '0').replace('€', '').replace(' ', '').strip()
+                                return float(value_str) if value_str else 0.0
+            
+            # Fallback: Aus HeadCard-Werten holen (für den Fall, dass _ergebnisse noch nicht aktualisiert ist)
+            if platform == 'Taxi':
+                return getattr(self, '_headcard_umsatz', 0.0) - getattr(self, '_headcard_trinkgeld', 0.0)
+            elif platform == 'Uber':
+                # Uber-Umsatz ist Teil des Gesamtumsatzes, aber wir haben keine separate Variable
+                return 0.0  # Wird aus _ergebnisse gelesen
+            elif platform == 'Bolt':
+                # Bolt-Umsatz ist Teil des Gesamtumsatzes, aber wir haben keine separate Variable
+                return 0.0  # Wird aus _ergebnisse gelesen
+            
+            return 0.0
+            
+        except Exception as e:
+            print(f"DEBUG: Fehler bei _get_platform_umsatz für {platform}: {e}")
+            return 0.0
 
     def show_duplicate_comparison_dialog(self, existing_entry, new_entry, fahrzeug, kw, fahrer, deal):
         """Zeigt einen Dialog zur Auswahl zwischen bestehendem und neuem Eintrag"""
@@ -1417,8 +1335,8 @@ class AbrechnungsSeiteQML(QObject):
             new_expenses_text = "\n\n📋 Ausgaben:\n" + "\n".join([f"  • {exp.get('category', 'Unbekannt')}: {float(exp.get('amount', 0)):.2f} €" for exp in self._expense_cache])
         
         # Gas hinzufügen
-        if hasattr(self, '_inputGas') and self._inputGas:
-            gas_amount = float(self._inputGas)
+        if hasattr(self, '_input_gas') and self._input_gas:
+            gas_amount = float(self._input_gas)
             if gas_amount > 0:
                 if new_expenses_text:
                     new_expenses_text += f"\n  • Gas: {gas_amount:.2f} €"
@@ -1572,12 +1490,12 @@ class AbrechnungsSeiteQML(QObject):
                 new_count += 1
             
             # Gas als eigenen Expense speichern
-            if hasattr(self, '_inputGas') and self._inputGas:
+            if hasattr(self, '_input_gas') and self._input_gas:
                 exp_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 cursor_exp.execute(f"""
                     INSERT INTO '{fahrzeug}' (cw, amount, category, details, timestamp)
                     VALUES (?, ?, ?, ?, ?)
-                """, (cw, float(self._inputGas), "Gas", "", exp_timestamp))
+                """, (cw, float(self._input_gas), "Gas", "", exp_timestamp))
                 new_count += 1
             
             print(f"Neue Expenses eingefügt: {new_count}")
@@ -1625,33 +1543,63 @@ class AbrechnungsSeiteQML(QObject):
         """
         Generische Speichermethode: Führt alle generischen Aufgaben aus und ruft die deal-spezifische Logik ab.
         """
+        print("🔵 SPEICHEREUMSATZ GESTARTET")
+        print(f"📋 _wizard_data: {self._wizard_data}")
+        
         # 1. Deal-spezifische Werte berechnen lassen
         deal_result = self._berechne_deal_result()
         if not deal_result:
-            print("Fehler: Keine Deal-Ergebnisse berechnet.")
+            print("❌ Fehler: Keine Deal-Ergebnisse berechnet.")
             return
 
+        print(f"✅ Deal-Ergebnis berechnet: {deal_result}")
+
         # 2. Umsatz/Income in revenue.db speichern
+        print("💾 Speichere Revenue-Eintrag...")
         self._speichere_revenue_entry(deal_result)
 
         # 3. Expenses (inkl. Garage) in running_costs.db speichern
+        print("💾 Speichere Expenses...")
         self._speichere_expenses(deal_result)
 
-        # 4. Felder und Caches leeren
+        # 4. Pauschale und Umsatzgrenze in deals Tabelle speichern, falls verändert
+        print("💾 Prüfe Pauschale und Umsatzgrenze für Speicherung...")
+        self._speichere_pauschale_umsatzgrenze(deal_result)
+        
+        # 5. Den letzten Speicherstand in custom_deal_config speichern
+        print("💾 Speichere letzten Speicherstand in custom_deal_config...")
+        self._speichere_letzten_speicherstand(deal_result)
+        
+        # 6. Felder und Caches leeren
+        print("🧹 Leere Caches und Felder...")
         self._expense_cache = []
         self._custom_deal_cache = {}
         self.inputGas = ""
         self.inputEinsteiger = ""
         self.inputExpense = ""
+        
+        print("✅ SPEICHEREUMSATZ BEENDET")
 
     def _berechne_deal_result(self):
         """
         Deal-spezifische Logik: Gibt ein dict mit allen für die Speicherung nötigen Werten zurück.
-        Hier Dummy-Implementierung für %, jetzt auch für C-Deal.
+        Unterstützt %, C und P Deals.
         """
         deal = getattr(self, '_deal', '%')
+        # Sicherstellen, dass beide Werte als Float behandelt werden
+        headcard_umsatz = float(getattr(self, '_headcard_umsatz', 0.0))
+        
+        # Sichere Konvertierung von input_einsteiger (kann leerer String sein)
+        input_einsteiger_raw = getattr(self, '_input_einsteiger', 0.0)
+        if input_einsteiger_raw == '' or input_einsteiger_raw is None:
+            input_einsteiger = 0.0
+        else:
+            input_einsteiger = float(input_einsteiger_raw)
+            
+        total = headcard_umsatz + input_einsteiger
+        
         if deal == "%":
-            total = getattr(self, '_headcard_umsatz', 0.0) + getattr(self, '_inputEinsteiger', 0.0)
+            # %-Deal: 50% vom Gesamtumsatz
             income = total / 2
             return {
                 "deal": deal,
@@ -1664,7 +1612,6 @@ class AbrechnungsSeiteQML(QObject):
             }
         elif deal == "C":
             # Custom-Deal: income aus overlayIncome (custom_income im Cache)
-            total = getattr(self, '_headcard_umsatz', 0.0) + getattr(self, '_inputEinsteiger', 0.0)
             income = self._custom_deal_cache.get('custom_income', 0.0)
             return {
                 "deal": deal,
@@ -1675,8 +1622,31 @@ class AbrechnungsSeiteQML(QObject):
                 "kw": self._wizard_data.get("kw", ""),
                 "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             }
-        # Weitere Deal-Typen hier ergänzen
-        return {}
+        elif deal == "P":
+            # P-Deal: Pauschale + Faktor-basierte Berechnung
+            income = self._calculate_overlay_income()
+            return {
+                "deal": deal,
+                "income": income,
+                "total": total,
+                "fahrer": self._wizard_data.get("fahrer", ""),
+                "fahrzeug": self._wizard_data.get("fahrzeug", ""),
+                "kw": self._wizard_data.get("kw", ""),
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            }
+        else:
+            # Fallback für unbekannte Deal-Typen
+            print(f"Warnung: Unbekannter Deal-Typ '{deal}', verwende Standard-Berechnung")
+            income = total / 2
+            return {
+                "deal": deal,
+                "income": income,
+                "total": total,
+                "fahrer": self._wizard_data.get("fahrer", ""),
+                "fahrzeug": self._wizard_data.get("fahrzeug", ""),
+                "kw": self._wizard_data.get("kw", ""),
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            }
 
     def _speichere_revenue_entry(self, deal_result):
         """
@@ -1765,6 +1735,117 @@ class AbrechnungsSeiteQML(QObject):
         conn_db.commit()
         conn_db.close()
 
+    def _speichere_pauschale_umsatzgrenze(self, deal_result):
+        """
+        Speichert Pauschale und Umsatzgrenze in der deals Tabelle, falls sie verändert wurden.
+        """
+        import sqlite3
+        import os
+        
+        # Hole aktuelle Werte
+        aktuelle_pauschale = getattr(self, '_pauschale', 500.0)
+        aktuelle_umsatzgrenze = getattr(self, '_umsatzgrenze', 1200.0)
+        fahrer = deal_result["fahrer"]
+        
+        # Prüfe, ob Werte geändert wurden (Standardwerte: Pauschale=500, Umsatzgrenze=1200)
+        if aktuelle_pauschale != 500.0 or aktuelle_umsatzgrenze != 1200.0:
+            print(f"💾 Speichere geänderte Werte: Pauschale={aktuelle_pauschale}, Umsatzgrenze={aktuelle_umsatzgrenze}")
+            
+            db_path = os.path.join("SQL", "database.db")
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+            
+            # Prüfe, ob deals Tabelle existiert (Spalten pauschale und umsatzgrenze sind bereits vorhanden)
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS deals (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT UNIQUE,
+                    deal TEXT,
+                    pauschale REAL DEFAULT 500.0,
+                    umsatzgrenze REAL DEFAULT 1200.0
+                )
+            """)
+            
+            # Prüfe, ob Eintrag für diesen Fahrer existiert
+            cursor.execute("SELECT * FROM deals WHERE name = ?", (fahrer,))
+            existing_entry = cursor.fetchone()
+            
+            if existing_entry:
+                # Update bestehenden Eintrag
+                cursor.execute("""
+                    UPDATE deals SET pauschale = ?, umsatzgrenze = ? WHERE name = ?
+                """, (aktuelle_pauschale, aktuelle_umsatzgrenze, fahrer))
+                print(f"✅ Pauschale und Umsatzgrenze für {fahrer} aktualisiert")
+            else:
+                # Erstelle neuen Eintrag
+                cursor.execute("""
+                    INSERT INTO deals (name, deal, pauschale, umsatzgrenze) 
+                    VALUES (?, ?, ?, ?)
+                """, (fahrer, deal_result["deal"], aktuelle_pauschale, aktuelle_umsatzgrenze))
+                print(f"✅ Neuer Eintrag für {fahrer} mit Pauschale und Umsatzgrenze erstellt")
+            
+            conn.commit()
+            conn.close()
+        else:
+            print("ℹ️ Pauschale und Umsatzgrenze unverändert, keine Speicherung nötig")
+
+    def _speichere_letzten_speicherstand(self, deal_result):
+        """
+        Speichert den letzten Speicherstand in custom_deal_config.
+        """
+        import sqlite3
+        import os
+        import json
+        
+        fahrer = deal_result["fahrer"]
+        
+        # Hole aktuelle Werte für den letzten Speicherstand
+        aktueller_cache = getattr(self, '_overlay_config_cache', [])
+        
+        if aktueller_cache:
+            print(f"💾 Speichere letzten Speicherstand für {fahrer}")
+            
+            db_path = os.path.join("SQL", "database.db")
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+            
+            # Prüfe, ob custom_deal_config Tabelle existiert
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS custom_deal_config (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    fahrer TEXT UNIQUE,
+                    config_json TEXT,
+                    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+            
+            # Konvertiere Cache zu JSON
+            config_json = json.dumps(aktueller_cache)
+            
+            # Prüfe, ob Eintrag für diesen Fahrer existiert
+            cursor.execute("SELECT * FROM custom_deal_config WHERE fahrer = ?", (fahrer,))
+            existing_entry = cursor.fetchone()
+            
+            if existing_entry:
+                # Update bestehenden Eintrag
+                cursor.execute("""
+                    UPDATE custom_deal_config SET config_json = ?, timestamp = CURRENT_TIMESTAMP 
+                    WHERE fahrer = ?
+                """, (config_json, fahrer))
+                print(f"✅ Letzten Speicherstand für {fahrer} aktualisiert")
+            else:
+                # Erstelle neuen Eintrag
+                cursor.execute("""
+                    INSERT INTO custom_deal_config (fahrer, config_json) 
+                    VALUES (?, ?)
+                """, (fahrer, config_json))
+                print(f"✅ Neuer Eintrag für {fahrer} mit letztem Speicherstand erstellt")
+            
+            conn.commit()
+            conn.close()
+        else:
+            print("ℹ️ Kein Cache vorhanden, kein letzter Speicherstand zu speichern")
+
     def _speichere_expenses(self, deal_result):
         """
         Speichert alle Expenses (inkl. Garage und Tank) in running_costs.db (generisch).
@@ -1804,7 +1885,7 @@ class AbrechnungsSeiteQML(QObject):
             ))
         # 2. Garage speichern (Kategorie 'Parking', details = Faktor)
         garage_amount = getattr(self, '_headcard_garage', 0.0)
-        tank_amount = getattr(self, '_inputGas', 0.0)
+        tank_amount = getattr(self, '_input_gas', 0.0)
         print(f"[DEBUG] Speichere Garage-Expense: amount={garage_amount}, Tank-Expense: amount={tank_amount}")
         if garage_amount:
             # Faktor aus Overlay-Konfiguration holen, falls vorhanden
@@ -1837,311 +1918,12 @@ class AbrechnungsSeiteQML(QObject):
                 VALUES (?, ?, ?, ?, ?)
             """, (
                 kw,
-                tank_amount,  # explizit _inputGas (unverändert)
+                tank_amount,  # explizit _input_gas (unverändert)
                 "Gas",
                 f"Faktor: {tank_faktor}",
                 exp_timestamp
             ))
-        conn.commit()
-        conn.close()
 
-    def _speichere_p_deal(self):
-        try:
-            self._duplicate_replaced = False
-            import sqlite3
-            db_path = os.path.join("SQL", "report.db")
-            conn = sqlite3.connect(db_path)
-            cursor = conn.cursor()
-            kw = self._wizard_data.get("kw", None)
-            fahrzeug_raw = self._wizard_data.get("fahrzeug", None)
-            fahrzeug = None
-            if fahrzeug_raw:
-                if " " in fahrzeug_raw:
-                    fahrzeug = fahrzeug_raw.split(" ")[0]
-                elif "(" in fahrzeug_raw:
-                    fahrzeug = fahrzeug_raw.split("(")[0].strip()
-                else:
-                    fahrzeug = fahrzeug_raw
-            deal = getattr(self, '_deal', '%')
-            fahrer = self._wizard_data.get("fahrer", None)
-            total = self._headcard_umsatz + self._inputEinsteiger
-            try:
-                jahr = datetime.now().year
-                kw_int = int(kw) if kw else None
-                if kw_int is not None:
-                    erster_tag_kw = datetime.strptime(f'{jahr}-W{kw_int}-1', "%Y-W%W-%w")
-                    monat = erster_tag_kw.month
-                    cal = calendar.Calendar(firstweekday=0)
-                    montage = [d for d in cal.itermonthdates(jahr, monat) if d.weekday() == 0 and d.month == monat]
-                    anzahl_montage = len(montage)
-                else:
-                    anzahl_montage = 4
-            except Exception:
-                anzahl_montage = 4
-            grenzzuschlag = (self._headcard_umsatz - self._umsatzgrenze) * 0.1 if self._headcard_umsatz > self._umsatzgrenze else 0.0
-            income = self._pauschale + grenzzuschlag  # Formel geändert
-            db_path = os.path.join("SQL", "revenue.db")
-            table_vehicle = fahrzeug
-            conn = sqlite3.connect(db_path)
-            cursor = conn.cursor()
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            cursor.execute(f"""
-                CREATE TABLE IF NOT EXISTS '{table_vehicle}' (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    cw INTEGER NOT NULL CHECK (cw BETWEEN 1 AND 52),
-                    deal TEXT,
-                    driver TEXT,
-                    total DECIMAL(10,2),
-                    income DECIMAL(10,2) NOT NULL,
-                    timestamp DATETIME
-                )
-            """)
-            cursor.execute(f"""
-                SELECT * FROM '{table_vehicle}' 
-                WHERE cw = ? AND driver = ? AND deal = ?
-            """, (int(kw) if kw else None, fahrer, deal))
-            existing_entry = cursor.fetchone()
-            if existing_entry:
-                new_entry = {
-                    'cw': int(kw) if kw else None,
-                    'deal': deal,
-                    'driver': fahrer,
-                    'total': total,
-                    'income': income,
-                    'timestamp': timestamp
-                }
-                result = self.show_duplicate_comparison_dialog(existing_entry, new_entry, table_vehicle, kw, fahrer, deal)
-                if result == QDialog.Accepted:
-                    print("Duplikat wurde verarbeitet")
-                else:
-                    print("Speichern abgebrochen")
-                    conn.close()
-                    return
-            else:
-                cursor.execute(f"""
-                    INSERT INTO '{table_vehicle}' (cw, deal, driver, total, income, timestamp)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                """, (int(kw) if kw else None, deal, fahrer, total, income, timestamp))
-            conn.commit()
-            conn.close()
-            if not existing_entry or (existing_entry and hasattr(self, '_duplicate_replaced') and self._duplicate_replaced):
-                db_path_exp = os.path.join("SQL", "running_costs.db")
-                conn_exp = sqlite3.connect(db_path_exp)
-                cursor_exp = conn_exp.cursor()
-                cursor_exp.execute(f"""
-                    CREATE TABLE IF NOT EXISTS '{table_vehicle}' (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        cw INTEGER,
-                        amount DECIMAL(10,2),
-                        category TEXT,
-                        details TEXT,
-                        timestamp DATETIME
-                    )
-                """)
-                for eintrag in getattr(self, '_expense_cache', []):
-                    try:
-                        exp_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        cursor_exp.execute(f"""
-                            INSERT INTO '{table_vehicle}' (cw, amount, category, details, timestamp)
-                            VALUES (?, ?, ?, ?, ?)
-                        """, (
-                            int(kw) if kw else None,
-                            float(eintrag.get("amount", 0)),
-                            eintrag.get("category", ""),
-                            eintrag.get("details", ""),
-                            exp_timestamp
-                        ))
-                    except Exception as e:
-                        print(f"Fehler beim Speichern eines Expense-Eintrags: {e}")
-                # Garage als eigene Expense speichern
-                if hasattr(self, '_garage') and self._garage and anzahl_montage > 0:
-                    try:
-                        exp_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        garage_betrag = self._garage / anzahl_montage
-                        cursor_exp.execute(f"""
-                            INSERT INTO '{table_vehicle}' (cw, amount, category, details, timestamp)
-                            VALUES (?, ?, ?, ?, ?)
-                        """, (
-                            int(kw) if kw else None,
-                            garage_betrag,
-                            "Parking",
-                            "50%",
-                            exp_timestamp
-                        ))
-                    except Exception as e:
-                        print(f"Fehler beim Speichern der Garage als Expense: {e}")
-                if hasattr(self, '_inputGas') and self._inputGas:
-                    try:
-                        exp_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        cursor_exp.execute(f"""
-                            INSERT INTO '{table_vehicle}' (cw, amount, category, details, timestamp)
-                            VALUES (?, ?, ?, ?, ?)
-                        """, (
-                            int(kw) if kw else None,
-                            float(self._inputGas),
-                            "Gas",
-                            "",
-                            exp_timestamp
-                        ))
-                    except Exception as e:
-                        print(f"Fehler beim Speichern des Gas-Eintrags: {e}")
-                conn_exp.commit()
-                conn_exp.close()
-            self._expense_cache = []
-            self.inputGas = ""
-            self.inputEinsteiger = ""
-            self.inputExpense = ""
-        except Exception as e:
-            pass
-
-    def _speichere_prozent_deal(self):
-        try:
-            self._duplicate_replaced = False
-            import sqlite3
-            db_path = os.path.join("SQL", "report.db")
-            conn = sqlite3.connect(db_path)
-            cursor = conn.cursor()
-            kw = self._wizard_data.get("kw", None)
-            fahrzeug_raw = self._wizard_data.get("fahrzeug", None)
-            fahrzeug = None
-            if fahrzeug_raw:
-                if " " in fahrzeug_raw:
-                    fahrzeug = fahrzeug_raw.split(" ")[0]
-                elif "(" in fahrzeug_raw:
-                    fahrzeug = fahrzeug_raw.split("(")[0].strip()
-                else:
-                    fahrzeug = fahrzeug_raw
-            deal = getattr(self, '_deal', '%')
-            fahrer = self._wizard_data.get("fahrer", None)
-            total = self._headcard_umsatz + self._inputEinsteiger
-            try:
-                jahr = datetime.now().year
-                kw_int = int(kw) if kw else None
-                if kw_int is not None:
-                    erster_tag_kw = datetime.strptime(f'{jahr}-W{kw_int}-1', "%Y-W%W-%w")
-                    monat = erster_tag_kw.month
-                    cal = calendar.Calendar(firstweekday=0)
-                    montage = [d for d in cal.itermonthdates(jahr, monat) if d.weekday() == 0 and d.month == monat]
-                    anzahl_montage = len(montage)
-                else:
-                    anzahl_montage = 4
-            except Exception:
-                anzahl_montage = 4
-            income = total / 2  # Neue Formel
-            db_path = os.path.join("SQL", "revenue.db")
-            table_vehicle = fahrzeug
-            conn = sqlite3.connect(db_path)
-            cursor = conn.cursor()
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            cursor.execute(f"""
-                CREATE TABLE IF NOT EXISTS '{table_vehicle}' (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    cw INTEGER NOT NULL CHECK (cw BETWEEN 1 AND 52),
-                    deal TEXT,
-                    driver TEXT,
-                    total DECIMAL(10,2),
-                    income DECIMAL(10,2) NOT NULL,
-                    timestamp DATETIME
-                )
-            """)
-            cursor.execute(f"""
-                SELECT * FROM '{table_vehicle}' 
-                WHERE cw = ? AND driver = ? AND deal = ?
-            """, (int(kw) if kw else None, fahrer, deal))
-            existing_entry = cursor.fetchone()
-            if existing_entry:
-                new_entry = {
-                    'cw': int(kw) if kw else None,
-                    'deal': deal,
-                    'driver': fahrer,
-                    'total': total,
-                    'income': income,
-                    'timestamp': timestamp
-                }
-                result = self.show_duplicate_comparison_dialog(existing_entry, new_entry, table_vehicle, kw, fahrer, deal)
-                if result == QDialog.Accepted:
-                    print("Duplikat wurde verarbeitet")
-                else:
-                    print("Speichern abgebrochen")
-                    conn.close()
-                    return
-            else:
-                cursor.execute(f"""
-                    INSERT INTO '{table_vehicle}' (cw, deal, driver, total, income, timestamp)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                """, (int(kw) if kw else None, deal, fahrer, total, income, timestamp))
-            conn.commit()
-            conn.close()
-            if not existing_entry or (existing_entry and hasattr(self, '_duplicate_replaced') and self._duplicate_replaced):
-                db_path_exp = os.path.join("SQL", "running_costs.db")
-                conn_exp = sqlite3.connect(db_path_exp)
-                cursor_exp = conn_exp.cursor()
-                cursor_exp.execute(f"""
-                    CREATE TABLE IF NOT EXISTS '{table_vehicle}' (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        cw INTEGER,
-                        amount DECIMAL(10,2),
-                        category TEXT,
-                        details TEXT,
-                        timestamp DATETIME
-                    )
-                """)
-                for eintrag in getattr(self, '_expense_cache', []):
-                    try:
-                        exp_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        cursor_exp.execute(f"""
-                            INSERT INTO '{table_vehicle}' (cw, amount, category, details, timestamp)
-                            VALUES (?, ?, ?, ?, ?)
-                        """, (
-                            int(kw) if kw else None,
-                            float(eintrag.get("amount", 0)),
-                            eintrag.get("category", ""),
-                            eintrag.get("details", ""),
-                            exp_timestamp
-                        ))
-                    except Exception as e:
-                        print(f"Fehler beim Speichern eines Expense-Eintrags: {e}")
-                # Garage als eigene Expense speichern
-                if hasattr(self, '_garage') and self._garage and anzahl_montage > 0:
-                    try:
-                        exp_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        garage_betrag = self._garage / anzahl_montage
-                        cursor_exp.execute(f"""
-                            INSERT INTO '{table_vehicle}' (cw, amount, category, details, timestamp)
-                            VALUES (?, ?, ?, ?, ?)
-                        """, (
-                            int(kw) if kw else None,
-                            garage_betrag,
-                            "Parking",
-                            "50%",
-                            exp_timestamp
-                        ))
-                    except Exception as e:
-                        print(f"Fehler beim Speichern der Garage als Expense: {e}")
-                # Gas als eigene Expense speichern
-                if hasattr(self, '_inputGas') and self._inputGas:
-                    try:
-                        exp_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        cursor_exp.execute(f"""
-                            INSERT INTO '{table_vehicle}' (cw, amount, category, details, timestamp)
-                            VALUES (?, ?, ?, ?, ?)
-                        """, (
-                            int(kw) if kw else None,
-                            float(self._inputGas),
-                            "Gas",
-                            "50",
-                            exp_timestamp
-                        ))
-                    except Exception as e:
-                        print(f"Fehler beim Speichern des Gas-Eintrags: {e}")
-                conn_exp.commit()
-                conn_exp.close()
-            self._expense_cache = []
-            self.inputGas = ""
-            self.inputEinsteiger = ""
-            self.inputExpense = ""
-        except Exception as e:
-            pass
 
     @Slot()
     def show_wizard_add_cost(self):
@@ -2292,6 +2074,10 @@ class AbrechnungsSeiteQML(QObject):
         print(f"  Tank: Slider={tank_slider}, Faktor={self._tank_faktor}")
         print(f"  Garage: Slider={garage_slider}, Faktor={self._garage_faktor}")
         
+        # WICHTIG: Signal emittieren, damit QML über die Änderungen informiert wird
+        self.ergebnisChanged.emit()
+        print(f"DEBUG: ergebnisChanged Signal emittiert")
+        
         # Ergebnis neu berechnen
         self.update_ergebnis()
 
@@ -2328,6 +2114,40 @@ class AbrechnungsSeiteQML(QObject):
             """, (driver_id,))
             row = cursor.fetchone()
             conn.close()
+            
+            if row:
+                # Backend-Variablen setzen
+                self._taxi_deal = row[0] if row[0] is not None else 0
+                self._taxi_slider = row[1] if row[1] is not None else 0.0
+                self._uber_deal = row[2] if row[2] is not None else 0
+                self._uber_slider = row[3] if row[3] is not None else 0.0
+                self._bolt_deal = row[4] if row[4] is not None else 0
+                self._bolt_slider = row[5] if row[5] is not None else 0.0
+                self._einsteiger_deal = row[6] if row[6] is not None else 0
+                self._einsteiger_slider = row[7] if row[7] is not None else 0.0
+                self._garage_slider = row[8] if row[8] is not None else 0.0
+                self._tank_slider = row[9] if row[9] is not None else 0.0
+                
+                # Faktoren berechnen
+                self._taxi_faktor = self._taxi_slider / 100.0
+                self._uber_faktor = self._uber_slider / 100.0
+                self._bolt_faktor = self._bolt_slider / 100.0
+                self._einsteiger_faktor = self._einsteiger_slider / 100.0
+                self._tank_faktor = self._tank_slider / 100.0
+                self._garage_faktor = self._garage_slider / 100.0
+                
+                print(f"DEBUG: Overlay-Konfiguration geladen:")
+                print(f"  Taxi: Deal={self._taxi_deal}, Slider={self._taxi_slider}, Faktor={self._taxi_faktor}")
+                print(f"  Uber: Deal={self._uber_deal}, Slider={self._uber_slider}, Faktor={self._uber_faktor}")
+                print(f"  Bolt: Deal={self._bolt_deal}, Slider={self._bolt_slider}, Faktor={self._bolt_faktor}")
+                print(f"  Einsteiger: Deal={self._einsteiger_deal}, Slider={self._einsteiger_slider}, Faktor={self._einsteiger_faktor}")
+                print(f"  Tank: Slider={self._tank_slider}, Faktor={self._tank_faktor}")
+                print(f"  Garage: Slider={self._garage_slider}, Faktor={self._garage_faktor}")
+                
+                # WICHTIG: Signal emittieren, damit QML über die Änderungen informiert wird
+                self.ergebnisChanged.emit()
+                print(f"DEBUG: ergebnisChanged Signal emittiert")
+            
             return row if row else []
         except Exception as e:
             print(f"Fehler beim Laden der Overlay-Konfiguration: {e}")
@@ -2336,12 +2156,11 @@ class AbrechnungsSeiteQML(QObject):
 
     def _speichere_custom_deal(self):
         try:
-            import sqlite3
-            import json
             self._duplicate_replaced = False
-            # Werte aus dem Custom-Cache holen
-            custom_income = self._custom_deal_cache.get("custom_income", 0.0)
-            config = self._custom_deal_cache.get("config", [])  # Liste von Dicts mit plattform, deal, slider
+            import sqlite3
+            db_path = os.path.join("SQL", "report.db")
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
             kw = self._wizard_data.get("kw", None)
             fahrzeug_raw = self._wizard_data.get("fahrzeug", None)
             fahrzeug = None
@@ -2352,9 +2171,23 @@ class AbrechnungsSeiteQML(QObject):
                     fahrzeug = fahrzeug_raw.split("(")[0].strip()
                 else:
                     fahrzeug = fahrzeug_raw
-            deal = getattr(self, '_deal', 'C')
+            deal = getattr(self, '_deal', '%')
             fahrer = self._wizard_data.get("fahrer", None)
-            total = self._headcard_umsatz + self._inputEinsteiger
+            total = self._headcard_umsatz + self._input_einsteiger
+            try:
+                jahr = datetime.now().year
+                kw_int = int(kw) if kw else None
+                if kw_int is not None:
+                    erster_tag_kw = datetime.strptime(f'{jahr}-W{kw_int}-1', "%Y-W%W-%w")
+                    monat = erster_tag_kw.month
+                    cal = calendar.Calendar(firstweekday=0)
+                    montage = [d for d in cal.itermonthdates(jahr, monat) if d.weekday() == 0 and d.month == monat]
+                    anzahl_montage = len(montage)
+                else:
+                    anzahl_montage = 4
+            except Exception:
+                anzahl_montage = 4
+            income = self._custom_deal_cache.get('custom_income', 0.0)
             db_path = os.path.join("SQL", "revenue.db")
             table_vehicle = fahrzeug
             conn = sqlite3.connect(db_path)
@@ -2382,7 +2215,7 @@ class AbrechnungsSeiteQML(QObject):
                     'deal': deal,
                     'driver': fahrer,
                     'total': total,
-                    'income': custom_income,
+                    'income': income,
                     'timestamp': timestamp
                 }
                 result = self.show_duplicate_comparison_dialog(existing_entry, new_entry, table_vehicle, kw, fahrer, deal)
@@ -2396,10 +2229,9 @@ class AbrechnungsSeiteQML(QObject):
                 cursor.execute(f"""
                     INSERT INTO '{table_vehicle}' (cw, deal, driver, total, income, timestamp)
                     VALUES (?, ?, ?, ?, ?, ?)
-                """, (int(kw) if kw else None, deal, fahrer, total, custom_income, timestamp))
+                """, (int(kw) if kw else None, deal, fahrer, total, income, timestamp))
             conn.commit()
             conn.close()
-            # Expenses wie gehabt speichern
             if not existing_entry or (existing_entry and hasattr(self, '_duplicate_replaced') and self._duplicate_replaced):
                 db_path_exp = os.path.join("SQL", "running_costs.db")
                 conn_exp = sqlite3.connect(db_path_exp)
@@ -2430,18 +2262,6 @@ class AbrechnungsSeiteQML(QObject):
                     except Exception as e:
                         print(f"Fehler beim Speichern eines Expense-Eintrags: {e}")
                 # Garage als eigene Expense speichern
-                anzahl_montage = 4
-                try:
-                    jahr = datetime.now().year
-                    kw_int = int(kw) if kw else None
-                    if kw_int is not None:
-                        erster_tag_kw = datetime.strptime(f'{jahr}-W{kw_int}-1', "%Y-W%W-%w")
-                        monat = erster_tag_kw.month
-                        cal = calendar.Calendar(firstweekday=0)
-                        montage = [d for d in cal.itermonthdates(jahr, monat) if d.weekday() == 0 and d.month == monat]
-                        anzahl_montage = len(montage)
-                except Exception:
-                    anzahl_montage = 4
                 if hasattr(self, '_garage') and self._garage and anzahl_montage > 0:
                     try:
                         exp_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -2458,8 +2278,7 @@ class AbrechnungsSeiteQML(QObject):
                         ))
                     except Exception as e:
                         print(f"Fehler beim Speichern der Garage als Expense: {e}")
-                # Gas als eigene Expense speichern
-                if hasattr(self, '_inputGas') and self._inputGas:
+                if hasattr(self, '_input_gas') and self._input_gas:
                     try:
                         exp_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                         cursor_exp.execute(f"""
@@ -2467,41 +2286,21 @@ class AbrechnungsSeiteQML(QObject):
                             VALUES (?, ?, ?, ?, ?)
                         """, (
                             int(kw) if kw else None,
-                            float(self._inputGas),
+                            float(self._input_gas),
                             "Gas",
-                            "50",
+                            "",
                             exp_timestamp
                         ))
                     except Exception as e:
                         print(f"Fehler beim Speichern des Gas-Eintrags: {e}")
                 conn_exp.commit()
                 conn_exp.close()
-            # Slider-Konfiguration in database.db speichern
-            db_path_cfg = os.path.join("SQL", "database.db")
-            conn_cfg = sqlite3.connect(db_path_cfg)
-            cursor_cfg = conn_cfg.cursor()
-            cursor_cfg.execute("""
-                CREATE TABLE IF NOT EXISTS custom_deal_config (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    fahrer TEXT,
-                    kw INTEGER,
-                    config TEXT
-                )
-            """)
-            cursor_cfg.execute(
-                "INSERT OR REPLACE INTO custom_deal_config (fahrer, kw, config) VALUES (?, ?, ?)",
-                (fahrer, int(kw), json.dumps(config))
-            )
-            conn_cfg.commit()
-            conn_cfg.close()
-            # Aufräumen
-            self._custom_deal_cache = {}
             self._expense_cache = []
             self.inputGas = ""
             self.inputEinsteiger = ""
             self.inputExpense = ""
         except Exception as e:
-            print(f"Fehler beim Speichern des Custom-Deals: {e}")
+            pass
 
     def get_overlay_config(self, driver_id):
         if getattr(self, '_deal', None) == 'C':
@@ -2565,37 +2364,36 @@ class AbrechnungsSeiteQML(QObject):
     @Slot(float)
     def setOverlayIncomeOhneEinsteiger(self, value):
         self._overlay_income_ohne_einsteiger = value
-        print(f"DEBUG: OverlayIncomeOhneEinsteiger auf {value} gesetzt")
         self.update_ergebnis()
         
     @Slot(float)
     def setEinsteigerFaktor(self, value):
         self._einsteiger_faktor = value
-        print(f"DEBUG: EinsteigerFaktor auf {value} gesetzt")
+        self.ergebnisChanged.emit()  # Signal für QML-Properties
         self.update_ergebnis()
         
     @Slot(float)
     def setTankFaktor(self, value):
         self._tank_faktor = value
-        print(f"DEBUG: TankFaktor auf {value} gesetzt")
+        self.ergebnisChanged.emit()  # Signal für QML-Properties
         self.update_ergebnis()
 
     @Slot(float)
     def setTaxiFaktor(self, value):
         self._taxi_faktor = value
-        print(f"DEBUG: TaxiFaktor auf {value} gesetzt")
+        self.ergebnisChanged.emit()  # Signal für QML-Properties
         self.update_ergebnis()
         
     @Slot(float)
     def setUberFaktor(self, value):
         self._uber_faktor = value
-        print(f"DEBUG: UberFaktor auf {value} gesetzt")
+        self.ergebnisChanged.emit()  # Signal für QML-Properties
         self.update_ergebnis()
         
     @Slot(float)
     def setBoltFaktor(self, value):
         self._bolt_faktor = value
-        print(f"DEBUG: BoltFaktor auf {value} gesetzt")
+        self.ergebnisChanged.emit()  # Signal für QML-Properties
         self.update_ergebnis()
 
     @Slot(str)
@@ -2606,92 +2404,214 @@ class AbrechnungsSeiteQML(QObject):
     @Slot(float)
     def setGarageFaktor(self, value):
         self._garage_faktor = value
-        print(f"DEBUG: GarageFaktor auf {value} gesetzt")
+        self.ergebnisChanged.emit()  # Signal für QML-Properties
+        self.update_ergebnis()
+        
+    @Slot(float)
+    def setPauschale(self, value):
+        self._pauschale = value
+        self.pauschaleChanged.emit()
+        self.update_ergebnis()
+        
+    @Slot(float)
+    def setUmsatzgrenze(self, value):
+        self._umsatzgrenze = value
+        self.umsatzgrenzeChanged.emit()
         self.update_ergebnis()
 
-    def berechne_ergebnis_mit_overlay(self, overlay_config):
-        """
-        Berechnet das Ergebnis direkt mit den Werten/Faktoren aus der Overlay-Konfiguration.
-        """
-        # Default-Werte
-        tank = 0.0
-        tank_faktor = 1.0
-        einsteiger = 0.0
-        einsteiger_faktor = 1.0
-        garage = 0.0
-        garage_faktor = 1.0
-        trinkgeld = getattr(self, '_headcard_trinkgeld', 0.0)
-        credit_card = getattr(self, '_headcard_credit_card', 0.0)
-        overlay_income_ohne_einsteiger = getattr(self, '_overlay_income_ohne_einsteiger', 0.0)
-        expenses_sum = 0.0
-        # Werte aus overlay_config extrahieren
-        for item in overlay_config:
-            if item.get("platform") == "Tank":
-                try:
-                    tank = float(item.get("slider", 0))
-                except Exception:
-                    tank = 0.0
-                tank_faktor = item.get("slider", 100) / 100.0
-            if item.get("platform") == "Einsteiger":
-                try:
-                    einsteiger = float(item.get("slider", 0))
-                except Exception:
-                    einsteiger = 0.0
-                einsteiger_faktor = item.get("slider", 100) / 100.0
-            if item.get("platform") == "Garage":
-                try:
-                    garage = float(item.get("slider", 0))
-                except Exception:
-                    garage = 0.0
-                garage_faktor = item.get("slider", 100) / 100.0
-        # Custom-Deal-Berechnung (wie in update_ergebnis)
-        self._ergebnis = credit_card - overlay_income_ohne_einsteiger + (tank * tank_faktor) - (einsteiger * einsteiger_faktor) + (garage * garage_faktor) + trinkgeld + expenses_sum
-        self.ergebnisChanged.emit()
 
-    # --- NEU: Overlay-Konfiguration über Fahrernamen laden ---
-    def ladeOverlayKonfigurationByName(self, fahrername):
-        print(f"DEBUG: Suche Overlay-Konfiguration für Fahrer: '{fahrername}'")
-        print(f"DEBUG: Verwende Datenbank: SQL/database.db")
+
+    def _lade_deal_aus_datenbank(self, fahrername):
+        """Lädt den Deal-Typ und die entsprechenden Faktoren aus der Datenbank"""
+        
+        deal = None
+        garage = 0.0
+        pauschale = 500.0
+        umsatzgrenze = 1200.0
+        
         try:
-            conn = sqlite3.connect("SQL/database.db")  # Passe ggf. den Pfad an
+            conn = sqlite3.connect("SQL/database.db")
             cursor = conn.cursor()
-            query = """
-                SELECT taxi_deal, taxi_slider, uber_deal, uber_slider, bolt_deal, bolt_slider, 
-                       einsteiger_deal, einsteiger_slider, garage_slider, tank_slider
-                FROM custom_deal_config
-                WHERE fahrer = ?
-            """
-            print(f"DEBUG: Führe SQL-Query aus: {query}")
-            print(f"DEBUG: Mit Parameter: fahrer = '{fahrername}'")
-            cursor.execute(query, (fahrername,))
+            
+            # Lade Deal-Daten aus deals Tabelle
+            cursor.execute("SELECT deal, garage, pauschale, umsatzgrenze FROM deals WHERE name = ?", (fahrername,))
             row = cursor.fetchone()
+            
             if row:
-                config = list(row)
-                print(f"DEBUG: Config gefunden: {config}")
-                return config
+                deal = row[0]
+                garage = row[1] if row[1] is not None else 0.0
+                pauschale = row[2] if row[2] is not None else 500.0
+                umsatzgrenze = row[3] if row[3] is not None else 1200.0
+                # Deal-Daten geladen
             else:
-                print(f"DEBUG: Keine Config gefunden für Fahrer '{fahrername}'")
-                return []
+                # Kein Deal-Eintrag gefunden, verwende Standard-Deal 'P'
+                deal = "P"
+                
         except Exception as e:
-            print(f"DEBUG: Fehler beim Laden der Overlay-Konfiguration für {fahrername}: {e}")
-            import traceback
-            traceback.print_exc()
-            return []
+            # Fehler beim Laden der Deal-Daten
+            deal = "P"
         finally:
             try:
                 conn.close()
             except:
                 pass
+        
+        # Setze Backend-Variablen
+        self._garage = garage
+        self._pauschale = pauschale
+        self._umsatzgrenze = umsatzgrenze
+        self._deal = deal
+        
+        # Deal-spezifische Faktoren setzen
+        
+        if deal == "P":
+            self._taxi_faktor = 0.0
+            self._uber_faktor = 0.0
+            self._bolt_faktor = 0.0
+            self._einsteiger_faktor = 0.0
+            self._tank_faktor = 0.0
+            self._garage_faktor = 0.5
+            
+            # Overlay-Config für P-Deal setzen
+            self._overlay_config_cache = [
+                {"platform": "Taxi", "deal": "P", "slider": 0.0},
+                {"platform": "Uber", "deal": "P", "slider": 0.0},
+                {"platform": "Bolt", "deal": "P", "slider": 0.0},
+                {"platform": "Einsteiger", "deal": "P", "slider": 0.0},
+                {"platform": "Tank", "deal": "C", "slider": 0.0},
+                {"platform": "Garage", "deal": "C", "slider": 50.0}
+            ]
+            self._overlay_income_ohne_einsteiger = 0.0
+            
+        elif deal == "%":
+            self._taxi_faktor = 0.5
+            self._uber_faktor = 0.5
+            self._bolt_faktor = 0.5
+            self._einsteiger_faktor = 0.5
+            self._tank_faktor = 0.5
+            self._garage_faktor = 0.5
+            
+            # Overlay-Config für %-Deal setzen
+            self._overlay_config_cache = [
+                {"platform": "Taxi", "deal": "%", "slider": 50.0},
+                {"platform": "Uber", "deal": "%", "slider": 50.0},
+                {"platform": "Bolt", "deal": "%", "slider": 50.0},
+                {"platform": "Einsteiger", "deal": "%", "slider": 50.0},
+                {"platform": "Tank", "deal": "C", "slider": 50.0},
+                {"platform": "Garage", "deal": "C", "slider": 50.0}
+            ]
+            self._overlay_income_ohne_einsteiger = 0.0
+            
+        elif deal == "C":
+            # NEU: Verwende die neue ladeCustomDealConfig Funktion
+            config = self.ladeCustomDealConfig(fahrername)
+            if config and len(config) > 0:
+                # Config ist jetzt ein Array von Objekten mit platform, deal, slider
+                self._overlay_config_cache = config
+                
+                # Faktoren aus der Config berechnen
+                for item in config:
+                    platform = item.get("platform", "")
+                    slider = item.get("slider", 0.0)
+                    deal_type = item.get("deal", "")
+                    
+                    # Faktor berechnen (Slider / 100)
+                    faktor = slider / 100.0
+                    
+                    # Faktor der entsprechenden Plattform zuweisen
+                    if platform == "Taxi":
+                        self._taxi_faktor = faktor
+                        self._taxi_deal = deal_type
+                    elif platform == "Uber":
+                        self._uber_faktor = faktor
+                        self._uber_deal = deal_type
+                    elif platform == "Bolt":
+                        self._bolt_faktor = faktor
+                        self._bolt_deal = deal_type
+                    elif platform == "Einsteiger":
+                        self._einsteiger_faktor = faktor
+                        self._einsteiger_deal = deal_type
+                    elif platform == "Tank":
+                        self._tank_faktor = faktor
+                    elif platform == "Garage":
+                        self._garage_faktor = faktor
+                
+                print(f"[CustomDealConfig] Faktoren für {fahrername} geladen:")
+                print(f"  Taxi: {self._taxi_faktor} ({self._taxi_deal})")
+                print(f"  Uber: {self._uber_faktor} ({self._uber_deal})")
+                print(f"  Bolt: {self._bolt_faktor} ({self._bolt_deal})")
+                print(f"  Einsteiger: {self._einsteiger_faktor} ({self._einsteiger_deal})")
+                print(f"  Tank: {self._tank_faktor}")
+                print(f"  Garage: {self._garage_faktor}")
+                
+            else:
+                # Keine Custom-Config gefunden, verwende Standard-Faktoren
+                self._taxi_faktor = self._uber_faktor = self._bolt_faktor = 1.0
+                self._einsteiger_faktor = self._tank_faktor = self._garage_faktor = 1.0
+                print(f"[CustomDealConfig] Keine Konfiguration für {fahrername} gefunden, verwende Standard-Faktoren")
+        else:
+            # Unbekannter Deal-Typ, verwende Standard-Faktoren
+            self._taxi_faktor = self._uber_faktor = self._bolt_faktor = 1.0
+            self._einsteiger_faktor = self._tank_faktor = self._garage_faktor = 1.0
+        
+        # Deal-Konfiguration geladen
+        
+        # WICHTIG: Alle relevanten Signals emittieren für QML-Properties
+        self.ergebnisChanged.emit()
+        self.dealChanged.emit()
+        print(f"DEBUG: Alle Signals für Deal-Konfiguration emittiert")
+
+    # --- NEU: Overlay-Konfiguration über Fahrernamen laden ---
+    def ladeOverlayKonfigurationByName(self, fahrername):
+        """
+        Lädt die custom_deal_config für einen Fahrer anhand des Namens.
+        """
+        import sqlite3
+        import os
+        import json
+        
+        db_path = os.path.join("SQL", "database.db")
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        
+        # Prüfe, ob custom_deal_config Tabelle existiert
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS custom_deal_config (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                fahrer TEXT UNIQUE,
+                config_json TEXT,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        
+        # Lade Konfiguration für den Fahrer
+        cursor.execute("SELECT config_json FROM custom_deal_config WHERE fahrer = ?", (fahrername,))
+        result = cursor.fetchone()
+        
+        conn.close()
+        
+        if result and result[0]:
+            try:
+                config = json.loads(result[0])
+                print(f"[CustomDealConfig] Konfiguration für {fahrername} geladen: {config}")
+                return config
+            except json.JSONDecodeError:
+                print(f"[CustomDealConfig] Fehler beim Parsen der JSON-Konfiguration für {fahrername}")
+                return []
+        else:
+            print(f"[CustomDealConfig] Keine Konfiguration für {fahrername} gefunden")
+            return []
+
+    @Slot(str, result='QVariantList')
+    def ladeCustomDealConfig(self, fahrername):
+        """
+        Lädt die custom_deal_config für einen Fahrer und gibt sie als QVariantList zurück.
+        """
+        config = self.ladeOverlayKonfigurationByName(fahrername)
+        return config
 
     def _berechne_platform_werte(self, df, platform):
         """Zentrale Berechnung für Plattformen wie Uber, Bolt, 40100"""
-        def safe_float(val):
-            if val is None or str(val).strip() == '' or str(val).lower() == 'nan' or (isinstance(val, float) and math.isnan(val)):
-                return 0.0
-            try:
-                return float(val)
-            except (ValueError, TypeError):
-                return 0.0
         if df.empty:
             if platform == "Bolt":
                 return {
@@ -2753,16 +2673,23 @@ class AbrechnungsSeiteQML(QObject):
             else:
                 umsatz_40100 = pd.Series(dtype=float)
             gesamt_umsatz = umsatz_40100.sum()
-            trinkgeld = df.loc[umsatz_mask, "Trinkgeld"].sum() if "Trinkgeld" in df.columns else 0
+            # Trinkgeld für echten Umsatz: Gesamtsumme (ohne Filter)
+            trinkgeld_fuer_umsatz = df["Trinkgeld"].sum() if "Trinkgeld" in df.columns else 0
+            
+            # Trinkgeld für Anzeige: Summe nur wenn Buchungsart nicht 'Bar' enthält und Umsatz zwischen -250 und 250
+            trinkgeld_mask = umsatz_mask
+            if "Buchungsart" in df.columns:
+                trinkgeld_mask = trinkgeld_mask & ~df["Buchungsart"].str.contains("Bar", na=False)
+            trinkgeld = df.loc[trinkgeld_mask, "Trinkgeld"].sum() if "Trinkgeld" in df.columns else 0
             bargeld = df.loc[umsatz_mask, "Bargeld"].sum() if "Bargeld" in df.columns else 0
-            echter_umsatz = gesamt_umsatz - trinkgeld
+            echter_umsatz = gesamt_umsatz - trinkgeld_fuer_umsatz
             anteil = echter_umsatz / 2
             restbetrag = anteil - bargeld + trinkgeld
             return {
+                "echter_umsatz": echter_umsatz,  # Erste Position für Card-Anzeige
                 "gesamt_umsatz": gesamt_umsatz,
                 "trinkgeld": trinkgeld,
                 "bargeld": bargeld,
-                "echter_umsatz": echter_umsatz,
                 "anteil": anteil,
                 "restbetrag": restbetrag
             }
