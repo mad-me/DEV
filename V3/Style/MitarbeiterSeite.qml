@@ -112,7 +112,7 @@ Rectangle {
                             selectionColor: "#a2ffb5"
                             selectedTextColor: "#232323"
                             visible: parent.suchfeldAktiv
-                            onTextChanged: mitarbeiterBackend.filterText = text
+                            onTextChanged: function(newText) { mitarbeiterBackend.filterText = newText }
                             onActiveFocusChanged: {
                                 if (!activeFocus && text.length === 0) {
                                     parent.suchfeldAktiv = false;

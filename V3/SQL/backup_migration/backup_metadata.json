@@ -1,0 +1,12 @@
+{
+  "timestamp": "2025-07-30T02:25:38.757357",
+  "databases": [
+    "SQL/database.db",
+    "SQL/uber.sqlite",
+    "SQL/bolt.sqlite",
+    "SQL/40100.sqlite",
+    "SQL/salaries.db",
+    "SQL/revenue.db"
+  ],
+  "version": "1.0.0"
+}

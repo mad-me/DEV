@@ -70,7 +70,10 @@ ApplicationWindow {
                         id: dashAbrechnung
                         anchors.fill: parent
                         hoverEnabled: true
-                        onClicked: abrechnungsBackend.show_wizard_and_load_page()
+                        onClicked: {
+                            // Neue kartenbasierte Auswahl verwenden
+                            abrechnungsBackend.show_cards_selection()
+                        }
                         cursorShape: Qt.PointingHandCursor
                     }
                     Image {
@@ -243,6 +246,20 @@ ApplicationWindow {
             goHome: function() { goBack(); }
         })
     }
+    
+    function loadSelectionCards() {
+        // StackView sichtbar machen
+        stackVisible = true
+        sidebarVisible = false  // Keine Sidebar für SelectionCards
+        
+        stackView.replace("SelectionCards.qml", {
+            goHome: function() { goBack(); },
+            abrechnungsBackend: abrechnungsBackend,
+            datenBackend: datenBackend,
+            mitarbeiterBackend: mitarbeiterBackend,
+            fahrzeugBackend: fahrzeugBackendV2
+        })
+    }
 
     function loadDatenseite() {
         stackView.replace("Datenseite.qml")
@@ -253,7 +270,7 @@ ApplicationWindow {
     }
 
     function loadFahrzeugSeite() {
-        stackView.replace("FahrzeugSeite.qml", {
+        stackView.replace("FahrzeugSeiteV2Cards.qml", {
             goHome: function() { stackVisible = false; }
         })
     }
@@ -268,6 +285,11 @@ ApplicationWindow {
         target: abrechnungsBackend
         function onErgebnisseChanged() {
             showSidebar(0)
+        }
+        
+        function onWizardDataChanged() {
+            // Kartenbasierte Auswahl laden
+            loadSelectionCards()
         }
     }
 } 

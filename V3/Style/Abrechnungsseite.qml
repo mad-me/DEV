@@ -28,10 +28,19 @@ Rectangle {
     property var card40100: {"label": "Taxi", "value": "-"}
     property var cardUber: {"label": "Uber", "value": "-", "zeile1": "-", "zeile2": "-", "zeile3": "-"}
     property var cardBolt: {"label": "Bolt", "value": "-"}
+    property var card31300: {"label": "31300", "value": "-", "zeile1": "-", "zeile2": "-", "zeile3": "-"}
     property string tank: ""
     property string einsteiger: ""
     property bool wizardGestartet: false
     property var wizardSelection: ({})
+    
+    // Funktion für Zahlenformatierung (ohne führende Nullen)
+    function formatNumber(value) {
+        if (value === "-" || value === undefined || value === null) return "-"
+        var num = parseFloat(value)
+        if (isNaN(num)) return "-"
+        return num.toFixed(2)
+    }
 
     // Seite bleibt leer, solange das Wizard offen ist
     ColumnLayout {
@@ -43,7 +52,7 @@ Rectangle {
         // Summenzeile (zentriert, responsive)
         RowLayout {
             Layout.alignment: Qt.AlignHCenter
-            spacing: Math.max(32, parent.width * 0.03)
+            spacing: Math.max(16, parent.width * 0.015)
             RowLayout {
                 spacing: 4
                 Image { source: "assets/icons/sales_gray.svg"; width: 24; height: 24; fillMode: Image.PreserveAspectFit }
@@ -67,7 +76,7 @@ Rectangle {
             }
             RowLayout {
                 spacing: 4
-                visible: abrechnungsBackend && abrechnungsBackend.headcard_garage !== undefined
+                visible: abrechnungsBackend && abrechnungsBackend.headcard_garage !== undefined && abrechnungsBackend.headcard_garage > 0
                 Image { source: "assets/icons/parking_gray.svg"; width: 24; height: 24; fillMode: Image.PreserveAspectFit }
                 Text { text: (abrechnungsBackend ? abrechnungsBackend.headcard_garage.toFixed(2) : "0.00") + " €"; font.pixelSize: Math.max(18, root.width * 0.018); color: "white"; font.bold: true; font.family: ubuntuFont.name }
             }
@@ -84,36 +93,27 @@ Rectangle {
                     cursorShape: Qt.PointingHandCursor
                     onEntered: { }
                     onExited: { }
-                    onClicked: {
-                        console.log("🔵 OVERLAY ÖFFNEN");
-                        
-                        // WICHTIG: wizardSelection vor dem Laden aktualisieren
-                        wizardSelection = abrechnungsBackend.get_current_selection();
-                        console.log("DEBUG: wizardSelection beim Öffnen aktualisiert:", wizardSelection);
-                        
-                        // Konfiguration laden VOR dem Anzeigen des Overlays
-                        updateMatchedPlatforms();
-                        
-                        // Overlay sichtbar machen
-                        dealOverlay.visible = true;
-                        
-                        // WICHTIG: overlayConfigApplied sofort setzen, damit Berechnungen funktionieren
-                        overlayConfigApplied = true;
-                        console.log("DEBUG: overlayConfigApplied auf true gesetzt beim Öffnen");
-                        console.log("DEBUG: Overlay geöffnet, overlayIncome:", overlayIncome + "€");
-                        console.log("DEBUG: Overlay geöffnet, overlayErgebnis:", overlayErgebnis + "€");
-                        
-                        // Speicher-Status nur zurücksetzen, wenn keine gespeicherte Konfiguration vorhanden ist
-                        if (!overlayConfigCache || overlayConfigCache.length === 0) {
-                            overlayConfigSaved = false;
-                            console.log("  ↪️ overlayConfigSaved auf false gesetzt (keine Cache)");
-                        } else {
-                            console.log("  ✅ overlayConfigSaved bleibt unverändert (Cache vorhanden)");
-                        }
-                        // BottomBar sichtbar halten
-                        bottomBar.visible = true;
-                        bottomBarVisible = true;
-                    }
+                                                    onClicked: {
+                                    // WICHTIG: wizardSelection vor dem Laden aktualisieren
+                                    wizardSelection = abrechnungsBackend.get_current_selection();
+                                    
+                                    // Konfiguration laden VOR dem Anzeigen des Overlays
+                                    updateMatchedPlatforms();
+                                    
+                                    // Overlay sichtbar machen
+                                    dealOverlay.visible = true;
+                                    
+                                    // WICHTIG: overlayConfigApplied sofort setzen, damit Berechnungen funktionieren
+                                    overlayConfigApplied = true;
+                                    
+                                    // Speicher-Status nur zurücksetzen, wenn keine gespeicherte Konfiguration vorhanden ist
+                                    if (!overlayConfigCache || overlayConfigCache.length === 0) {
+                                        overlayConfigSaved = false;
+                                    }
+                                    // BottomBar sichtbar halten
+                                    bottomBar.visible = true;
+                                    bottomBarVisible = true;
+                                }
                     Image {
                         anchors.centerIn: parent
                         width: Math.max(40, parent.width * 0.04) // Responsive Größe
@@ -150,96 +150,45 @@ Rectangle {
             Layout.alignment: Qt.AlignHCenter
             Layout.fillWidth: true
             Layout.topMargin: -Math.max(32, parent.height * 0.025) // Weiter nach oben versetzen
-            spacing: visibleCardCount > 2 ? Math.max(24, parent.width * 0.02) : Math.max(32, parent.width * 0.03)
+                          spacing: visibleCardCount > 2 ? Math.max(16, parent.width * 0.012) : Math.max(20, parent.width * 0.018)
+
             // Taxi Card
-            ColumnLayout {
-                spacing: Math.max(12, parent.height * 0.01)
-                Layout.alignment: Qt.AlignTop
-                Layout.preferredWidth: Math.max(220, parent.width * 0.22)
-                Layout.fillWidth: false
-                visible: card40100.zeile1 !== "-" && !isNaN(parseFloat(card40100.zeile1))
-                Text { text: card40100.label; font.pixelSize: Math.max(20, root.width * 0.02); color: "#f79009"; font.bold: true; font.family: ubuntuFont.name }
-                Rectangle {
-                    Layout.preferredWidth: Math.max(220, parent.width * 0.22)
-                    Layout.preferredHeight: Math.max(220, parent.width * 0.22)
-                    color: "black"
-                    radius: Style.radiusLarge
-                    border.width: 0
-                    ColumnLayout {
-                        anchors.fill: parent
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        Layout.margins: Math.max(16, parent.width * 0.02)
-                        spacing: Math.max(12, parent.height * 0.01)
-                        Text { text: card40100.zeile1 + ' €'; font.pixelSize: Math.max(18, root.width * 0.018); color: Style.text; font.family: ubuntuFont.name }
-                        Text { text: card40100.zeile2 + ' €'; font.pixelSize: Math.max(18, root.width * 0.018); color: Style.text; font.family: ubuntuFont.name }
-                        Text { text: card40100.zeile3 + ' €'; font.pixelSize: Math.max(18, root.width * 0.018); font.bold: true; color: Style.text; font.family: ubuntuFont.name }
-                    }
-                }
+            PlatformCard {
+                cardData: card40100
+                platformName: "Taxi"
+                isVisible: card40100.zeile1 !== "-" && !isNaN(parseFloat(card40100.zeile1))
             }
             // Uber Card
-            ColumnLayout {
-                spacing: Math.max(12, parent.height * 0.01)
-                Layout.alignment: Qt.AlignTop
-                Layout.preferredWidth: Math.max(220, parent.width * 0.22)
-                Layout.fillWidth: false
-                visible: cardUber.zeile1 !== "-" && parseFloat(cardUber.zeile1) > 0
-                Text { text: cardUber.label === "Uber" ? "UBER" : cardUber.label; font.pixelSize: Math.max(20, root.width * 0.02); color: "#f79009"; font.bold: true; font.family: ubuntuFont.name }
-                Rectangle {
-                    Layout.preferredWidth: Math.max(220, parent.width * 0.22)
-                    Layout.preferredHeight: Math.max(220, parent.width * 0.22)
-                    color: "black"
-                    radius: Style.radiusLarge
-                    border.width: 0
-                    ColumnLayout {
-                        anchors.fill: parent
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        Layout.margins: Math.max(16, parent.width * 0.02)
-                        spacing: Math.max(12, parent.height * 0.01)
-                        Text { text: cardUber.zeile1 + ' €'; font.pixelSize: Math.max(18, root.width * 0.018); color: Style.text; font.family: ubuntuFont.name }
-                        Text { text: cardUber.zeile2 + ' €'; font.pixelSize: Math.max(18, root.width * 0.018); color: Style.text; font.family: ubuntuFont.name }
-                        Text { text: cardUber.zeile3 + ' €'; font.pixelSize: Math.max(18, root.width * 0.018); font.bold: true; color: Style.text; font.family: ubuntuFont.name }
-                    }
-                }
+            PlatformCard {
+                cardData: cardUber
+                platformName: "Uber"
+                isVisible: cardUber.zeile1 !== "-" && parseFloat(cardUber.zeile1) > 0
             }
             // Bolt Card
-            ColumnLayout {
-                spacing: Math.max(12, parent.height * 0.01)
-                Layout.alignment: Qt.AlignTop
-                Layout.preferredWidth: Math.max(220, parent.width * 0.22)
-                Layout.fillWidth: false
-                visible: cardBolt.zeile1 !== "-" && parseFloat(cardBolt.zeile1) > 0
-                Text { text: cardBolt.label === "Bolt" ? "BOLT" : cardBolt.label; font.pixelSize: Math.max(20, root.width * 0.02); color: "#f79009"; font.bold: true; font.family: ubuntuFont.name }
-                Rectangle {
-                    Layout.preferredWidth: Math.max(220, parent.width * 0.22)
-                    Layout.preferredHeight: Math.max(220, parent.width * 0.22)
-                    color: "black"
-                    radius: Style.radiusLarge
-                    border.width: 0
-                    ColumnLayout {
-                        anchors.fill: parent
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        Layout.margins: Math.max(16, parent.width * 0.02)
-                        spacing: Math.max(12, parent.height * 0.01)
-                        Text { text: cardBolt.zeile1 + ' €'; font.pixelSize: Math.max(18, root.width * 0.018); color: Style.text; font.family: ubuntuFont.name }
-                        Text { text: cardBolt.zeile2 + ' €'; font.pixelSize: Math.max(18, root.width * 0.018); color: Style.text; font.family: ubuntuFont.name }
-                        Text { text: cardBolt.zeile3 + ' €'; font.pixelSize: Math.max(18, root.width * 0.018); font.bold: true; color: Style.text; font.family: ubuntuFont.name }
-                    }
-                }
+            PlatformCard {
+                cardData: cardBolt
+                platformName: "Bolt"
+                isVisible: cardBolt.zeile1 !== "-" && !isNaN(parseFloat(cardBolt.zeile1))
             }
+            // 31300 Card
+            PlatformCard {
+                cardData: card31300
+                platformName: "31300"
+                isVisible: card31300.zeile1 !== "-" && parseFloat(card31300.zeile1) > 0
+            }
+
             // Input-Card als zusätzliche Card rechts
             ColumnLayout {
                 spacing: Math.max(12, parent.height * 0.01)
                 Layout.alignment: Qt.AlignTop
                 Layout.preferredWidth: Math.max(220, parent.width * 0.22)
                 Layout.fillWidth: false
-                // Titel für die Eingabefelder
+                Layout.topMargin: -5
+                // Platzhalter für Layout-Konsistenz (gleiche Höhe wie andere Card-Titel)
                 Text {
-                    text: "Input"
-                    font.pixelSize: Math.max(20, root.width * 0.02)
-                    color: "#f79009"
+                    text: ""
+                    font.pixelSize: Math.max(16, root.width * 0.016)
+                    color: "#808080"
                     font.bold: true
                     font.family: ubuntuFont.name
                 }
@@ -255,25 +204,61 @@ Rectangle {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         Layout.margins: Math.max(16, parent.width * 0.02)
-                        spacing: 14
+                        spacing: 15
                         RowLayout {
                             spacing: 12
                             Layout.alignment: Qt.AlignHCenter
                             TextField {
                                 id: inputField1
-                                width: 150
-                                Layout.preferredWidth: 150
+                                width: 180
+                                Layout.preferredWidth: 180
+                                Layout.preferredHeight: 65
                                 Layout.alignment: Qt.AlignVCenter
                                 placeholderText: ""
-                                font.pixelSize: 28
+                                font.pixelSize: 32
                                 font.family: ubuntuFont.name
                                 color: Style.text
-                                background: Rectangle { color: "#222"; radius: 8 }
+                                background: Rectangle { 
+                                    gradient: Gradient {
+                                        GradientStop { position: 0.0; color: "#1a1a1a" }
+                                        GradientStop { position: 0.1; color: "#1a1a1a" }
+                                        GradientStop { position: 1.0; color: "#050505" }
+                                    }
+                                    radius: 8 
+                                }
                                 padding: 10
                                 horizontalAlignment: Text.AlignHCenter
                                 verticalAlignment: Text.AlignVCenter
                                 text: abrechnungsBackend ? abrechnungsBackend.inputGas : ""
-                                onTextChanged: if (abrechnungsBackend) abrechnungsBackend.inputGas = text
+                                onTextChanged: {
+                                    if (abrechnungsBackend) {
+                                        // Komma zu Punkt konvertieren für Dezimalzahlen
+                                        var convertedText = text.replace(',', '.')
+                                        if (convertedText !== text) {
+                                            text = convertedText
+                                        }
+                                        // Debouncing: Verzögerte Aktualisierung
+                                        inputGasTimer.restart()
+                                    }
+                                }
+                                
+                                onFocusChanged: {
+                                    // Selektiere den gesamten Text beim Fokus
+                                    if (focus && text.length > 0) {
+                                        selectAll()
+                                    }
+                                }
+                                
+                                // Timer für Debouncing
+                                Timer {
+                                    id: inputGasTimer
+                                    interval: 100 // Reduziert von 150ms auf 100ms
+                                    onTriggered: {
+                                        if (abrechnungsBackend) {
+                                            abrechnungsBackend.inputGas = inputField1.text
+                                        }
+                                    }
+                                }
                             }
                             Text {
                                 text: "€"
@@ -294,22 +279,90 @@ Rectangle {
                             Layout.alignment: Qt.AlignHCenter
                             TextField {
                                 id: inputField2
-                                width: 150
-                                Layout.preferredWidth: 150
+                                width: 180
+                                Layout.preferredWidth: 180
+                                Layout.preferredHeight: 65
                                 Layout.alignment: Qt.AlignVCenter
-                                placeholderText: ""
-                                font.pixelSize: 28
+                                placeholderText: (abrechnungsBackend && abrechnungsBackend.einsteiger_mode) ? "inkl." : "Einsteiger"
+                                placeholderTextColor: "#808080"
+                                font.pixelSize: 32
                                 font.family: ubuntuFont.name
                                 color: Style.text
-                                background: Rectangle { color: "#222"; radius: 8 }
+                                background: Rectangle { 
+                                    gradient: Gradient {
+                                        GradientStop { position: 0.0; color: "#1a1a1a" }
+                                        GradientStop { position: 0.1; color: "#1a1a1a" }
+                                        GradientStop { position: 1.0; color: "#050505" }
+                                    }
+                                    radius: 8 
+                                }
                                 padding: 10
                                 horizontalAlignment: Text.AlignHCenter
                                 verticalAlignment: Text.AlignVCenter
                                 text: abrechnungsBackend ? abrechnungsBackend.inputEinsteiger : ""
                                 onTextChanged: {
                                     if (abrechnungsBackend) {
-                                    abrechnungsBackend.inputEinsteiger = text;
-                                    overlayIncome = calculateOverlayIncome();
+                                        // Komma zu Punkt konvertieren für Dezimalzahlen
+                                        var convertedText = text.replace(',', '.')
+                                        if (convertedText !== text) {
+                                            text = convertedText
+                                        }
+                                        
+                                        // Nur Timer starten wenn der Text wirklich vom Benutzer geändert wurde
+                                        // (nicht wenn er durch die Berechnung geändert wurde)
+                                        if (!isCalculationUpdate) {
+                                            inputEinsteigerTimer.restart()
+                                        }
+                                    }
+                                }
+                                
+                                onFocusChanged: {
+                                    // Selektiere den gesamten Text beim Fokus
+                                    if (focus && text.length > 0) {
+                                        selectAll()
+                                    }
+                                }
+                                
+                                // Timer für Debouncing mit Berechnung
+                                Timer {
+                                    id: inputEinsteigerTimer
+                                    interval: 150 // Reduziert von 200ms auf 150ms
+                                    onTriggered: {
+                                        if (abrechnungsBackend) {
+                                            var currentText = inputField2.text
+                                            abrechnungsBackend.inputEinsteiger = currentText
+                                            
+                                            // Flag setzen um zu verhindern, dass die Berechnung weitere Timer auslöst
+                                            isCalculationUpdate = true
+                                            
+                                            // Berechnung je nach Modus
+                                            if (abrechnungsBackend.einsteiger_mode) {
+                                                // Gesamtbetrag-Modus: Berechne Einsteiger
+                                                abrechnungsBackend.calculate_einsteiger_from_gesamtbetrag(currentText)
+                                            } else {
+                                                // Einsteiger-Modus: Berechne Gesamtbetrag (nur für Anzeige)
+                                                abrechnungsBackend.calculate_gesamtbetrag_from_einsteiger(currentText)
+                                            }
+                                            
+                                            // Nur bei % und C Deals Berechnung auslösen
+                                            var currentDeal = abrechnungsBackend.deal || "P";
+                                            if (currentDeal === "%" || currentDeal === "C") {
+                                                overlayIncomeDirty = true; // Cache invalidieren
+                                                overlayIncome = calculateOverlayIncome()
+                                            }
+                                            
+                                            // Flag nach kurzer Verzögerung zurücksetzen
+                                            calculationUpdateTimer.start()
+                                        }
+                                    }
+                                }
+                                
+                                // Timer um das Berechnungs-Flag zurückzusetzen
+                                Timer {
+                                    id: calculationUpdateTimer
+                                    interval: 30 // Reduziert von 50ms auf 30ms
+                                    onTriggered: {
+                                        isCalculationUpdate = false
                                     }
                                 }
                             }
@@ -320,11 +373,24 @@ Rectangle {
                                 font.family: ubuntuFont.name
                                 verticalAlignment: Text.AlignVCenter
                             }
-                            Image {
-                                source: "assets/icons/hail_gray.svg"
-                                width: 20; height: 20
-                                fillMode: Image.PreserveAspectFit
-                                Layout.alignment: Qt.AlignVCenter
+                            Item {
+                                width: 49
+                                height: 49
+                                MouseArea {
+                                    id: hailHoverArea
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    onClicked: abrechnungsBackend.toggle_einsteiger_mode()
+                                }
+                                Image {
+                                    anchors.centerIn: parent
+                                    source: hailHoverArea.containsMouse ? "assets/icons/hail_orange.svg" : 
+                                           (abrechnungsBackend ? abrechnungsBackend.einsteiger_mode : false) ? "assets/icons/hail_orange.svg" : "assets/icons/hail_white.svg"
+                                    width: 49
+                                    height: 49
+                                    fillMode: Image.PreserveAspectFit
+                                    z: 1
+                                }
                             }
                         }
                         RowLayout {
@@ -332,21 +398,57 @@ Rectangle {
                             Layout.alignment: Qt.AlignHCenter
                             TextField {
                                 id: inputField3
-                                width: 150
-                                Layout.preferredWidth: 150
+                                width: 180
+                                Layout.preferredWidth: 180
+                                Layout.preferredHeight: 65
                                 Layout.alignment: Qt.AlignVCenter
-                                placeholderText: ""
-                                font.pixelSize: 28
+                                placeholderText: "Rechnung"
+                                placeholderTextColor: "#808080"
+                                font.pixelSize: 32
                                 font.family: ubuntuFont.name
                                 color: Style.text
-                                background: Rectangle { color: "#222"; radius: 8 }
+                                background: Rectangle { 
+                                    gradient: Gradient {
+                                        GradientStop { position: 0.0; color: "#1a1a1a" }
+                                        GradientStop { position: 0.1; color: "#1a1a1a" }
+                                        GradientStop { position: 1.0; color: "#050505" }
+                                    }
+                                    radius: 8 
+                                }
                                 padding: 10
                                 horizontalAlignment: Text.AlignHCenter
                                 verticalAlignment: Text.AlignVCenter
                                 text: abrechnungsBackend ? abrechnungsBackend.inputExpense : ""
                                 onTextChanged: {
-                                    if (abrechnungsBackend && abrechnungsBackend.inputExpense !== text)
-                                        abrechnungsBackend.inputExpense = text
+                                    if (abrechnungsBackend) {
+                                        // Komma zu Punkt konvertieren für Dezimalzahlen
+                                        var convertedText = text.replace(',', '.')
+                                        if (convertedText !== text) {
+                                            text = convertedText
+                                        }
+                                        // Debouncing: Verzögerte Aktualisierung
+                                        inputExpenseTimer.restart()
+                                    }
+                                }
+                                
+                                onFocusChanged: {
+                                    // Selektiere den gesamten Text beim Fokus
+                                    if (focus && text.length > 0) {
+                                        selectAll()
+                                    }
+                                }
+                                
+                                // Timer für Debouncing
+                                Timer {
+                                    id: inputExpenseTimer
+                                    interval: 150 // 150ms Verzögerung
+                                    onTriggered: {
+                                        if (abrechnungsBackend && abrechnungsBackend.inputExpense !== inputField3.text) {
+                                            abrechnungsBackend.inputExpense = inputField3.text
+                                            // Expenses werden immer berechnet (nicht deal-abhängig)
+                                            overlayIncome = calculateOverlayIncome()
+                                        }
+                                    }
                                 }
                             }
                             Text {
@@ -390,11 +492,17 @@ Rectangle {
                         anchors.fill: parent
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
-                        text: (abrechnungsBackend ? abrechnungsBackend.ergebnis.toFixed(2) : "0.00") + ' €'
+                        text: (abrechnungsBackend ? abrechnungsBackend.abrechnungsergebnis.toFixed(2) : "0.00") + ' €'
                         font.pixelSize: Math.max(24, root.width * 0.024)
                         font.bold: true
                         color: Style.primary
                         font.family: ubuntuFont.name
+                        
+                        // Explizit auf Signal reagieren
+                        property real currentResult: abrechnungsBackend ? abrechnungsBackend.abrechnungsergebnis : 0.0
+                        onCurrentResultChanged: {
+                            // Debug-Ausgabe entfernt für bessere Performance
+                        }
                     }
                 }
             }
@@ -440,6 +548,9 @@ Rectangle {
     // Property für BottomBar-Sichtbarkeit
     property bool bottomBarVisible: true
     
+    // Flag um zu unterscheiden zwischen Benutzer-Eingabe und Berechnungs-Update
+    property bool isCalculationUpdate: false
+    
     // Property für Card-Zentrierung
     property int visibleCardCount: 0
     
@@ -459,7 +570,8 @@ Rectangle {
         var count = 0;
         if (card40100.zeile1 !== "-" && !isNaN(parseFloat(card40100.zeile1))) count++;
         if (cardUber.zeile1 !== "-" && parseFloat(cardUber.zeile1) > 0) count++;
-        if (cardBolt.zeile1 !== "-" && parseFloat(cardBolt.zeile1) > 0) count++;
+        if (cardBolt.zeile1 !== "-" && !isNaN(parseFloat(cardBolt.zeile1))) count++;
+        if (card31300.zeile1 !== "-" && parseFloat(card31300.zeile1) > 0) count++;
         count++; // Input-Card ist immer sichtbar
         visibleCardCount = count;
     }
@@ -483,16 +595,34 @@ Rectangle {
         return false; // Keine relevante Plattform ist auf P
     }
 
+    // Debug-Konfiguration - Standardmäßig deaktiviert
+    property bool debugMode: false
+    
+    function debugLog(message) {
+        // Debug-Ausgaben komplett deaktiviert für bessere Performance
+        // if (debugMode) {
+        //     console.log("DEBUG:", message)
+        // }
+    }
+
     function getEchterUmsatzForPlattform(name) {
         // Einsteiger aus Eingabefeld
         if (name === "Einsteiger") {
-            return Number(abrechnungsBackend.inputEinsteiger) || 0;
+            var einsteigerValue = Number(abrechnungsBackend.inputEinsteiger) || 0;
+            // NaN-Check
+            if (einsteigerValue !== einsteigerValue) {
+                debugLog("NaN erkannt für Einsteiger, verwende 0");
+                return 0;
+            }
+            return einsteigerValue;
         }
         
         var ergebnisse = abrechnungsBackend.ergebnisse;
+        debugLog("Suche Umsatz für Plattform: " + name);
         
         for (var i = 0; i < ergebnisse.length; i++) {
-            if (ergebnisse[i].label === "Taxi" && name === "Taxi") {
+            // Taxi/40100/31300 kombinieren für "Taxi"
+            if ((ergebnisse[i].label === "Taxi" || ergebnisse[i].label === "40100" || ergebnisse[i].label === "31300") && name === "Taxi") {
                 if (ergebnisse[i].details) {
                     for (var j = 0; j < ergebnisse[i].details.length; j++) {
                         // Taxi hat "Real" statt "Total"
@@ -500,7 +630,14 @@ Rectangle {
                             var valueStr = ergebnisse[i].details[j].value;
                             // Entferne €-Symbol und Leerzeichen
                             valueStr = valueStr.replace("€", "").replace(" ", "").trim();
-                            return parseFloat(valueStr);
+                            var parsedValue = parseFloat(valueStr);
+                            // NaN-Check
+                            if (parsedValue !== parsedValue) {
+                                debugLog("NaN erkannt für Taxi Real, verwende 0");
+                                return 0;
+                            }
+                            debugLog("Taxi Umsatz gefunden: " + parsedValue);
+                            return parsedValue;
                         }
                     }
                 }
@@ -508,10 +645,17 @@ Rectangle {
             if (ergebnisse[i].label === "Uber" && name === "Uber") {
                 if (ergebnisse[i].details) {
                     for (var j = 0; j < ergebnisse[i].details.length; j++) {
-                        if (ergebnisse[i].details[j].label === "Total") {
+                        if (ergebnisse[i].details[j].label === "Total" || ergebnisse[i].details[j].label === "Echter Umsatz") {
                             var valueStr = ergebnisse[i].details[j].value;
                             valueStr = valueStr.replace("€", "").replace(" ", "").trim();
-                            return parseFloat(valueStr);
+                            var parsedValue = parseFloat(valueStr);
+                            // NaN-Check
+                            if (parsedValue !== parsedValue) {
+                                debugLog("NaN erkannt für Uber Total, verwende 0");
+                                return 0;
+                            }
+                            debugLog("Uber Umsatz gefunden: " + parsedValue);
+                            return parsedValue;
                         }
                     }
                 }
@@ -519,28 +663,42 @@ Rectangle {
             if (ergebnisse[i].label === "Bolt" && name === "Bolt") {
                 if (ergebnisse[i].details) {
                     for (var j = 0; j < ergebnisse[i].details.length; j++) {
-                        if (ergebnisse[i].details[j].label === "Echter Umsatz") {
+                        if (ergebnisse[i].details[j].label === "Echter Umsatz" || ergebnisse[i].details[j].label === "Total") {
                             var valueStr = ergebnisse[i].details[j].value;
                             valueStr = valueStr.replace("€", "").replace(" ", "").trim();
-                            return parseFloat(valueStr);
+                            var parsedValue = parseFloat(valueStr);
+                            // NaN-Check
+                            if (parsedValue !== parsedValue) {
+                                debugLog("NaN erkannt für Bolt Echter Umsatz, verwende 0");
+                                return 0;
+                            }
+                            debugLog("Bolt Umsatz gefunden: " + parsedValue);
+                            return parsedValue;
                         }
                     }
                 }
             }
         }
+        debugLog("Kein Umsatz gefunden für Plattform: " + name);
         return 0;
     }
 
     // Einkommen = Plattformen × Faktor (ohne Abzüge)
     property real overlayIncome: 0.0
+    property real cachedOverlayIncome: 0.0
+    property bool overlayIncomeDirty: true
+    
     onOverlayIncomeChanged: {
-        console.log("DEBUG: overlayIncome geändert auf:", overlayIncome + "€");
+        debugLog("overlayIncome geändert auf: " + overlayIncome + "€");
     }
     
     // Anteil = Einkommen - Tank - Garage - Expenses
     property real overlayErgebnis: 0.0
+    property real cachedOverlayErgebnis: 0.0
+    property bool overlayErgebnisDirty: true
+    
     onOverlayErgebnisChanged: {
-        console.log("DEBUG: overlayErgebnis geändert auf:", overlayErgebnis + "€");
+        debugLog("overlayErgebnis geändert auf: " + overlayErgebnis + "€");
     }
     
     // Flag um zu verhindern, dass overlayIncome zu früh berechnet wird
@@ -549,8 +707,25 @@ Rectangle {
     function calculateOverlayIncome() {
         // WICHTIG: Nicht berechnen, bevor die Konfiguration angewendet wurde
         if (!overlayConfigApplied) {
-            console.log("DEBUG: Konfiguration noch nicht angewendet, überspringe Berechnung");
+            debugLog("Konfiguration noch nicht angewendet, überspringe Berechnung");
             return 0;
+        }
+        
+        // Cache-Check: Nur neu berechnen wenn nötig
+        if (!overlayIncomeDirty) {
+            return cachedOverlayIncome;
+        }
+        
+        // Bei P-Deals keine Berechnung basierend auf Eingabefeldern (außer Expenses)
+        var currentDeal = abrechnungsBackend.deal || "P";
+        if (currentDeal === "P") {
+            debugLog("P-Deal erkannt, überspringe Eingabefeld-basierte Berechnung (außer Expenses)");
+            // Expenses werden auch bei P-Deals berücksichtigt
+            var expenses = abrechnungsBackend.inputExpense || 0;
+            debugLog("Expenses bei P-Deal: " + expenses + "€");
+            cachedOverlayIncome = expenses;
+            overlayIncomeDirty = false;
+            return expenses;
         }
         
         var income = 0;
@@ -558,6 +733,16 @@ Rectangle {
         // Pauschale und Umsatzgrenze direkt aus dem Backend holen
         var pauschale = abrechnungsBackend.pauschale || 500;
         var umsatzgrenze = abrechnungsBackend.umsatzgrenze || 1200;
+        
+        // NaN-Check für Backend-Werte
+        if (pauschale !== pauschale) {
+            debugLog("NaN erkannt für Pauschale, verwende 500");
+            pauschale = 500;
+        }
+        if (umsatzgrenze !== umsatzgrenze) {
+            debugLog("NaN erkannt für Umsatzgrenze, verwende 1200");
+            umsatzgrenze = 1200;
+        }
         
         // Prüfen, ob mindestens eine relevante Plattform auf P steht
         var hasAnyPDeal = false;
@@ -568,19 +753,17 @@ Rectangle {
                 var dealType = matchedDeals[i];
                 if (dealType === 0) { // 0 = P-Deal
                     hasAnyPDeal = true;
-                    console.log("DEBUG: P-Deal gefunden für", matchedPlatforms[i]);
+                    debugLog("P-Deal gefunden für " + matchedPlatforms[i]);
                     break;
                 }
             }
         }
         
-        console.log("DEBUG: Mindestens eine Plattform auf P?", hasAnyPDeal);
-        
         // 1. Pauschale und Grenzzuschlag (nur wenn mindestens eine Plattform auf P steht)
         if (hasAnyPDeal) {
             // Pauschale hinzufügen
             income += pauschale;
-            console.log("DEBUG: Pauschale hinzugefügt:", pauschale + "€");
+            debugLog("Pauschale hinzugefügt: " + pauschale + "€");
         
             // Grenzzuschlag prüfen
             var taxiUmsatz = getEchterUmsatzForPlattform("Taxi");
@@ -588,54 +771,75 @@ Rectangle {
             var boltUmsatz = getEchterUmsatzForPlattform("Bolt");
             var summeUmsatz = taxiUmsatz + uberUmsatz + boltUmsatz;
             
+            // NaN-Check für Umsatz-Summe
+            if (summeUmsatz !== summeUmsatz) {
+                debugLog("NaN erkannt für Umsatz-Summe, verwende 0");
+                summeUmsatz = 0;
+            }
+            
             if (summeUmsatz > umsatzgrenze) {
                 var bonus = (summeUmsatz - umsatzgrenze) * 0.1;
                 income += bonus;
-                console.log("DEBUG: Grenzzuschlag hinzugefügt:", bonus + "€");
+                debugLog("Grenzzuschlag hinzugefügt: " + bonus + "€");
             }
         } else {
-            console.log("DEBUG: Keine P-Deals gefunden, Pauschale wird NICHT hinzugefügt");
+            debugLog("Keine P-Deals gefunden, Pauschale wird NICHT hinzugefügt");
         }
         
-        // 2. Faktor-basierte Berechnung für alle Plattformen
-        for (var i = 0; i < matchedPlatforms.length; i++) {
-            if (["Taxi", "Uber", "Bolt", "Einsteiger"].indexOf(matchedPlatforms[i]) !== -1) {
-                var umsatz = getEchterUmsatzForPlattform(matchedPlatforms[i]);
-                var sliderValue = matchedSliderValues[i] !== undefined ? matchedSliderValues[i] : 0;
-                var faktor = sliderValue / 100; // Slider-Wert in Faktor umwandeln (0-100 -> 0.0-1.0)
-                
-                // WICHTIG: Verwende Backend-Faktoren, wenn sie verfügbar sind
-                if (matchedPlatforms[i] === "Taxi" && abrechnungsBackend.taxi_faktor !== undefined) {
-                    faktor = abrechnungsBackend.taxi_faktor;
-                    console.log("DEBUG: Verwende Backend Taxi-Faktor:", faktor);
-                } else if (matchedPlatforms[i] === "Uber" && abrechnungsBackend.uber_faktor !== undefined) {
-                    faktor = abrechnungsBackend.uber_faktor;
-                    console.log("DEBUG: Verwende Backend Uber-Faktor:", faktor);
-                } else if (matchedPlatforms[i] === "Bolt" && abrechnungsBackend.bolt_faktor !== undefined) {
-                    faktor = abrechnungsBackend.bolt_faktor;
-                    console.log("DEBUG: Verwende Backend Bolt-Faktor:", faktor);
-                } else if (matchedPlatforms[i] === "Einsteiger" && abrechnungsBackend.einsteiger_faktor !== undefined) {
-                    faktor = abrechnungsBackend.einsteiger_faktor;
-                    console.log("DEBUG: Verwende Backend Einsteiger-Faktor:", faktor);
+        // 2. Faktor-basierte Berechnung für alle Plattformen (nur bei % und C Deals)
+        if (currentDeal === "%" || currentDeal === "C") {
+            for (var i = 0; i < matchedPlatforms.length; i++) {
+                if (["Taxi", "Uber", "Bolt", "Einsteiger"].indexOf(matchedPlatforms[i]) !== -1) {
+                    var umsatz = getEchterUmsatzForPlattform(matchedPlatforms[i]);
+                    var sliderValue = matchedSliderValues[i] !== undefined ? matchedSliderValues[i] : 0;
+                    var faktor = sliderValue / 100; // Slider-Wert in Faktor umwandeln (0-100 -> 0.0-1.0)
+                    
+                    // NaN-Check für Slider-Wert
+                    if (sliderValue !== sliderValue) {
+                        debugLog("NaN erkannt für Slider-Wert, verwende 0");
+                        sliderValue = 0;
+                        faktor = 0;
+                    }
+                    
+                    // WICHTIG: Verwende Backend-Faktoren, wenn sie verfügbar sind
+                    if (matchedPlatforms[i] === "Taxi" && abrechnungsBackend.taxi_faktor !== undefined) {
+                        faktor = abrechnungsBackend.taxi_faktor;
+                        debugLog("Verwende Backend Taxi-Faktor: " + faktor);
+                    } else if (matchedPlatforms[i] === "Uber" && abrechnungsBackend.uber_faktor !== undefined) {
+                        faktor = abrechnungsBackend.uber_faktor;
+                        debugLog("Verwende Backend Uber-Faktor: " + faktor);
+                    } else if (matchedPlatforms[i] === "Bolt" && abrechnungsBackend.bolt_faktor !== undefined) {
+                        faktor = abrechnungsBackend.bolt_faktor;
+                        debugLog("Verwende Backend Bolt-Faktor: " + faktor);
+                    } else if (matchedPlatforms[i] === "Einsteiger" && abrechnungsBackend.einsteiger_faktor !== undefined) {
+                        faktor = abrechnungsBackend.einsteiger_faktor;
+                        debugLog("Verwende Backend Einsteiger-Faktor: " + faktor);
+                    }
+                    
+                    // NaN-Check für Faktor
+                    if (faktor !== faktor) {
+                        debugLog("NaN erkannt für Faktor, verwende 0");
+                        faktor = 0;
+                    }
+                    
+                    var anteil = umsatz * faktor;
+                    income += anteil;
+                    debugLog(matchedPlatforms[i] + " Umsatz: " + umsatz + "€, Faktor: " + faktor + ", Anteil: " + anteil + "€");
                 }
-                
-                var plattformIncome = umsatz * faktor;
-                income += plattformIncome;
-                console.log("DEBUG: Plattform", matchedPlatforms[i], "Umsatz:", umsatz + "€, Slider:", sliderValue + "%, Faktor:", faktor + ", Income:", plattformIncome + "€");
             }
         }
         
-        // WICHTIG: Debug-Ausgabe der Backend-Faktoren
-        console.log("DEBUG: Backend-Faktoren:");
-        console.log("  Taxi-Faktor:", abrechnungsBackend.taxi_faktor);
-        console.log("  Uber-Faktor:", abrechnungsBackend.uber_faktor);
-        console.log("  Bolt-Faktor:", abrechnungsBackend.bolt_faktor);
-        console.log("  Einsteiger-Faktor:", abrechnungsBackend.einsteiger_faktor);
-        console.log("  Tank-Faktor:", abrechnungsBackend.tank_faktor);
-        console.log("  Garage-Faktor:", abrechnungsBackend.garage_faktor);
+        // 3. Expenses werden immer hinzugefügt (unabhängig vom Deal-Typ)
+        var expenses = abrechnungsBackend.inputExpense || 0;
+        income += expenses;
+        debugLog("Expenses hinzugefügt: " + expenses + "€");
         
-        console.log("DEBUG: Einkommen (ohne Abzüge):", income + "€");
-        console.log("DEBUG: calculateOverlayIncome() gibt zurück:", income);
+        debugLog("Gesamtes Einkommen berechnet: " + income + "€");
+        
+        // Cache aktualisieren
+        cachedOverlayIncome = income;
+        overlayIncomeDirty = false;
+        
         return income;
     }
     
@@ -644,6 +848,12 @@ Rectangle {
         var einkommen = calculateOverlayIncome();
         var abzuege = 0;
         
+        // NaN-Check für Einkommen
+        if (einkommen !== einkommen) {
+            console.log("DEBUG: NaN erkannt für Einkommen, verwende 0");
+            einkommen = 0;
+        }
+        
         // 1. Tank-Abzug
         var tankIndex = matchedPlatforms.indexOf("Tank");
         if (tankIndex !== -1) {
@@ -651,13 +861,36 @@ Rectangle {
             var tankPercent = matchedSliderValues[tankIndex] || 0;
             var tankFaktor = tankPercent / 100;
             
+            // NaN-Check für Tank-Werte
+            if (tankValue !== tankValue) {
+                console.log("DEBUG: NaN erkannt für Tank-Wert, verwende 0");
+                tankValue = 0;
+            }
+            if (tankPercent !== tankPercent) {
+                console.log("DEBUG: NaN erkannt für Tank-Percent, verwende 0");
+                tankPercent = 0;
+                tankFaktor = 0;
+            }
+            
             // WICHTIG: Verwende Backend Tank-Faktor, wenn verfügbar
             if (abrechnungsBackend.tank_faktor !== undefined) {
                 tankFaktor = abrechnungsBackend.tank_faktor;
                 console.log("DEBUG: Verwende Backend Tank-Faktor:", tankFaktor);
             }
             
+            // NaN-Check für Tank-Faktor
+            if (tankFaktor !== tankFaktor) {
+                console.log("DEBUG: NaN erkannt für Tank-Faktor, verwende 0");
+                tankFaktor = 0;
+            }
+            
             var tankAbzug = tankValue * tankFaktor;
+            // NaN-Check für Tank-Abzug
+            if (tankAbzug !== tankAbzug) {
+                console.log("DEBUG: NaN erkannt für Tank-Abzug, verwende 0");
+                tankAbzug = 0;
+            }
+            
             abzuege += tankAbzug;
             if (tankAbzug > 0) console.log("DEBUG: Tank Abzug:", tankValue + "€ × " + tankFaktor + " = " + tankAbzug + "€");
         }
@@ -669,13 +902,36 @@ Rectangle {
             var garagePercent = matchedSliderValues[garageIndex] || 0;
             var garageFaktor = garagePercent / 100;
             
+            // NaN-Check für Garage-Werte
+            if (garageValue !== garageValue) {
+                console.log("DEBUG: NaN erkannt für Garage-Wert, verwende 0");
+                garageValue = 0;
+            }
+            if (garagePercent !== garagePercent) {
+                console.log("DEBUG: NaN erkannt für Garage-Percent, verwende 0");
+                garagePercent = 0;
+                garageFaktor = 0;
+            }
+            
             // WICHTIG: Verwende Backend Garage-Faktor, wenn verfügbar
             if (abrechnungsBackend.garage_faktor !== undefined) {
                 garageFaktor = abrechnungsBackend.garage_faktor;
                 console.log("DEBUG: Verwende Backend Garage-Faktor:", garageFaktor);
             }
             
+            // NaN-Check für Garage-Faktor
+            if (garageFaktor !== garageFaktor) {
+                console.log("DEBUG: NaN erkannt für Garage-Faktor, verwende 0");
+                garageFaktor = 0;
+            }
+            
             var garageAbzug = garageValue * garageFaktor;
+            // NaN-Check für Garage-Abzug
+            if (garageAbzug !== garageAbzug) {
+                console.log("DEBUG: NaN erkannt für Garage-Abzug, verwende 0");
+                garageAbzug = 0;
+            }
+            
             abzuege += garageAbzug;
             if (garageAbzug > 0) console.log("DEBUG: Garage Abzug:", garageValue + "€ × " + garageFaktor + " = " + garageAbzug + "€");
         }
@@ -684,14 +940,32 @@ Rectangle {
         var expenses = 0;
         if (abrechnungsBackend && abrechnungsBackend.expenses) {
             expenses = abrechnungsBackend.expenses || 0;
+            // NaN-Check für Expenses
+            if (expenses !== expenses) {
+                console.log("DEBUG: NaN erkannt für Expenses, verwende 0");
+                expenses = 0;
+            }
             if (expenses > 0) {
                 abzuege += expenses;
                 console.log("DEBUG: Expenses Abzug:", expenses + "€");
             }
         }
         
+        // NaN-Check für Gesamtabzüge
+        if (abzuege !== abzuege) {
+            console.log("DEBUG: NaN erkannt für Gesamtabzüge, verwende 0");
+            abzuege = 0;
+        }
+        
         // Finales Ergebnis = Einkommen - Abzüge
         var anteil = einkommen - abzuege;
+        
+        // NaN-Check für finales Ergebnis
+        if (anteil !== anteil) {
+            console.log("DEBUG: NaN erkannt für finales Ergebnis, verwende 0");
+            anteil = 0;
+        }
+        
         if (abzuege > 0) console.log("DEBUG: Gesamtabzüge:", abzuege + "€");
         console.log("DEBUG: Anteil (Einkommen - Abzüge):", anteil + "€");
         return anteil;
@@ -752,6 +1026,13 @@ Rectangle {
             model: matchedPlatforms.length
             delegate: Item {
                 width: parent.width; height: 40
+                // Virtual Scrolling Optimierung
+                property bool isVisible: ListView.isCurrentItem || ListView.view.contentY <= y + height && ListView.view.contentY + ListView.view.height >= y
+                
+                // Nur rendern wenn sichtbar
+                opacity: isVisible ? 1.0 : 0.0
+                visible: isVisible
+                
                 GridLayout {
                     anchors.fill: parent
                     columns: 3
@@ -770,7 +1051,14 @@ Rectangle {
                     Item {
                         width: 40; height: 40
                         Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                        visible: ((matchedDeals[index] !== null && matchedPlatforms[index] !== "Garage" && matchedPlatforms[index] !== "Tank") && (matchedPlatforms[index] !== "Pauschale" && matchedPlatforms[index] !== "Umsatzgrenze"))
+                        visible: matchedPlatforms[index] === "Taxi" || matchedPlatforms[index] === "Uber" || matchedPlatforms[index] === "Bolt" || matchedPlatforms[index] === "Einsteiger"
+                        
+                        Component.onCompleted: {
+                            console.log("DEBUG: Click-Box für", matchedPlatforms[index], "erstellt");
+                            console.log("  Deal-Wert:", matchedDeals[index]);
+                            console.log("  Visible:", visible);
+                        }
+                        
                         Rectangle {
                             width: 28; height: 28
                             anchors.centerIn: parent
@@ -780,6 +1068,7 @@ Rectangle {
                             MouseArea {
                                 anchors.fill: parent
                                 onClicked: {
+                                    console.log("DEBUG: Click-Box geklickt für", matchedPlatforms[index]);
                                     var current = matchedDeals[index] !== undefined ? matchedDeals[index] : 0;
                                     var next = (current + 1) % dealOptions.length;
                                     var arr = matchedDeals.slice();
@@ -837,12 +1126,19 @@ Rectangle {
                             }
                             Text {
                                 anchors.centerIn: parent
-                                text: dealOptions[matchedDeals[index] !== undefined ? matchedDeals[index] : 0]
+                                text: {
+                                    var dealIndex = matchedDeals[index];
+                                    if (dealIndex !== undefined && dealIndex !== null && dealIndex >= 0 && dealIndex < dealOptions.length) {
+                                        return dealOptions[dealIndex];
+                                    } else {
+                                        return "P"; // Fallback
+                                    }
+                                }
                                 color: "#fff"
                                 font.pixelSize: 16
                                 font.family: spaceMonoFont.name
                                 Component.onCompleted: {
-                                    console.log("DEBUG: Deal-Box für", matchedPlatforms[index], "gesetzt auf:", dealOptions[matchedDeals[index] !== undefined ? matchedDeals[index] : 0]);
+                                    console.log("DEBUG: Deal-Box Text für", matchedPlatforms[index], "gesetzt auf:", text);
                                 }
                             }
                         }
@@ -851,7 +1147,7 @@ Rectangle {
                     Item {
                         width: 40; height: 40
                         Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                        visible: matchedDeals[index] === null || matchedPlatforms[index] === "Garage" || matchedPlatforms[index] === "Tank" || matchedPlatforms[index] === "Pauschale" || matchedPlatforms[index] === "Umsatzgrenze"
+                        visible: matchedPlatforms[index] === "Garage" || matchedPlatforms[index] === "Tank" || matchedPlatforms[index] === "Pauschale" || matchedPlatforms[index] === "Umsatzgrenze"
                     }
                     // Slider-Spalte
                     Rectangle {
@@ -961,7 +1257,23 @@ Rectangle {
                                 from: 0
                                 to: 100
                                 stepSize: 1
-                                value: matchedDeals[index] === 1 ? 50 : (matchedSliderValues[index] !== undefined ? matchedSliderValues[index] : 0)
+                                value: {
+                                    var sliderValue = matchedSliderValues[index];
+                                    var dealType = matchedDeals[index];
+                                    
+                                    // NaN-Check und Fallback-Werte
+                                    if (sliderValue !== sliderValue || sliderValue === undefined) {
+                                        sliderValue = 0;
+                                    }
+                                    
+                                    if (dealType === 1) {
+                                        return 50;  // %-Deal: Immer 50%
+                                    } else if (dealType === 0) {
+                                        return 0;   // P-Deal: Immer 0%
+                                    } else {
+                                        return sliderValue;  // C-Deal: Individueller Wert
+                                    }
+                                }
                                 enabled: matchedDeals[index] === 2
                                 opacity: matchedDeals[index] === 2 ? 1.0 : 0.4
                                 onMoved: {
@@ -1009,7 +1321,23 @@ Rectangle {
                             }
                             Text {
                                 visible: matchedPlatforms[index] !== "Pauschale" && matchedPlatforms[index] !== "Umsatzgrenze" && matchedDeals[index] !== 0
-                                text: (matchedDeals[index] === 1 ? 50 : Math.round(matchedSliderValues[index] !== undefined ? matchedSliderValues[index] : 0)) + " %"
+                                text: {
+                                    var sliderValue = matchedSliderValues[index];
+                                    var dealType = matchedDeals[index];
+                                    
+                                    // NaN-Check und Fallback-Werte
+                                    if (sliderValue !== sliderValue || sliderValue === undefined) {
+                                        sliderValue = 0;
+                                    }
+                                    
+                                    if (dealType === 1) {
+                                        return "50 %";  // %-Deal: Immer 50%
+                                    } else if (dealType === 0) {
+                                        return "0 %";   // P-Deal: Immer 0%
+                                    } else {
+                                        return Math.round(sliderValue) + " %";  // C-Deal: Individueller Wert
+                                    }
+                                }
                                 color: matchedDeals[index] === 2 ? "#fff" : "#888"
                                 font.pixelSize: 16
                                 font.family: spaceMonoFont.name
@@ -1017,8 +1345,94 @@ Rectangle {
                                 width: 48
                                 horizontalAlignment: Text.AlignLeft
                                 Component.onCompleted: {
-                                    console.log("DEBUG: Slider-Text für", matchedPlatforms[index], "gesetzt auf:", (matchedDeals[index] === 1 ? 50 : Math.round(matchedSliderValues[index] !== undefined ? matchedSliderValues[index] : 0)) + " %");
+                                    console.log("DEBUG: Slider-Text für", matchedPlatforms[index], "gesetzt auf:", text);
                                 }
+                            }
+                            // Tank-Slider
+                            Slider {
+                                visible: matchedPlatforms[index] === "Tank"
+                                width: 100
+                                height: 32
+                                from: 0
+                                to: 100
+                                stepSize: 1
+                                value: matchedSliderValues[index] !== undefined ? matchedSliderValues[index] : 0
+                                enabled: true
+                                opacity: 1.0
+                                onMoved: {
+                                    var arr = matchedSliderValues.slice();
+                                    arr[index] = value;
+                                    matchedSliderValues = arr;
+                                    console.log("DEBUG: Tank-Slider bewegt auf", value);
+                                    // Tank-Slider an Backend senden
+                                    if (abrechnungsBackend && abrechnungsBackend.setTankSlider) {
+                                        abrechnungsBackend.setTankSlider(value);
+                                    }
+                                    // WICHTIG: overlayConfigApplied sicherstellen
+                                    overlayConfigApplied = true;
+                                    // WICHTIG: Letzten Speicherstand aktualisieren bei Slider-Änderungen
+                                    saveLastSavedValues();
+                                    console.log("DEBUG: Letzten Speicherstand aktualisiert nach Tank-Slider-Änderung");
+                                    // Einkommen sofort neu berechnen
+                                    forceOverlayIncomeUpdate();
+                                    // WICHTIG: Explizite Aktualisierung der Anzeige
+                                    overlayIncome = calculateOverlayIncome();
+                                    overlayErgebnis = calculateOverlayAnteil();
+                                    console.log("DEBUG: Anzeige explizit aktualisiert nach Tank-Slider");
+                                }
+                            }
+                            Text {
+                                visible: matchedPlatforms[index] === "Tank"
+                                text: Math.round(matchedSliderValues[index] !== undefined ? matchedSliderValues[index] : 0) + " %"
+                                color: "#fff"
+                                font.pixelSize: 16
+                                font.family: spaceMonoFont.name
+                                verticalAlignment: Text.AlignVCenter
+                                width: 48
+                                horizontalAlignment: Text.AlignLeft
+                            }
+                            // Garage-Slider
+                            Slider {
+                                visible: matchedPlatforms[index] === "Garage"
+                                width: 100
+                                height: 32
+                                from: 0
+                                to: 100
+                                stepSize: 1
+                                value: matchedSliderValues[index] !== undefined ? matchedSliderValues[index] : 0
+                                enabled: true
+                                opacity: 1.0
+                                onMoved: {
+                                    var arr = matchedSliderValues.slice();
+                                    arr[index] = value;
+                                    matchedSliderValues = arr;
+                                    console.log("DEBUG: Garage-Slider bewegt auf", value);
+                                    // Garage-Slider an Backend senden
+                                    if (abrechnungsBackend && abrechnungsBackend.setGarageSlider) {
+                                        abrechnungsBackend.setGarageSlider(value);
+                                    }
+                                    // WICHTIG: overlayConfigApplied sicherstellen
+                                    overlayConfigApplied = true;
+                                    // WICHTIG: Letzten Speicherstand aktualisieren bei Slider-Änderungen
+                                    saveLastSavedValues();
+                                    console.log("DEBUG: Letzten Speicherstand aktualisiert nach Garage-Slider-Änderung");
+                                    // Einkommen sofort neu berechnen
+                                    forceOverlayIncomeUpdate();
+                                    // WICHTIG: Explizite Aktualisierung der Anzeige
+                                    overlayIncome = calculateOverlayIncome();
+                                    overlayErgebnis = calculateOverlayAnteil();
+                                    console.log("DEBUG: Anzeige explizit aktualisiert nach Garage-Slider");
+                                }
+                            }
+                            Text {
+                                visible: matchedPlatforms[index] === "Garage"
+                                text: Math.round(matchedSliderValues[index] !== undefined ? matchedSliderValues[index] : 0) + " %"
+                                color: "#fff"
+                                font.pixelSize: 16
+                                font.family: spaceMonoFont.name
+                                verticalAlignment: Text.AlignVCenter
+                                width: 48
+                                horizontalAlignment: Text.AlignLeft
                             }
                         }
                     }
@@ -1065,10 +1479,10 @@ Rectangle {
                             font.bold: true
                             font.family: spaceMonoFont.name
                             Component.onCompleted: {
-                                console.log("DEBUG: Einkommen-Text erstellt, overlayIncome:", overlayIncome);
+                                // Debug-Ausgabe entfernt für bessere Performance
                             }
                             onTextChanged: {
-                                console.log("DEBUG: Einkommen-Text geändert auf:", text);
+                                // Debug-Ausgabe entfernt für bessere Performance
                             }
 
                         }
@@ -1197,21 +1611,26 @@ Rectangle {
                 }
                 var credit_card = typeof abrechnungsBackend !== 'undefined' ? (abrechnungsBackend.headcard_credit_card || 0) : 0;
                 if (deal === "P") {
+                    // Credit Card pro Plattform berechnen: Umsatz - Bargeld
+                    var uber_credit_card = gross_total - cash_collected;
                     return {
                         label: "Uber",
                         zeile1: gross_total.toFixed(2),
-                        zeile2: cash_collected.toFixed(2),
-                        zeile3: credit_card.toFixed(2)
+                        zeile2: uber_credit_card.toFixed(2),
+                        zeile3: ""
                     };
                 } else {
-                    var zeile1 = gross_total;
-                    var zeile2 = gross_total / 2;
-                    var zeile3 = cash_collected;
+                    // Für %-Deals: Anteil basierend auf Faktor berechnen
+                    var uber_faktor = abrechnungsBackend.uber_faktor || 0.5; // Standard 50%
+                    var uber_anteil = gross_total * uber_faktor;
+                    var uber_credit_card = gross_total - cash_collected;
+                    var uber_rest = uber_credit_card - uber_anteil;
+                    
                     return {
                         label: "Uber",
-                        zeile1: zeile1.toFixed(2),
-                        zeile2: zeile2.toFixed(2),
-                        zeile3: credit_card.toFixed(2)
+                        zeile1: gross_total.toFixed(2),
+                        zeile2: uber_anteil.toFixed(2),
+                        zeile3: uber_rest.toFixed(2)
                     };
                 }
             }
@@ -1231,26 +1650,38 @@ Rectangle {
                     if (details[j].label === "Bargeld")
                         cash_collected = parseFloat(details[j].value.replace(/[^\d.-]/g, ""));
                 }
-                var credit_card = typeof abrechnungsBackend !== 'undefined' ? (abrechnungsBackend.headcard_credit_card || 0) : 0;
+                
+                // Bei P-Deals nur anzeigen, wenn tatsächlich Bolt-Umsatz vorhanden ist
                 if (deal === "P") {
-                    return {
-                        label: "Bolt",
-                        zeile1: echter_umsatz.toFixed(2),
-                        zeile2: cash_collected.toFixed(2),
-                        zeile3: credit_card.toFixed(2)
-                    };
+                    if (echter_umsatz > 0) {
+                        // Credit Card pro Plattform berechnen: Umsatz - Bargeld
+                        var bolt_credit_card = echter_umsatz - cash_collected;
+                        return {
+                            label: "Bolt",
+                            zeile1: echter_umsatz.toFixed(2),
+                            zeile2: bolt_credit_card.toFixed(2),
+                            zeile3: ""
+                        };
+                    } else {
+                        // Kein Bolt-Umsatz bei P-Deal, Card nicht anzeigen
+                        return {label: "Bolt", zeile1: "-", zeile2: "-", zeile3: "-"};
+                    }
                 } else {
                     var net_earnings = 0;
                     for (var j = 0; j < details.length; j++) {
                         if (details[j].label === "Echter Umsatz") net_earnings = parseFloat(details[j].value.replace(/[^\d.-]/g, ""));
                     }
-                    var zeile1 = net_earnings;
-                    var zeile2 = zeile1 / 2;
+                    // Für %-Deals: Anteil basierend auf Faktor berechnen
+                    var bolt_faktor = abrechnungsBackend.bolt_faktor || 0.5; // Standard 50%
+                    var bolt_anteil = net_earnings * bolt_faktor;
+                    var bolt_credit_card = net_earnings - cash_collected;
+                    var bolt_rest = bolt_credit_card - bolt_anteil;
+                    
                     return {
                         label: "Bolt",
-                        zeile1: zeile1.toFixed(2),
-                        zeile2: zeile2.toFixed(2),
-                        zeile3: credit_card.toFixed(2)
+                        zeile1: net_earnings.toFixed(2),
+                        zeile2: bolt_anteil.toFixed(2),
+                        zeile3: bolt_rest.toFixed(2)
                     };
                 }
             }
@@ -1286,23 +1717,86 @@ Rectangle {
                 var credit_card = typeof abrechnungsBackend !== 'undefined' ? (abrechnungsBackend.headcard_credit_card || 0) : 0;
                 
                 if (deal === "P") {
+                    // Credit Card pro Plattform berechnen: Umsatz - Bargeld
+                    var taxi_credit_card = real_umsatz - bargeld;
                     return {
                         label: "Taxi",
                         zeile1: real_umsatz.toFixed(2),  // Erste Zeile zeigt jetzt echten Umsatz
-                        zeile2: bargeld.toFixed(2),
-                        zeile3: credit_card.toFixed(2)
+                        zeile2: taxi_credit_card.toFixed(2),  // Credit Card pro Plattform
+                        zeile3: ""  // Leer
                     };
                 } else {
+                    // Für %-Deals: Anteil basierend auf Faktor berechnen
+                    var taxi_faktor = abrechnungsBackend.taxi_faktor || 0.5; // Standard 50%
+                    var taxi_anteil = real_umsatz * taxi_faktor;
+                    var taxi_credit_card = real_umsatz - bargeld;
+                    var taxi_rest = taxi_credit_card - taxi_anteil;
+                    
                     return {
                         label: "Taxi",
                         zeile1: real_umsatz.toFixed(2),  // Erste Zeile zeigt jetzt echten Umsatz
-                        zeile2: anteil.toFixed(2),
-                        zeile3: credit_card.toFixed(2)
+                        zeile2: taxi_anteil.toFixed(2),
+                        zeile3: taxi_rest.toFixed(2)  // Credit Card - Anteil
                     };
                 }
             }
         }
         return {label: "Taxi", zeile1: "-", zeile2: "-", zeile3: "-"};
+    }
+
+    function parse31300Card(results, deal) {
+        for (var i = 0; i < results.length; i++) {
+            if (results[i].type === "summary" && results[i].label === "31300") {
+                var details = results[i].details || [];
+                var real_umsatz = 0;
+                var anteil = 0;
+                var bargeld = 0;
+                var rest = 0;
+
+                // Werte aus den Details extrahieren
+                for (var j = 0; j < details.length; j++) {
+                    if (details[j].label === "Real") {
+                        real_umsatz = parseFloat(String(details[j].value).replace(/[^\d.,-]/g, "").replace(',', '.')) || 0;
+                    }
+                    if (details[j].label === "Anteil") {
+                        anteil = parseFloat(String(details[j].value).replace(/[^\d.,-]/g, "").replace(',', '.')) || 0;
+                    }
+                    if (details[j].label === "Bargeld") {
+                        bargeld = parseFloat(String(details[j].value).replace(/[^\d.,-]/g, "").replace(',', '.')) || 0;
+                    }
+                    if (details[j].label === "Rest") {
+                        rest = parseFloat(String(details[j].value).replace(/[^\d.,-]/g, "").replace(',', '.')) || 0;
+                    }
+                }
+
+                var credit_card = typeof abrechnungsBackend !== 'undefined' ? (abrechnungsBackend.headcard_credit_card || 0) : 0;
+                
+                if (deal === "P") {
+                    // Credit Card pro Plattform berechnen: Umsatz - Bargeld
+                    var credit_31300 = real_umsatz - bargeld;
+                    return {
+                        label: "31300",
+                        zeile1: real_umsatz.toFixed(2),
+                        zeile2: credit_31300.toFixed(2),
+                        zeile3: ""
+                    };
+                } else {
+                    // Für %-Deals: Anteil basierend auf Faktor berechnen
+                    var faktor_31300 = abrechnungsBackend.einsteiger_faktor || 0.5; // Standard 50%
+                    var anteil_31300 = real_umsatz * faktor_31300;
+                    var credit_31300 = real_umsatz - bargeld;
+                    var rest_31300 = credit_31300 - anteil_31300;
+                    
+                    return {
+                        label: "31300",
+                        zeile1: real_umsatz.toFixed(2),
+                        zeile2: anteil_31300.toFixed(2),  // Anteil
+                        zeile3: rest_31300.toFixed(2)  // Credit Card - Anteil
+                    };
+                }
+            }
+        }
+        return {label: "31300", zeile1: "-", zeile2: "-", zeile3: "-"};
     }
 
     Connections {
@@ -1313,6 +1807,8 @@ Rectangle {
             card40100 = parse40100Card(results, deal);
             cardUber = parseUberCard(results, deal);
             cardBolt = parseBoltCard(results, deal);
+            card31300 = parse31300Card(results, deal);
+            // WICHTIG: Immer auf true setzen, auch bei leeren Ergebnissen
             werteGeladen = true;
             wizardSelection = abrechnungsBackend.get_current_selection();
             // BottomBar immer sichtbar machen wenn Ergebnisse geladen werden
@@ -1331,6 +1827,13 @@ Rectangle {
         }
         
         function onInputGasChanged() {
+            // Bei P-Deals keine Neuberechnung
+            var currentDeal = abrechnungsBackend.deal || "P";
+            if (currentDeal === "P") {
+                console.log("DEBUG: P-Deal erkannt, überspringe onInputGasChanged");
+                return;
+            }
+            
             // Ergebnis automatisch neu berechnen wenn sich Tank-Wert ändert
             console.log("DEBUG: Tank-Wert geändert, berechne Ergebnis neu");
             forceOverlayIncomeUpdate();
@@ -1340,6 +1843,13 @@ Rectangle {
         }
         
         function onHeadcardGarageChanged() {
+            // Bei P-Deals keine Neuberechnung
+            var currentDeal = abrechnungsBackend.deal || "P";
+            if (currentDeal === "P") {
+                console.log("DEBUG: P-Deal erkannt, überspringe onHeadcardGarageChanged");
+                return;
+            }
+            
             // Ergebnis automatisch neu berechnen wenn sich Garage-Wert ändert
             console.log("DEBUG: Garage-Wert geändert, berechne Ergebnis neu");
             forceOverlayIncomeUpdate();
@@ -1349,6 +1859,13 @@ Rectangle {
         }
         
         function onInputEinsteigerChanged() {
+            // Bei P-Deals keine Neuberechnung
+            var currentDeal = abrechnungsBackend.deal || "P";
+            if (currentDeal === "P") {
+                console.log("DEBUG: P-Deal erkannt, überspringe onInputEinsteigerChanged");
+                return;
+            }
+            
             // Ergebnis automatisch neu berechnen wenn sich Einsteiger-Wert ändert
             console.log("DEBUG: Einsteiger-Wert geändert, berechne Ergebnis neu");
             forceOverlayIncomeUpdate();
@@ -1365,12 +1882,13 @@ Rectangle {
             card40100 = parse40100Card(results, deal);
             cardUber = parseUberCard(results, deal);
             cardBolt = parseBoltCard(results, deal);
-            werteGeladen = true;
+            card31300 = parse31300Card(results, deal);
         }
+        // WICHTIG: Immer auf true setzen, auch bei leeren Ergebnissen
+        werteGeladen = true;
         
         // WICHTIG: wizardSelection korrekt setzen
         wizardSelection = abrechnungsBackend.get_current_selection();
-        console.log("DEBUG: wizardSelection in Component.onCompleted gesetzt:", wizardSelection);
         
         // Stelle sicher, dass BottomBar sichtbar ist
         bottomBar.visible = true;
@@ -1378,7 +1896,22 @@ Rectangle {
         // Timer starten für zusätzliche Sicherheit
         bottomBarTimer.start();
         bottomBarVisible = true;
-
+    }
+    
+    Component.onDestruction: {
+        // Proper cleanup für Timer
+        if (inputGasTimer) inputGasTimer.stop();
+        if (inputEinsteigerTimer) inputEinsteigerTimer.stop();
+        if (inputExpenseTimer) inputExpenseTimer.stop();
+        if (calculationUpdateTimer) calculationUpdateTimer.stop();
+        if (bottomBarTimer) bottomBarTimer.stop();
+        if (checkButtonHoverTimer) checkButtonHoverTimer.stop();
+        
+        // Cache leeren
+        overlayConfigCache = [];
+        matchedPlatforms = [];
+        matchedDeals = [];
+        matchedSliderValues = [];
     }
 
     // Hilfsfunktion für Overlay-Konfiguration
@@ -1486,23 +2019,23 @@ Rectangle {
     
     function loadOverlayConfiguration() {
         // loadOverlayConfiguration() gestartet
-        console.log("DEBUG: loadOverlayConfiguration() gestartet");
-        console.log("DEBUG: overlayAlreadyOpened:", overlayAlreadyOpened);
-        console.log("DEBUG: wizardSelection:", wizardSelection);
+        // console.log("DEBUG: loadOverlayConfiguration() gestartet");
+        // console.log("DEBUG: overlayAlreadyOpened:", overlayAlreadyOpened);
+        // console.log("DEBUG: wizardSelection:", wizardSelection);
         
         // Lade gespeicherte Konfiguration immer beim Öffnen des Overlays
         
         // Prüfe Deal-Typ
         var dealType = abrechnungsBackend.deal;
-        console.log("DEBUG: Aktueller Deal-Typ:", dealType);
-        console.log("DEBUG: abrechnungsBackend:", abrechnungsBackend);
+        // console.log("DEBUG: Aktueller Deal-Typ:", dealType);
+        // console.log("DEBUG: abrechnungsBackend:", abrechnungsBackend);
         
         // WICHTIG: Immer versuchen, gespeicherte Konfiguration zu laden, unabhängig vom Deal-Typ
         if (!wizardSelection || !wizardSelection.fahrer_id) {
-            console.log("DEBUG: Kein wizardSelection oder fahrer_id verfügbar");
+            // console.log("DEBUG: Kein wizardSelection oder fahrer_id verfügbar");
             // WICHTIG: Auch hier Flag setzen, damit Einkommen berechnet wird
             overlayConfigApplied = true;
-            console.log("DEBUG: overlayConfigApplied auf true gesetzt (kein wizardSelection)");
+            // console.log("DEBUG: overlayConfigApplied auf true gesetzt (kein wizardSelection)");
             return;
         }
         
@@ -1698,21 +2231,33 @@ Rectangle {
     }
     
     function forceOverlayIncomeUpdate() {
+        // Bei P-Deals keine Aktualisierung basierend auf Eingabefeldern
+        var currentDeal = abrechnungsBackend.deal || "P";
+        if (currentDeal === "P") {
+            console.log("DEBUG: P-Deal erkannt, überspringe forceOverlayIncomeUpdate");
+            return;
+        }
+        
         // Force update der overlayIncome und overlayErgebnis Properties
         var newIncome = calculateOverlayIncome();
         var newErgebnis = calculateOverlayAnteil();
         
-        console.log("DEBUG: forceOverlayIncomeUpdate() - Neue Werte:");
-        console.log("  overlayIncome:", newIncome + "€");
-        console.log("  overlayErgebnis:", newErgebnis + "€");
+        // Prüfe, ob sich die Werte tatsächlich geändert haben
+        if (Math.abs(overlayIncome - newIncome) < 0.01 && Math.abs(overlayErgebnis - newErgebnis) < 0.01) {
+            return; // Keine Änderung, keine Aktualisierung nötig
+        }
+        
+        // console.log("DEBUG: forceOverlayIncomeUpdate() - Neue Werte:");
+        // console.log("  overlayIncome:", newIncome + "€");
+        // console.log("  overlayErgebnis:", newErgebnis + "€");
         
         // WICHTIG: Properties explizit aktualisieren
         overlayIncome = newIncome;
         overlayErgebnis = newErgebnis;
         
-        console.log("DEBUG: Properties aktualisiert:");
-        console.log("  overlayIncome Property:", overlayIncome + "€");
-        console.log("  overlayErgebnis Property:", overlayErgebnis + "€");
+        // console.log("DEBUG: Properties aktualisiert:");
+        // console.log("  overlayIncome Property:", overlayIncome + "€");
+        // console.log("  overlayErgebnis Property:", overlayErgebnis + "€");
         
         // Backend-Konfiguration anwenden für Live-Updates
         applyOverlayConfigurationToBackend();
@@ -1892,10 +2437,10 @@ Rectangle {
             
             // WICHTIG: wizardSelection beim Öffnen des Overlays aktualisieren
             wizardSelection = abrechnungsBackend.get_current_selection();
-            console.log("DEBUG: wizardSelection in updateMatchedPlatforms gesetzt:", wizardSelection);
+            // console.log("DEBUG: wizardSelection in updateMatchedPlatforms gesetzt:", wizardSelection);
         
             // Erstelle neue Konfiguration basierend auf aktuellen Backend-Werten
-            console.log("DEBUG: Erstelle neue Konfiguration");
+            // console.log("DEBUG: Erstelle neue Konfiguration");
             var results = abrechnungsBackend.ergebnisse;
             var platforms = [];
             var deals = [];
@@ -1906,13 +2451,13 @@ Rectangle {
             
             // Pauschale und Umsatzgrenze immer ganz oben, Werte immer aus Backend-Properties
             platforms.push("Pauschale");
-            deals.push(null); // keine Click-Box
+            deals.push(-1); // -1 für keine Click-Box (statt null)
             var pauschaleValue = abrechnungsBackend.deal === "%" ? 0 : Number(abrechnungsBackend.pauschale);
             sliders.push(pauschaleValue);
             // Pauschale gesetzt
             
             platforms.push("Umsatzgrenze");
-            deals.push(null); // keine Click-Box
+            deals.push(-1); // -1 für keine Click-Box (statt null)
             var umsatzgrenzeValue = abrechnungsBackend.deal === "%" ? 0 : Number(abrechnungsBackend.umsatzgrenze);
             sliders.push(umsatzgrenzeValue);
             // Umsatzgrenze gesetzt
@@ -1922,7 +2467,7 @@ Rectangle {
                 var entry = results[i];
                 if (entry.type === "summary" && entry.details && entry.details.length > 0) {
                     var plattform = entry.label;
-                    console.log("DEBUG: Gefundene Plattform:", plattform);
+                    // console.log("DEBUG: Gefundene Plattform:", plattform);
                     if (["Uber", "Bolt", "40100", "31300", "Taxi"].indexOf(plattform) !== -1) {
                         if (plattform === "40100" || plattform === "31300" || plattform === "Taxi") {
                             // Prüfen, ob "Taxi" schon in der Liste ist, um Duplikate zu vermeiden
@@ -1931,7 +2476,7 @@ Rectangle {
                                             // Verwende Backend-Faktoren anstatt Standard-Werte
             var taxiFaktor = abrechnungsBackend.taxi_faktor || 0.0;
             var taxiSlider = taxiFaktor * 100;
-            console.log("DEBUG: Taxi-Faktor aus Backend:", taxiFaktor, "Slider:", taxiSlider);
+            // console.log("DEBUG: Taxi-Faktor aus Backend:", taxiFaktor, "Slider:", taxiSlider);
             // Deal-Typ basiert auf Backend-Deal, nicht auf globalDeal
             var taxiDeal = abrechnungsBackend.deal === "%" ? 1 : (abrechnungsBackend.deal === "P" ? 0 : 2);
             deals.push(taxiDeal);
@@ -1948,7 +2493,7 @@ Rectangle {
                                 platformFaktor = abrechnungsBackend.bolt_faktor || 0.0;
                             }
                             var platformSlider = platformFaktor * 100;
-                            console.log("DEBUG:", plattform, "-Faktor aus Backend:", platformFaktor, "Slider:", platformSlider);
+                            // console.log("DEBUG:", plattform, "-Faktor aus Backend:", platformFaktor, "Slider:", platformSlider);
                             // Deal-Typ basiert auf Backend-Deal, nicht auf globalDeal
                             var platformDeal = abrechnungsBackend.deal === "%" ? 1 : (abrechnungsBackend.deal === "P" ? 0 : 2);
                             deals.push(platformDeal);
@@ -1963,7 +2508,7 @@ Rectangle {
             // Verwende Backend-Faktor anstatt Standard-Wert
             var einsteigerFaktor = abrechnungsBackend.einsteiger_faktor || 0.0;
             var einsteigerSlider = einsteigerFaktor * 100;
-            console.log("DEBUG: Einsteiger-Faktor aus Backend:", einsteigerFaktor, "Slider:", einsteigerSlider);
+            // console.log("DEBUG: Einsteiger-Faktor aus Backend:", einsteigerFaktor, "Slider:", einsteigerSlider);
             // Deal-Typ basiert auf Backend-Deal, nicht auf globalDeal
             var einsteigerDeal = abrechnungsBackend.deal === "%" ? 1 : (abrechnungsBackend.deal === "P" ? 0 : 2);
             deals.push(einsteigerDeal);
@@ -1977,7 +2522,7 @@ Rectangle {
                 // Verwende Backend-Faktor anstatt Standard-Wert
                 var garageFaktor = abrechnungsBackend.garage_faktor || 0.5;
                 var garageSlider = garageFaktor * 100;
-                console.log("DEBUG: Garage-Faktor aus Backend:", garageFaktor, "Slider:", garageSlider);
+                // console.log("DEBUG: Garage-Faktor aus Backend:", garageFaktor, "Slider:", garageSlider);
                 sliders.push(garageSlider);
                 // Garage hinzugefügt
             }
@@ -1987,7 +2532,7 @@ Rectangle {
             // Verwende Backend-Faktor anstatt Standard-Wert
             var tankFaktor = abrechnungsBackend.tank_faktor || 0.0;
             var tankSlider = tankFaktor * 100;
-            console.log("DEBUG: Tank-Faktor aus Backend:", tankFaktor, "Slider:", tankSlider);
+            // console.log("DEBUG: Tank-Faktor aus Backend:", tankFaktor, "Slider:", tankSlider);
             sliders.push(tankSlider);
             // Tank hinzugefügt
             
@@ -2194,14 +2739,13 @@ Rectangle {
                         bottomBar.bottomBarHovered = true
                     }
                     onClicked: {
-                        // Wizard öffnen und komplette Neuauswertung starten
-                        abrechnungsBackend.show_wizard_only();
-                        // Reset overlayAlreadyOpened beim Wizard-Neustart
-                        overlayAlreadyOpened = false;
-                        // Cache leeren beim Wizard-Neustart
-                        overlayConfigCache = [];
-                        // Speicher-Status zurücksetzen
-                        overlayConfigSaved = false;
+                        console.log("🔄 REDO: Zur Auswahlseite navigieren");
+                        // Zur Auswahlseite navigieren für neue Auswahl
+                        if (abrechnungsBackend) {
+                            abrechnungsBackend.show_cards_selection();
+                        } else if (goHome) {
+                            goHome();
+                        }
                     }
                 }
 

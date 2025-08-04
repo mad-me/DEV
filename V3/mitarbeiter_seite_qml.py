@@ -22,6 +22,9 @@ class MitarbeiterSeiteQML(QObject):
         self._filter_text = ""
         self._show_only_active = True
         
+        # Daten beim Initialisieren laden
+        self.anzeigenMitarbeiter()
+        
     # Properties für QML
     @Property('QVariantList', notify=mitarbeiterListChanged)
     def mitarbeiterList(self):

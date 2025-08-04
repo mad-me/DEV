@@ -24,8 +24,7 @@ Rectangle {
         source: "assets/fonts/SpaceMono-Regular.ttf"
     }
 
-    // Tabelle direkt anzeigen und wie bei Abrechnung positionieren
-    Component.onCompleted: fahrzeugBackend.anzeigenFahrzeuge()
+    // Tabelle wird beim Backend-Initialisieren geladen
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: Style.spacingHuge
@@ -40,7 +39,7 @@ Rectangle {
             Layout.fillWidth: true
             spacing: Style.spacingLarge
             RowLayout {
-                anchors.fill: parent
+                Layout.fillWidth: true
                 spacing: Style.spacingLarge
                 Item { Layout.preferredWidth: 75 }
                 Text { text: "Kennzeichen"; font.bold: true; color: "#b0b0b0"; font.family: ubuntuFont.name; font.pixelSize: Style.fontSizeTitle; Layout.preferredWidth: 120; horizontalAlignment: Text.AlignLeft }
@@ -104,7 +103,7 @@ Rectangle {
                         selectedTextColor: "#232323"
                         visible: parent.suchfeldAktiv
                         cursorVisible: true
-                        onTextChanged: fahrzeugBackend.filterText = text
+                        onTextChanged: function(newText) { fahrzeugBackend.filterText = newText }
                         onActiveFocusChanged: {
                             if (!activeFocus && text.length === 0) {
                                 parent.suchfeldAktiv = false;
@@ -159,11 +158,11 @@ Rectangle {
                     }
                 }
                 RowLayout {
-                    anchors.fill: parent
+                    Layout.fillWidth: true
                     spacing: Style.spacingLarge
                     // Tabelle über die ganze Zeile strecken
                     RowLayout {
-                        anchors.fill: parent
+                        Layout.fillWidth: true
                         spacing: Style.spacingLarge
                         Item { Layout.preferredWidth: 75 }
                         Text {

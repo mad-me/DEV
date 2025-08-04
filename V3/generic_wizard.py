@@ -178,10 +178,12 @@ class GenericWizard(QWidget):
                 field.setStyleSheet("QComboBox { text-align: center; } QComboBox QAbstractItemView { text-align: center; }")
                 le = field.lineEdit()
                 if le is not None:
-                    le.setAlignment(Qt.AlignmentFlag.AlignCenter)
                     le.returnPressed.connect(self.next_page)
             else: # "text" or default
                 field = QLineEdit()
+                # Standardwert setzen falls vorhanden
+                if len(field_config) > 4:
+                    field.setText(str(field_config[4]))
                 field.textChanged.connect(lambda _, w=field: self.adjust_font_size(w))
                 field.returnPressed.connect(self.next_page)
             field.setMinimumHeight(110)
@@ -245,8 +247,8 @@ class GenericWizard(QWidget):
                 nav_row.addWidget(btn_next)
             else:
                 btn_save = HoverIconButton(
-                    "Style/assets/icons/check_white.svg",
-                    "Style/assets/icons/check_orange.svg",
+                    "Style/assets/icons/save_white.svg",
+                    "Style/assets/icons/save_orange.svg",
                     QSize(40, 40),
                     QSize(56, 56)
                 )

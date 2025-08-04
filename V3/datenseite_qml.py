@@ -330,7 +330,7 @@ class DatenSeiteQML(QObject):
                             self.importProgressChanged.emit(self._import_progress)
                             self.importStatusChanged.emit(f"Verarbeite Gehaltsabrechnung {i}/{len(pdf_files)}: {os.path.basename(pdf_file)}")
                             try:
-                                from salary_import_simple import import_salary_pdf
+                                from salary_import_tool import import_salary_pdf
                                 base_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "SQL")
                                 salaries_db = os.path.join(base_dir, "salaries.db")
                                 drivers_db = os.path.join(base_dir, "database.db")

@@ -142,7 +142,7 @@ Rectangle {
                 verticalAlignment: Text.AlignVCenter
                 readOnly: false
                 text: typeof parent !== 'undefined' && parent.ComboBox && typeof parent.ComboBox.editText !== 'undefined' ? parent.ComboBox.editText : ""
-                onTextChanged: wizardCard.selectedFahrer = text
+                onTextChanged: function(newText) { wizardCard.selectedFahrer = newText }
             }
             onCurrentTextChanged: wizardCard.selectedFahrer = currentText
             onEditTextChanged: wizardCard.selectedFahrer = editText
@@ -173,7 +173,7 @@ Rectangle {
                 verticalAlignment: Text.AlignVCenter
                 readOnly: false
                 text: typeof parent !== 'undefined' && parent.ComboBox && typeof parent.ComboBox.editText !== 'undefined' ? parent.ComboBox.editText : ""
-                onTextChanged: wizardCard.selectedFahrzeug = text
+                onTextChanged: function(newText) { wizardCard.selectedFahrzeug = newText }
             }
             onCurrentTextChanged: wizardCard.selectedFahrzeug = currentText
             onEditTextChanged: wizardCard.selectedFahrzeug = editText
@@ -204,7 +204,7 @@ Rectangle {
                 verticalAlignment: Text.AlignVCenter
                 readOnly: false
                 text: typeof parent !== 'undefined' && parent.ComboBox && typeof parent.ComboBox.editText !== 'undefined' ? parent.ComboBox.editText : ""
-                onTextChanged: wizardCard.selectedKW = text
+                onTextChanged: function(newText) { wizardCard.selectedKW = newText }
             }
             onCurrentTextChanged: wizardCard.selectedKW = currentText
             onEditTextChanged: wizardCard.selectedKW = editText

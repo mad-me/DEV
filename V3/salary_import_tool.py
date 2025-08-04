@@ -38,10 +38,12 @@ class SalaryImportTool:
         self.salaries_db_path = salaries_db_path
         self.drivers_db_path = drivers_db_path
         self.driver_cache = {}
-        self.load_driver_cache()
         
-        # Logging für das Tool
+        # Logging für das Tool zuerst einrichten
         self.setup_logging()
+        
+        # Dann Fahrer-Cache laden
+        self.load_driver_cache()
         
     def setup_logging(self):
         """Konfiguriert das Logging für das Import-Tool"""
