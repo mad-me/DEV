@@ -1,3 +1,0 @@
-module Style
-singleton Style 1.0 Style.qml
-PlatformCard 1.0 PlatformCard.qml

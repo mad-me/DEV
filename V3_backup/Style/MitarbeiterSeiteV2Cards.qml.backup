@@ -1,0 +1,1231 @@
+import QtQuick 2.15
+import QtQuick.Controls 2.15
+import QtQuick.Layouts 1.15
+
+Rectangle {
+    id: root
+    property var goHome: function() {
+        // Fallback: Blende die Mitarbeiterseite aus und zeige das MainMenu
+        root.visible = false;
+        if (typeof mainWindow !== 'undefined') {
+            mainWindow.stackVisible = false;
+        }
+    }
+    color: Style.background
+    radius: Style.radiusNormal
+
+    FontLoader {
+        id: ubuntuFont
+        source: "assets/fonts/Ubuntu-Regular.ttf"
+    }
+
+    FontLoader {
+        id: spaceMonoFont
+        source: "assets/fonts/SpaceMono-Regular.ttf"
+    }
+
+    // Validierungsfehler-Dialog
+    ValidationErrorDialog {
+        id: validationErrorDialog
+        visible: false
+        
+        onDialogClosed: {
+            // Dialog wurde geschlossen
+        }
+        
+        onRetryRequested: {
+            // Wiederholen-Button wurde geklickt
+            // Hier könnte die letzte Operation wiederholt werden
+        }
+        
+        onEditRequested: {
+            // Bearbeiten-Button wurde geklickt
+            // Hier könnte der Edit-Modus aktiviert werden
+        }
+    }
+    
+    // Einfaches Error-Overlay für allgemeine Fehler
+    Rectangle {
+        id: errorOverlay
+        anchors.fill: parent
+        color: "#000000"
+        opacity: 0.8
+        visible: false
+        z: 3000 // Höchster Z-Index
+        
+        Rectangle {
+            width: 400
+            height: 150
+            anchors.centerIn: parent
+            radius: Style.radiusNormal
+            color: "#1a1a1a"
+            border.color: "#ff4444"
+            border.width: 2
+            
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: 20
+                spacing: 16
+                
+                Text {
+                    text: "⚠️ Fehler aufgetreten"
+                    font.family: ubuntuFont.name
+                    font.pixelSize: 18
+                    font.bold: true
+                    color: "#ff4444"
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignHCenter
+                }
+                
+                Text {
+                    id: errorMessage
+                    text: "Ein Fehler ist aufgetreten"
+                    font.family: ubuntuFont.name
+                    font.pixelSize: 14
+                    color: "#cccccc"
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignHCenter
+                    wrapMode: Text.WordWrap
+                }
+                
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 16
+                    
+                    Item { Layout.fillWidth: true }
+                    
+                    // Schließen-Button
+                    Rectangle {
+                        width: 48
+                        height: 48
+                        radius: 24
+                        color: "transparent"
+                        border.width: 0
+                        
+                        MouseArea {
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: errorOverlay.visible = false
+                            
+                            Image {
+                                anchors.centerIn: parent
+                                source: parent.containsMouse ? "assets/icons/close_red.svg" : "assets/icons/close_gray.svg"
+                                width: parent.containsMouse ? 32 : 28
+                                height: width
+                                fillMode: Image.PreserveAspectFit
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        // ESC-Taste zum Schließen
+        Keys.onEscapePressed: errorOverlay.visible = false
+    }
+
+    // Home-Button (außerhalb des Headers, links)
+    MouseArea {
+        id: homeButton
+        anchors.left: parent.left
+        anchors.leftMargin: 20
+        anchors.top: parent.top
+        anchors.topMargin: 48
+        width: 60
+        height: 60
+        hoverEnabled: true
+        onClicked: {
+            if (typeof root.goHome === "function") {
+                root.goHome();
+            } else {
+                console.warn("goHome ist nicht definiert oder keine Funktion!");
+            }
+        }
+        cursorShape: Qt.PointingHandCursor
+        
+        Image {
+            anchors.centerIn: parent
+            source: homeButton.containsMouse ? "assets/icons/home_orange.svg" : "assets/icons/home_gray.svg"
+            width: homeButton.containsMouse ? 44 : 40
+            height: width
+            fillMode: Image.PreserveAspectFit
+            
+            Behavior on width {
+                NumberAnimation { duration: 150; easing.type: Easing.OutQuad }
+            }
+        }
+    }
+
+    // Signal-Verbindungen für Fehlerbehandlung
+    Connections {
+        target: mitarbeiterBackendV2
+        
+        function onErrorOccurred(errorMessage) {
+            errorMessage.text = errorMessage
+            errorOverlay.visible = true
+        }
+        
+        function onValidationErrorOccurred(errorList, operation) {
+            validationErrorDialog.showDialog(errorList, operation)
+        }
+    }
+    
+    // Hauptlayout
+    ColumnLayout {
+        anchors.fill: parent
+        anchors.margins: Style.spacingHuge
+        anchors.topMargin: 52
+        anchors.bottomMargin: 115
+        anchors.rightMargin: 100
+        anchors.leftMargin: 100
+        spacing: 16
+
+        // Header mit Titel und Status
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: Style.spacingLarge
+            
+            // Klickbarer Titel für Ansichtswechsel
+            Rectangle {
+                Layout.fillWidth: true
+                height: 50
+                color: "transparent"
+                
+                MouseArea {
+                    id: titleMouseArea
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: {
+                        // Ansichtswechsel: Cards ↔ Kalenderwochen
+                        if (typeof mitarbeiterBackendV2.toggleViewMode === "function") {
+                            mitarbeiterBackendV2.toggleViewMode()
+                        } else {
+                            console.log("toggleViewMode nicht verfügbar")
+                        }
+                    }
+                }
+                
+                Text {
+                    anchors.left: parent.left
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: mitarbeiterBackendV2 && mitarbeiterBackendV2.isCalendarView ? "Erweiterte Details" : "Mitarbeiterverwaltung"
+                    font.family: ubuntuFont.name
+                    font.pixelSize: 36
+                    font.bold: true
+                    color: titleMouseArea.containsMouse ? "#ff8c00" : "white"
+                    
+                    // Hover-Effekt: Leichte Vergrößerung
+                    scale: titleMouseArea.containsMouse ? 1.05 : 1.0
+                    
+                    Behavior on scale {
+                        NumberAnimation { duration: 150 }
+                    }
+                    
+                    Behavior on color {
+                        ColorAnimation { duration: 150 }
+                    }
+                }
+            }
+            
+            // Toggle Switch (nur in normaler Ansicht)
+            Rectangle {
+                Layout.preferredWidth: 50
+                height: 50
+                radius: Style.radiusNormal
+                color: "transparent"
+                border.width: 0
+                visible: !mitarbeiterBackendV2 || !mitarbeiterBackendV2.isCalendarView
+                
+                // Toggle Switch Background
+                Rectangle {
+                    width: 40
+                    height: 20
+                    radius: 10
+                    color: mitarbeiterBackendV2 && mitarbeiterBackendV2.showOnlyActive ? "#ff8c00" : "#555555"
+                    anchors.centerIn: parent
+                    
+                    // Toggle Knob
+                    Rectangle {
+                        id: toggleKnob
+                        width: 16
+                        height: 16
+                        radius: 8
+                        color: "white"
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.left: parent.left
+                        anchors.leftMargin: mitarbeiterBackendV2 && mitarbeiterBackendV2.showOnlyActive ? 20 : 2
+                        
+                        Behavior on anchors.leftMargin {
+                            NumberAnimation { duration: 200; easing.type: Easing.OutQuad }
+                        }
+                    }
+                }
+                
+                MouseArea {
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: {
+                        if (mitarbeiterBackendV2) {
+                            mitarbeiterBackendV2.showOnlyActive = !mitarbeiterBackendV2.showOnlyActive
+                        }
+                    }
+                }
+            }
+        }
+
+        // Suchfeld und Aktionen
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: Style.spacingLarge
+            
+            // Erweiterte Suchleiste
+            Rectangle {
+                Layout.fillWidth: true
+                height: 64
+                radius: Style.radiusNormal
+                color: "transparent"
+                border.color: "transparent"
+                border.width: 0
+               
+                property bool suchfeldAktiv: false
+                property bool iconHovered: false
+                
+                MouseArea {
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    enabled: !parent.suchfeldAktiv
+                    onEntered: parent.iconHovered = true
+                    onExited: parent.iconHovered = false
+                    onClicked: {
+                        console.log("Suchleiste aktiviert")
+                        parent.suchfeldAktiv = true;
+                        suchfeld.forceActiveFocus();
+                    }
+                }
+                
+                Image {
+                    id: suchIcon
+                    source: parent.iconHovered ? "assets/icons/person_search_orange.svg" : "assets/icons/person_search_gray.svg"
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.horizontalCenterOffset: 9
+                    width: parent.iconHovered ? 32 : 24
+                    height: parent.iconHovered ? 32 : 24
+                    fillMode: Image.PreserveAspectFit
+                    visible: !parent.suchfeldAktiv
+                    opacity: 0.8
+                }
+                
+                TextField {
+                    id: suchfeld
+                    anchors.top: parent.top
+                    anchors.bottom: parent.bottom
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.margins: 2
+                    anchors.rightMargin: 15
+                    font.pixelSize: 32
+                    font.family: spaceMonoFont.name
+                    color: "white"
+                    background: null
+                    padding: 32
+                    horizontalAlignment: TextInput.AlignHCenter
+                    verticalAlignment: TextInput.AlignVCenter
+                    placeholderText: "Mitarbeiter suchen..."
+                    selectionColor: "#a2ffb5"
+                    selectedTextColor: "#232323"
+                    visible: parent.suchfeldAktiv
+                    cursorVisible: true
+                    onTextChanged: {
+                        console.log("Suchtext geändert:", text)
+                        mitarbeiterBackendV2.filterText = text
+                    }
+                    onActiveFocusChanged: {
+                        if (!activeFocus && text.length === 0) {
+                            parent.suchfeldAktiv = false;
+                        }
+                    }
+                    Keys.onEscapePressed: {
+                        text = ""
+                        parent.suchfeldAktiv = false
+                        focus = false
+                    }
+                }
+            }
+        }
+
+        // Cards-Container mit echtem Grid-Layout
+        GridView {
+            id: cardsGridView
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            clip: true
+            
+            // Performance-Optimierungen
+            cacheBuffer: 1000  // Größerer Cache für bessere Performance
+            maximumFlickVelocity: 2500  // Schnelleres Scrollen
+            boundsBehavior: Flickable.StopAtBounds  // Bessere Scroll-Performance
+            
+            // Responsive Grid-Eigenschaften
+            cellWidth: 396  // 380 + 16 spacing
+            cellHeight: 296 // 280 + 16 spacing
+            
+            // Automatische Spaltenberechnung
+            onWidthChanged: {
+                var availableWidth = width - 16 // Abstand berücksichtigen
+                var cardsPerRow = Math.max(1, Math.floor(availableWidth / 396))
+                cellWidth = availableWidth / cardsPerRow
+            }
+            
+            // Mitarbeiter-Cards
+            model: mitarbeiterBackendV2 ? mitarbeiterBackendV2.mitarbeiterList : []
+            
+            // Loading-Indikator
+            Rectangle {
+                id: loadingIndicator
+                anchors.centerIn: parent
+                width: 200
+                height: 60
+                radius: Style.radiusNormal
+                color: "#1a1a1a"
+                border.color: "#333333"
+                border.width: 1
+                visible: mitarbeiterBackendV2 && mitarbeiterBackendV2.isLoading
+                z: 100
+                
+                RowLayout {
+                    anchors.centerIn: parent
+                    spacing: 12
+                    
+                    // Spinner-Animation
+                    Rectangle {
+                        width: 20
+                        height: 20
+                        radius: 10
+                        color: "#ff8c00"
+                        
+                        RotationAnimation on rotation {
+                            from: 0
+                            to: 360
+                            duration: 1000
+                            loops: Animation.Infinite
+                        }
+                    }
+                    
+                    Text {
+                        text: "Mitarbeiter werden geladen..."
+                        font.family: ubuntuFont.name
+                        font.pixelSize: 14
+                        color: "#cccccc"
+                    }
+                }
+            }
+            
+            delegate: Rectangle {
+                id: employeeCard
+                width: 380
+                height: 280
+                radius: Style.radiusNormal
+                color: "transparent"
+                border.width: 0
+                z: 1 // Standard Z-Index für normale Cards
+                
+                // Hover-Effekt: Vergrößerung um 1.05x
+                property real hoverScale: (employeeCardMouseArea.containsMouse || statusBadgeMouseArea.containsMouse || editButtonMouseArea.containsMouse || deleteButtonMouseArea.containsMouse) ? 1.05 : 1.0
+                
+                // Transform mit Zentrierung
+                transform: Scale {
+                    xScale: employeeCard.hoverScale
+                    yScale: employeeCard.hoverScale
+                    origin.x: employeeCard.width / 2
+                    origin.y: employeeCard.height / 2
+                }
+                
+                // Animation für smooth Übergänge
+                Behavior on hoverScale {
+                    NumberAnimation { 
+                        duration: 150
+                        easing.type: Easing.OutCubic
+                    }
+                }
+            
+                property bool selected: {
+                    if (!mitarbeiterBackendV2 || !mitarbeiterBackendV2.selectedEmployee || !modelData) return false
+                    return mitarbeiterBackendV2.selectedEmployee.driver_id === modelData.driver_id
+                }
+                
+                // Gradient-Hintergrund (wie in Abrechnungsseite)
+                Rectangle {
+                    anchors.fill: parent
+                    radius: Style.radiusNormal
+                    gradient: Gradient {
+                        GradientStop { position: 0.0; color: "#050505" }
+                        GradientStop { position: 0.8; color: "#050505" }
+                        GradientStop { position: 1.0; color: "#1a1a1a" }
+                    }
+                    z: -1
+                }
+                
+                MouseArea {
+                    id: employeeCardMouseArea
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    onClicked: mitarbeiterBackendV2.selectEmployee(modelData.driver_id)
+                    onDoubleClicked: {
+                        // Doppelklick: Edit-Modus mit vorausgefüllten Daten
+                        console.log("Doppelklick auf Mitarbeiter:", modelData)
+                    }
+                }
+                
+                // Card-Inhalt
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: 16
+                    spacing: 12
+                    
+                    // Header mit Name und Status
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 12
+                        
+                        // Name in zwei Zeilen
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 2
+                            
+                            Text {
+                                text: modelData.last_name || ""
+                                font.family: ubuntuFont.name
+                                font.pixelSize: 18
+                                color: "#cccccc"
+                                Layout.fillWidth: true
+                            }
+                            
+                            Text {
+                                text: modelData.first_name || ""
+                                font.family: ubuntuFont.name
+                                font.pixelSize: 20
+                                font.bold: true
+                                color: "white"
+                                Layout.fillWidth: true
+                            }
+                        }
+                        
+                        // Status-Badge (klickbar) - nur in normaler Ansicht
+                        Rectangle {
+                            Layout.preferredWidth: 80
+                            height: 28
+                            radius: 14
+                            color: "transparent"
+                            border.width: 0
+                            visible: !mitarbeiterBackendV2 || !mitarbeiterBackendV2.isCalendarView
+                            
+                            MouseArea {
+                                id: statusBadgeMouseArea
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    // Status-Toggle: active → suspended → inactive → active
+                                    var currentStatus = modelData.status || "active"
+                                    var newStatus
+                                    if (currentStatus === "active") newStatus = "suspended"
+                                    else if (currentStatus === "suspended") newStatus = "inactive"
+                                    else newStatus = "active"
+                                    
+                                    // Backend-Methode zum Aktualisieren des Status
+                                    mitarbeiterBackendV2.updateEmployeeStatus(modelData.driver_id, newStatus)
+                                }
+                            }
+                            
+                            Text {
+                                anchors.centerIn: parent
+                                text: modelData.status || "active"
+                                font.family: ubuntuFont.name
+                                font.pixelSize: 12
+                                color: {
+                                    if (modelData.status === "active") return "#4CAF50"
+                                    else if (modelData.status === "suspended") return "#9E9E9E"
+                                    else return "#F44336"
+                                }
+                                horizontalAlignment: Text.AlignCenter
+                            }
+                        }
+                    }
+                    
+                    // Mitarbeiter-Details (Kompakte Ansicht)
+                    GridLayout {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        columns: 2
+                        rowSpacing: 8
+                        columnSpacing: 16
+                        visible: !mitarbeiterBackendV2 || !mitarbeiterBackendV2.isCalendarView
+                        
+                        // ID
+                        Text {
+                            text: "ID:"
+                            font.family: ubuntuFont.name
+                            font.pixelSize: 14
+                            color: "#b0b0b0"
+                        }
+                        
+                        Text {
+                            Layout.fillWidth: true
+                            height: 32
+                            text: modelData.driver_id || "-"
+                            font.family: ubuntuFont.name
+                            font.pixelSize: 14
+                            color: "white"
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                        
+                        // Deal-Typ
+                        Text {
+                            text: "Deal:"
+                            font.family: ubuntuFont.name
+                            font.pixelSize: 14
+                            color: "#b0b0b0"
+                        }
+                        
+                        Text {
+                            Layout.fillWidth: true
+                            height: 32
+                            text: modelData.deal || "-"
+                            font.family: ubuntuFont.name
+                            font.pixelSize: 14
+                            color: "white"
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                        
+
+                        
+                        // Pauschale (nur bei P-Deal)
+                        Text {
+                            text: "Pauschale:"
+                            font.family: ubuntuFont.name
+                            font.pixelSize: 14
+                            color: "#b0b0b0"
+                            visible: modelData.deal === "P"
+                        }
+                        
+                        Text {
+                            Layout.fillWidth: true
+                            height: 32
+                            text: modelData.deal === "P" ? (modelData.pauschale || "-") : "-"
+                            font.family: ubuntuFont.name
+                            font.pixelSize: 14
+                            color: "white"
+                            verticalAlignment: Text.AlignVCenter
+                            visible: modelData.deal === "P"
+                        }
+                    }
+                    
+                    // Erweiterte Details (Toggle-Ansicht)
+                    GridLayout {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        columns: 2
+                        rowSpacing: 8
+                        columnSpacing: 16
+                        visible: mitarbeiterBackendV2 && mitarbeiterBackendV2.isCalendarView
+                        
+                        // Telefon
+                        Text {
+                            text: "Telefon:"
+                            font.family: ubuntuFont.name
+                            font.pixelSize: 14
+                            color: "#b0b0b0"
+                        }
+                        
+                        Text {
+                            Layout.fillWidth: true
+                            height: 32
+                            text: modelData.phone || "-"
+                            font.family: ubuntuFont.name
+                            font.pixelSize: 14
+                            color: "white"
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                        
+                        // Email
+                        Text {
+                            text: "Email:"
+                            font.family: ubuntuFont.name
+                            font.pixelSize: 14
+                            color: "#b0b0b0"
+                        }
+                        
+                        Text {
+                            Layout.fillWidth: true
+                            height: 32
+                            text: modelData.email || "-"
+                            font.family: ubuntuFont.name
+                            font.pixelSize: 14
+                            color: "white"
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                        
+                        // Einstellungsdatum
+                        Text {
+                            text: "Einstellungsdatum:"
+                            font.family: ubuntuFont.name
+                            font.pixelSize: 14
+                            color: "#b0b0b0"
+                        }
+                        
+                        Text {
+                            Layout.fillWidth: true
+                            height: 32
+                            text: modelData.hire_date || "-"
+                            font.family: ubuntuFont.name
+                            font.pixelSize: 14
+                            color: "white"
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                        
+                        // Umsatzgrenze (nur bei P-Deal)
+                        Text {
+                            text: "Umsatzgrenze:"
+                            font.family: ubuntuFont.name
+                            font.pixelSize: 14
+                            color: "#b0b0b0"
+                            visible: modelData.deal === "P"
+                        }
+                        
+                        Text {
+                            Layout.fillWidth: true
+                            height: 32
+                            text: modelData.deal === "P" ? (modelData.umsatzgrenze || "-") : "-"
+                            font.family: ubuntuFont.name
+                            font.pixelSize: 14
+                            color: "white"
+                            verticalAlignment: Text.AlignVCenter
+                            visible: modelData.deal === "P"
+                        }
+                        
+                        // Garage
+                        Text {
+                            text: "Garage:"
+                            font.family: ubuntuFont.name
+                            font.pixelSize: 14
+                            color: "#b0b0b0"
+                        }
+                        
+                        Text {
+                            Layout.fillWidth: true
+                            height: 32
+                            text: modelData.garage || "-"
+                            font.family: ubuntuFont.name
+                            font.pixelSize: 14
+                            color: "white"
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                    }
+                        
+                        // Einstellungsdatum
+                        Text {
+                            text: "Einstellungsdatum:"
+                            font.family: ubuntuFont.name
+                            font.pixelSize: 14
+                            color: "#b0b0b0"
+                        }
+                        
+                        Text {
+                            Layout.fillWidth: true
+                            height: 32
+                            text: modelData.hire_date || "-"
+                            font.family: ubuntuFont.name
+                            font.pixelSize: 14
+                            color: "white"
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                    }
+                    
+                    // Aktions-Buttons (rechts)
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 8
+                        
+                        // Spacer um Buttons nach rechts zu schieben
+                        Item {
+                            Layout.fillWidth: true
+                        }
+                        
+                        // Edit/Check-Button
+                        Rectangle {
+                            Layout.preferredWidth: 32
+                            height: 32
+                            radius: 16
+                            color: "transparent"
+                            border.width: 0
+                            
+                            MouseArea {
+                                id: editButtonMouseArea
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                onClicked: {
+                                    console.log("Edit-Button geklickt für:", modelData.first_name + " " + modelData.last_name)
+                                }
+                                
+                                Image {
+                                    anchors.centerIn: parent
+                                    source: parent.containsMouse ? "assets/icons/edit_orange.svg" : "assets/icons/edit_white.svg"
+                                    width: parent.containsMouse ? 20 : 16
+                                    height: width
+                                    fillMode: Image.PreserveAspectFit
+                                }
+                            }
+                        }
+                        
+                        // Deal-Button
+                        Rectangle {
+                            Layout.preferredWidth: 32
+                            height: 32
+                            radius: 16
+                            color: "transparent"
+                            border.width: 0
+                            
+                            MouseArea {
+                                id: dealButtonMouseArea
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                                                    onClicked: {
+                                        console.log("Deal-Button geklickt für:", modelData.first_name + " " + modelData.last_name + " (ID: " + modelData.driver_id + ")")
+                                        showDealFormOverlay(modelData.driver_id, modelData.first_name + " " + modelData.last_name)
+                                    }
+                                
+                                Image {
+                                    anchors.centerIn: parent
+                                    source: parent.containsMouse ? "assets/icons/deal_orange.svg" : "assets/icons/deal_white.svg"
+                                    width: parent.containsMouse ? 20 : 16
+                                    height: width
+                                    fillMode: Image.PreserveAspectFit
+                                }
+                            }
+                        }
+                        
+                        // Delete-Button
+                        Rectangle {
+                            Layout.preferredWidth: 32
+                            height: 32
+                            radius: 16
+                            color: "transparent"
+                            border.width: 0
+                            
+                            MouseArea {
+                                id: deleteButtonMouseArea
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                onClicked: {
+                                    console.log("Delete-Button geklickt für:", modelData.first_name + " " + modelData.last_name)
+                                }
+                                
+                                Image {
+                                    anchors.centerIn: parent
+                                    source: parent.containsMouse ? "assets/icons/delete_orange.svg" : "assets/icons/delete_white.svg"
+                                    width: parent.containsMouse ? 20 : 16
+                                    height: width
+                                    fillMode: Image.PreserveAspectFit
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    // BottomBar mit erweiterten Aktionen
+    RowLayout {
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 24
+        spacing: 32
+        
+        // Add-Button
+        MouseArea {
+            id: addArea
+            width: 56; height: 56
+            cursorShape: Qt.PointingHandCursor
+            hoverEnabled: true
+            onClicked: console.log("Add-Button geklickt")
+            Image {
+                anchors.centerIn: parent
+                source: addArea.pressed ? "assets/icons/add_gray.svg"
+                    : addArea.containsMouse ? "assets/icons/add_orange.svg" : "assets/icons/add_white.svg"
+                width: addArea.pressed ? 40 : addArea.containsMouse ? 48 : 40
+                height: width
+                fillMode: Image.PreserveAspectFit
+            }
+        }
+    }
+    
+    // Global Properties für Deal-Formular
+    property int currentDealDriverId: -1
+    property string currentDealEmployeeName: ""
+    property string dealTypeField: "P"  // Standard Deal-Typ
+    
+    // Funktion zum Anzeigen des Deal-Formular-Overlays
+    function showDealFormOverlay(driverId, employeeName) {
+        currentDealDriverId = driverId
+        currentDealEmployeeName = employeeName
+        
+        // Titel setzen
+        dealFormTitle.text = employeeName
+        
+        // Bestehende Deal-Daten laden
+        if (mitarbeiterBackendV2) {
+            console.log("Lade Deal-Daten für:", employeeName)
+            
+            // Lade bestehende Deal-Daten aus der Datenbank
+            var dealData = mitarbeiterBackendV2.getDealByDriverId(driverId)
+            if (dealData) {
+                dealTypeField = dealData.deal_type
+                pauschaleField.text = dealData.pauschale || ""
+                umsatzgrenzeField.text = dealData.umsatzgrenze || ""
+                garageField.text = dealData.garage || ""
+                console.log("Deal-Daten geladen:", dealData)
+            } else {
+                // Fallback: Standard-Deal
+                dealTypeField = "P"
+                pauschaleField.text = ""
+                umsatzgrenzeField.text = ""
+                garageField.text = ""
+                console.log("Keine Deal-Daten gefunden, verwende Standard")
+            }
+        }
+        
+        dealFormOverlay.visible = true
+        dealFormOverlay.forceActiveFocus()
+    }
+    
+    // Overlay für Deal-Formular
+    Rectangle {
+        id: dealFormOverlay
+        anchors.fill: parent
+        color: "#000000"
+        opacity: 0.8
+        visible: false
+        z: 2000
+        
+        MouseArea {
+            anchors.fill: parent
+            onClicked: dealFormOverlay.visible = false
+        }
+        
+        Rectangle {
+            anchors.centerIn: parent
+            width: Math.min(parent.width * 0.4, 450)
+            height: Math.min(parent.height * 0.6, 400)
+            color: "#1a1a1a"
+            border.color: "#333333"
+            border.width: 1
+            radius: 8
+            
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: 20
+                spacing: 16
+                
+                // Header
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 16
+                    
+                    Text {
+                        id: dealFormTitle
+                        text: "Deal bearbeiten"
+                        font.family: ubuntuFont.name
+                        font.pixelSize: 24
+                        font.bold: true
+                        color: "white"
+                        Layout.fillWidth: true
+                    }
+                }
+                
+                // Abstand zwischen Titel und Formular
+                Item {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 12
+                }
+                
+                // Formular
+                ScrollView {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    
+                    GridLayout {
+                        width: parent.width
+                        columns: 2
+                        rowSpacing: 12
+                        columnSpacing: 16
+                        
+                        // Garage (erste Zeile)
+                        Text {
+                            text: "Garage (€)"
+                            font.family: ubuntuFont.name
+                            font.pixelSize: 14
+                            color: "white"
+                            font.bold: true
+                            horizontalAlignment: Text.AlignRight
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            Layout.preferredWidth: 120
+                        }
+                        
+                        TextField {
+                            id: garageField
+                            Layout.preferredWidth: 200
+                            height: 40
+                            font.family: ubuntuFont.name
+                            font.pixelSize: 16
+                            color: "white"
+                            background: Rectangle {
+                                color: "#2a2a2a"
+                                border.color: "#555555"
+                                border.width: 2
+                                radius: 6
+                            }
+                            placeholderText: "z.B. 50.00"
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            padding: 8
+                        }
+                        
+                        // Deal-Typ (zweite Zeile)
+                        Text {
+                            text: "Deal-Typ *"
+                            font.family: ubuntuFont.name
+                            font.pixelSize: 14
+                            color: "white"
+                            font.bold: true
+                            horizontalAlignment: Text.AlignRight
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            Layout.preferredWidth: 120
+                        }
+                        
+                        // Deal-Typ Toggle Field
+                        Rectangle {
+                            id: dealTypeToggleField
+                            Layout.preferredWidth: 200
+                            height: 40
+                            radius: 6
+                            color: "#2a2a2a"
+                            border.color: "#555555"
+                            border.width: 2
+                            
+                            MouseArea {
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    // Zyklisch zwischen P, %, C wechseln
+                                    if (dealTypeField === "P") {
+                                        dealTypeField = "%"
+                                        // Bei %-Deal Pauschale und Umsatzgrenze ausblenden
+                                        pauschaleField.visible = false
+                                        umsatzgrenzeField.visible = false
+                                        pauschaleLabel.visible = false
+                                        umsatzgrenzeLabel.visible = false
+                                    } else if (dealTypeField === "%") {
+                                        dealTypeField = "C"
+                                        // Bei C-Deal Pauschale und Umsatzgrenze ausblenden
+                                        pauschaleField.visible = false
+                                        umsatzgrenzeField.visible = false
+                                        pauschaleLabel.visible = false
+                                        umsatzgrenzeLabel.visible = false
+                                    } else {
+                                        dealTypeField = "P"
+                                        // Bei P-Deal Pauschale und Umsatzgrenze anzeigen
+                                        pauschaleField.visible = true
+                                        umsatzgrenzeField.visible = true
+                                        pauschaleLabel.visible = true
+                                        umsatzgrenzeLabel.visible = true
+                                    }
+                                }
+                            }
+                            
+                            Text {
+                                anchors.centerIn: parent
+                                text: dealTypeField
+                                font.family: ubuntuFont.name
+                                font.pixelSize: 18
+                                font.bold: true
+                                color: "white"
+                            }
+                        }
+                        
+                        // Pauschale (nur bei P-Deal)
+                        Text {
+                            id: pauschaleLabel
+                            text: "Pauschale (€) *"
+                            font.family: ubuntuFont.name
+                            font.pixelSize: 14
+                            color: "white"
+                            font.bold: true
+                            horizontalAlignment: Text.AlignRight
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            Layout.preferredWidth: 120
+                            visible: dealTypeField === "P"
+                        }
+                        
+                        TextField {
+                            id: pauschaleField
+                            Layout.preferredWidth: 200
+                            height: 40
+                            font.family: ubuntuFont.name
+                            font.pixelSize: 16
+                            color: "white"
+                            background: Rectangle {
+                                color: "#2a2a2a"
+                                border.color: "#555555"
+                                border.width: 2
+                                radius: 6
+                            }
+                            placeholderText: "z.B. 500.00"
+                            visible: dealTypeField === "P"
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            padding: 8
+                        }
+                        
+                        // Umsatzgrenze (nur bei P-Deal)
+                        Text {
+                            id: umsatzgrenzeLabel
+                            text: "Umsatzgrenze (€) *"
+                            font.family: ubuntuFont.name
+                            font.pixelSize: 14
+                            color: "white"
+                            font.bold: true
+                            horizontalAlignment: Text.AlignRight
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            Layout.preferredWidth: 120
+                            visible: dealTypeField === "P"
+                        }
+                        
+                        TextField {
+                            id: umsatzgrenzeField
+                            Layout.preferredWidth: 200
+                            height: 40
+                            font.family: ubuntuFont.name
+                            font.pixelSize: 16
+                            color: "white"
+                            background: Rectangle {
+                                color: "#2a2a2a"
+                                border.color: "#555555"
+                                border.width: 2
+                                radius: 6
+                            }
+                            placeholderText: "z.B. 1200.00"
+                            visible: dealTypeField === "P"
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            padding: 8
+                        }
+                    }
+                }
+                
+                // Buttons mit Icons
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 16
+                    Layout.alignment: Qt.AlignRight
+                    
+                    // Abbrechen-Button mit Close-Icon
+                    Rectangle {
+                        width: 48
+                        height: 48
+                        radius: 24
+                        color: "transparent"
+                        border.width: 0
+                        
+                        MouseArea {
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: dealFormOverlay.visible = false
+                            
+                            Image {
+                                anchors.centerIn: parent
+                                source: parent.containsMouse ? "assets/icons/close_red.svg" : "assets/icons/close_gray.svg"
+                                width: parent.containsMouse ? 32 : 28
+                                height: width
+                                fillMode: Image.PreserveAspectFit
+                            }
+                        }
+                    }
+                    
+                    // Speichern-Button mit Save-Icon
+                    Rectangle {
+                        width: 48
+                        height: 48
+                        radius: 24
+                        color: "transparent"
+                        border.width: 0
+                        
+                        MouseArea {
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                // Deal-Daten sammeln
+                                var dealData = {
+                                    driver_id: currentDealDriverId,
+                                    employee_name: currentDealEmployeeName,
+                                    deal_type: dealTypeField,
+                                    pauschale: pauschaleField.text.trim(),
+                                    umsatzgrenze: umsatzgrenzeField.text.trim(),
+                                    garage: garageField.text.trim()
+                                }
+                                
+                                // Validierung
+                                if (dealData.deal_type === "P") {
+                                    if (!dealData.pauschale || !dealData.umsatzgrenze) {
+                                        console.log("Fehler: Bei P-Deal müssen Pauschale und Umsatzgrenze angegeben werden.")
+                                        return
+                                    }
+                                }
+                                
+                                // Deal speichern über Backend
+                                if (mitarbeiterBackendV2) {
+                                    var result = mitarbeiterBackendV2.saveDealData(
+                                        currentDealDriverId,
+                                        dealData.deal_type,
+                                        dealData.pauschale,
+                                        dealData.umsatzgrenze,
+                                        dealData.garage
+                                    )
+                                    if (result && result.success) {
+                                        console.log("Deal erfolgreich gespeichert:", result.message)
+                                    } else {
+                                        console.log("Fehler beim Speichern des Deals:", result ? result.message : "Unbekannter Fehler")
+                                    }
+                                }
+                                
+                                // Overlay schließen
+                                dealFormOverlay.visible = false
+                                
+                                // Felder zurücksetzen
+                                dealTypeField = "P"
+                                pauschaleField.text = ""
+                                umsatzgrenzeField.text = ""
+                                garageField.text = ""
+                            }
+                            
+                            Image {
+                                anchors.centerIn: parent
+                                source: parent.containsMouse ? "assets/icons/save_orange.svg" : "assets/icons/save_white.svg"
+                                width: parent.containsMouse ? 32 : 28
+                                height: width
+                                fillMode: Image.PreserveAspectFit
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // ESC-Taste zum Schließen
+            Keys.onEscapePressed: dealFormOverlay.visible = false
+        }
+    }
+} 

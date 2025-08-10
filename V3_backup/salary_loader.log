@@ -1,0 +1,30 @@
+2025-08-09 15:45:32,042 - SalaryLoaderBackend - INFO - Starte Import: C:/Users/moahm/Downloads/rechnung.25004496.pdf
+2025-08-09 15:45:32,067 - SalaryLoaderBackend - INFO - C:\Users\moahm\AppData\Local\Programs\Python\Python313\python.exe: can't open file 'c:\\DEV\\PayDay\\DEV\\V3\\import_funk.py': [Errno 2] No such file or directory
+2025-08-09 15:45:32,071 - SalaryLoaderBackend - INFO - [FEHLER] Fehler bei rechnung.25004496.pdf
+2025-08-09 15:46:44,454 - SalaryLoaderBackend - INFO - Starte Import: C:/Users/moahm/Downloads/rechnung.25004496.pdf
+2025-08-09 15:46:44,473 - SalaryLoaderBackend - INFO - C:\Users\moahm\AppData\Local\Programs\Python\Python313\python.exe: can't open file 'c:\\DEV\\PayDay\\DEV\\V3\\import_funk.py': [Errno 2] No such file or directory
+2025-08-09 15:46:44,477 - SalaryLoaderBackend - INFO - [FEHLER] Fehler bei rechnung.25004496.pdf
+2025-08-09 15:52:44,833 - SalaryLoaderBackend - INFO - Starte Import: C:/Users/moahm/Downloads/rechnung.25004496.pdf
+2025-08-09 15:52:44,887 - SalaryLoaderBackend - INFO - File "c:\DEV\PayDay\DEV\V3\import_funk.py", line 59
+2025-08-09 15:52:44,887 - SalaryLoaderBackend - INFO - f"INSERT INTO "{month_table}" (kennzeichen, netto) VALUES (?, ?)",
+2025-08-09 15:52:44,888 - SalaryLoaderBackend - INFO - ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-09 15:52:44,888 - SalaryLoaderBackend - INFO - SyntaxError: invalid syntax. Perhaps you forgot a comma?
+2025-08-09 15:52:44,891 - SalaryLoaderBackend - INFO - [FEHLER] Fehler bei rechnung.25004496.pdf
+2025-08-09 15:53:20,635 - SalaryLoaderBackend - INFO - Starte Import: C:/Users/moahm/Downloads/rechnung.25004496.pdf
+2025-08-09 15:53:20,676 - SalaryLoaderBackend - INFO - File "c:\DEV\PayDay\DEV\V3\import_funk.py", line 59
+2025-08-09 15:53:20,676 - SalaryLoaderBackend - INFO - f"INSERT INTO "{month_table}" (kennzeichen, netto) VALUES (?, ?)",
+2025-08-09 15:53:20,677 - SalaryLoaderBackend - INFO - ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-09 15:53:20,677 - SalaryLoaderBackend - INFO - SyntaxError: invalid syntax. Perhaps you forgot a comma?
+2025-08-09 15:53:20,681 - SalaryLoaderBackend - INFO - [FEHLER] Fehler bei rechnung.25004496.pdf
+2025-08-09 15:56:05,036 - SalaryLoaderBackend - INFO - Starte Import: C:/Users/moahm/Downloads/rechnung.25004496.pdf
+2025-08-09 15:56:06,243 - SalaryLoaderBackend - INFO - Traceback (most recent call last):
+2025-08-09 15:56:06,243 - SalaryLoaderBackend - INFO - File "c:\DEV\PayDay\DEV\V3\SQL\Scanner.py", line 22, in <module>
+2025-08-09 15:56:06,244 - SalaryLoaderBackend - INFO - from Flughafenfahrten import extract_and_structure
+2025-08-09 15:56:06,244 - SalaryLoaderBackend - INFO - ModuleNotFoundError: No module named 'Flughafenfahrten'
+2025-08-09 15:56:06,314 - SalaryLoaderBackend - INFO - [FEHLER] Fehler bei rechnung.25004496.pdf
+2025-08-09 15:56:41,949 - SalaryLoaderBackend - INFO - Starte Import: C:/Users/moahm/Downloads/rechnung.ARF25080257.pdf
+2025-08-09 15:56:42,606 - SalaryLoaderBackend - INFO - Traceback (most recent call last):
+2025-08-09 15:56:42,606 - SalaryLoaderBackend - INFO - File "c:\DEV\PayDay\DEV\V3\SQL\Scanner.py", line 22, in <module>
+2025-08-09 15:56:42,606 - SalaryLoaderBackend - INFO - from Flughafenfahrten import extract_and_structure
+2025-08-09 15:56:42,607 - SalaryLoaderBackend - INFO - ModuleNotFoundError: No module named 'Flughafenfahrten'
+2025-08-09 15:56:42,673 - SalaryLoaderBackend - INFO - [FEHLER] Fehler bei rechnung.ARF25080257.pdf
